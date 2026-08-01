@@ -1,0 +1,1305 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#07101c">
+  <title>问启星河｜提问驱动工作终端</title>
+  <style>:root {
+  color-scheme: dark;
+  --ink: #eef5ff;
+  --muted: #91a1b8;
+  --dim: #66758b;
+  --night: #050912;
+  --surface: rgba(10, 18, 31, .82);
+  --surface-strong: #0c1625;
+  --line: rgba(143, 174, 214, .15);
+  --line-bright: rgba(143, 174, 214, .28);
+  --gold: #f3c46b;
+  --blue: #6ea8ff;
+  --violet: #9e8cff;
+  --mint: #66d9bc;
+  --danger: #ff9a9a;
+  --title-max: 2rem;
+  --radius: 18px;
+  --shadow: 0 24px 80px rgba(0, 0, 0, .32);
+  font-family: Inter, "SF Pro Text", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--night);
+  color: var(--ink);
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  line-height: 1.65;
+  background:
+    radial-gradient(circle at 8% 3%, rgba(63, 89, 146, .15), transparent 28rem),
+    radial-gradient(circle at 90% 45%, rgba(88, 66, 139, .11), transparent 32rem),
+    var(--night);
+  overflow-x: hidden;
+}
+button, textarea, input { font: inherit; }
+button { color: inherit; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+[hidden] { display: none !important; }
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  left: 18px;
+  top: -60px;
+  padding: 10px 14px;
+  color: #07101c;
+  background: var(--gold);
+  border-radius: 8px;
+  transition: top .2s ease;
+}
+.skip-link:focus { top: 16px; }
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .32;
+  background-image: radial-gradient(circle, rgba(255,255,255,.26) 0 1px, transparent 1.3px);
+  background-size: 52px 52px;
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
+}
+
+.topbar {
+  position: relative;
+  z-index: 10;
+  width: min(1500px, calc(100% - 40px));
+  height: 72px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: inline-flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; }
+.brand > span:last-child { display: flex; flex-direction: column; line-height: 1.15; }
+.brand strong { font-size: 1rem; letter-spacing: .12em; }
+.brand small { margin-top: 5px; color: var(--dim); font-size: .58rem; letter-spacing: .18em; }
+.brand-mark { position: relative; width: 38px; height: 38px; display: grid; place-items: center; }
+.brand-mark::before, .brand-mark::after, .brand-mark i {
+  content: ""; position: absolute; border: 1px solid rgba(243,196,107,.7); border-radius: 50%; transform: rotate(-24deg);
+}
+.brand-mark::before { width: 34px; height: 12px; }
+.brand-mark::after { width: 24px; height: 8px; opacity: .65; }
+.brand-mark i:nth-child(1) { width: 5px; height: 5px; background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+.brand-mark i:nth-child(2) { width: 2px; height: 2px; left: 6px; top: 10px; background: white; }
+.brand-mark i:nth-child(3) { width: 2px; height: 2px; right: 5px; bottom: 9px; background: var(--blue); }
+.top-actions { display: flex; align-items: center; gap: 14px; }
+.local-badge { color: var(--muted); font-size: .76rem; letter-spacing: .06em; }
+.local-badge span { margin-right: 6px; color: var(--mint); font-size: .62rem; text-shadow: 0 0 10px var(--mint); }
+.motion-toggle { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .76rem; cursor: pointer; }
+.motion-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.motion-toggle > span { position: relative; width: 34px; height: 19px; border-radius: 12px; background: rgba(255,255,255,.1); border: 1px solid var(--line-bright); }
+.motion-toggle > span::after { content: ""; position: absolute; width: 13px; height: 13px; top: 2px; left: 3px; background: var(--muted); border-radius: 50%; transition: .2s ease; }
+.motion-toggle input:checked + span { background: rgba(102,217,188,.18); }
+.motion-toggle input:checked + span::after { transform: translateX(14px); background: var(--mint); }
+.icon-button { width: 32px; height: 32px; padding: 0; border: 1px solid var(--line-bright); border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; }
+
+main { position: relative; z-index: 1; width: min(1500px, calc(100% - 40px)); margin: 24px auto 48px; }
+.galaxy-shell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 420px;
+  max-height: min(58vh, 620px);
+  overflow: hidden;
+  border: 1px solid var(--line-bright);
+  border-radius: 24px;
+  background: #050a13;
+  box-shadow: var(--shadow), inset 0 0 90px rgba(80, 108, 180, .1);
+  isolation: isolate;
+}
+.galaxy-shell::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(5,9,18,.8) 0%, rgba(5,9,18,.28) 52%, rgba(5,9,18,.68) 100%), linear-gradient(0deg, rgba(5,9,18,.88), transparent 48%);
+  pointer-events: none;
+}
+#galaxy-canvas, .galaxy-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
+.galaxy-fallback { background: radial-gradient(ellipse at 66% 42%, rgba(122,107,212,.18), transparent 12%), radial-gradient(ellipse at 66% 42%, rgba(82,137,207,.18), transparent 28%); }
+.stage-copy { position: absolute; z-index: 2; left: clamp(28px, 5vw, 76px); top: clamp(38px, 10%, 80px); max-width: 560px; }
+.eyebrow { display: flex; align-items: center; gap: 9px; color: var(--gold); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; }
+.eyebrow span { width: 18px; height: 1px; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.stage-copy h1 { margin: 14px 0 14px; max-width: 18em; font-family: "Songti SC", SimSun, serif; font-size: clamp(1.55rem, 3.1vw, var(--title-max)); font-weight: 500; line-height: 1.35; letter-spacing: .045em; }
+.stage-copy h1 em { color: #dbe7ff; font-style: normal; text-shadow: 0 0 28px rgba(110,168,255,.38); }
+.stage-copy p { max-width: 460px; margin: 0; color: var(--muted); font-size: clamp(.82rem, 1.1vw, .95rem); }
+.question-composer {
+  position: absolute;
+  z-index: 3;
+  left: clamp(28px, 5vw, 76px);
+  right: clamp(28px, 5vw, 76px);
+  bottom: 66px;
+  padding: 16px 18px 10px;
+  border: 1px solid rgba(166, 193, 230, .26);
+  border-radius: 16px;
+  background: rgba(8, 15, 27, .82);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 16px 50px rgba(0,0,0,.32), inset 0 1px rgba(255,255,255,.03);
+}
+.question-composer:focus-within { border-color: rgba(243,196,107,.52); box-shadow: 0 18px 56px rgba(0,0,0,.4), 0 0 0 3px rgba(243,196,107,.06); }
+.question-composer label { display: block; margin-bottom: 4px; color: var(--gold); font-size: .72rem; letter-spacing: .09em; }
+.composer-row { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 14px; }
+textarea { width: 100%; min-height: 62px; max-height: 132px; resize: vertical; padding: 7px 0; color: var(--ink); caret-color: var(--gold); background: transparent; border: 0; font-size: clamp(.98rem, 1.35vw, 1.1rem); line-height: 1.6; }
+textarea::placeholder { color: #64748a; }
+textarea:focus { outline: none; }
+.launch-button { display: flex; align-items: center; gap: 20px; min-width: 130px; height: 52px; padding: 0 18px 0 22px; border: 0; border-radius: 12px; color: #101318; background: linear-gradient(135deg, #f6d184, #dda750); font-weight: 700; cursor: pointer; box-shadow: 0 8px 22px rgba(225,174,84,.23); }
+.launch-button:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.launch-button b { font-size: 1.2rem; font-weight: 400; }
+.composer-meta { display: flex; justify-content: space-between; color: var(--dim); font-size: .68rem; letter-spacing: .04em; }
+.field-error { min-height: 0; margin: 2px 0 0; color: var(--danger); font-size: .75rem; }
+.field-error:not(:empty) { min-height: 22px; }
+.stage-status { position: absolute; z-index: 3; left: clamp(28px, 5vw, 76px); right: clamp(28px, 5vw, 76px); bottom: 22px; display: flex; align-items: center; gap: 10px; color: #7f91a8; font-size: .69rem; letter-spacing: .08em; }
+.status-orbit { width: 8px; height: 8px; border: 1px solid var(--blue); border-radius: 50%; box-shadow: 0 0 9px rgba(110,168,255,.6); }
+.galaxy-shell[data-state="reflecting"] .status-orbit, .galaxy-shell[data-state="branching"] .status-orbit { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.7); opacity: .45; } }
+
+.starter-strip { min-height: 62px; display: flex; align-items: center; gap: 10px; padding: 14px 4px; color: var(--dim); font-size: .75rem; overflow-x: auto; }
+.starter-strip > span { white-space: nowrap; }
+.starter-strip button { white-space: nowrap; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.025); cursor: pointer; }
+.starter-strip button:hover { color: var(--ink); border-color: var(--line-bright); }
+
+.workspace { display: grid; grid-template-columns: minmax(220px, .72fr) minmax(460px, 1.55fr) minmax(270px, .9fr); gap: 16px; align-items: start; }
+.panel { min-height: 520px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(160deg, rgba(14,24,40,.88), rgba(7,13,23,.92)); box-shadow: 0 20px 50px rgba(0,0,0,.16); overflow: hidden; }
+.panel-heading { min-height: 66px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.panel-heading > div { display: flex; align-items: center; gap: 9px; }
+.panel-heading h2 { margin: 0; font-size: .92rem; font-weight: 650; letter-spacing: .04em; }
+.section-index { color: var(--gold); font: 600 .64rem/1 monospace; letter-spacing: .08em; }
+.count-pill, .mode-pill, .readiness { padding: 4px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--dim); font-size: .62rem; }
+.mode-pill { color: #8ea7c7; }
+.readiness.ready { color: var(--mint); border-color: rgba(102,217,188,.28); }
+
+.rail { display: flex; flex-direction: column; }
+.trail-list { flex: 1; min-height: 320px; margin: 0; padding: 18px; list-style: none; }
+.empty-state { min-height: 280px; display: grid; place-content: center; text-align: center; color: var(--dim); }
+.empty-state span { color: var(--blue); font-size: 1.3rem; }
+.empty-state p { font-size: .77rem; line-height: 1.8; }
+.trail-node { position: relative; padding: 0 0 20px 30px; }
+.trail-node::before { content: ""; position: absolute; left: 7px; top: 20px; bottom: 0; width: 1px; background: linear-gradient(var(--line-bright), transparent); }
+.trail-node:last-child::before { display: none; }
+.trail-node .node-dot { position: absolute; left: 2px; top: 5px; width: 11px; height: 11px; border: 2px solid var(--surface-strong); border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 1px var(--blue), 0 0 12px rgba(110,168,255,.35); }
+.trail-node.active .node-dot { background: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 12px rgba(243,196,107,.4); }
+.trail-node small { display: block; margin-bottom: 4px; color: var(--dim); font-size: .62rem; letter-spacing: .08em; }
+.trail-node p { margin: 0; color: #b8c5d8; font-size: .77rem; line-height: 1.6; }
+.privacy-note { margin: 0 16px 16px; padding: 13px; display: flex; align-items: flex-start; gap: 10px; border: 1px solid rgba(102,217,188,.13); border-radius: 12px; background: rgba(102,217,188,.035); }
+.privacy-note > span { color: var(--mint); }
+.privacy-note p { margin: 0; color: var(--dim); font-size: .66rem; }
+.privacy-note strong { color: #a9c8c0; font-size: .7rem; }
+
+.dialogue { min-height: 600px; }
+.self-report { padding: 18px 20px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.012); }
+.self-report p { margin: 0 0 12px; color: #a8b6c9; font-size: .76rem; }
+.self-report small { display: block; color: var(--dim); font-size: .65rem; }
+.state-options { display: flex; flex-wrap: wrap; gap: 7px; }
+.state-options button { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); font-size: .68rem; cursor: pointer; }
+.state-options button[aria-checked="true"] { color: #0a1520; background: #b7c7d8; border-color: #b7c7d8; }
+.guide-empty { min-height: 370px; padding: 44px 28px; display: grid; place-items: center; align-content: center; text-align: center; }
+.guide-empty h3 { margin: 26px 0 8px; font-family: "Songti SC", SimSun, serif; font-size: 1.05rem; font-weight: 500; letter-spacing: .05em; }
+.guide-empty p { max-width: 420px; margin: 0; color: var(--dim); font-size: .76rem; }
+.constellation-icon { position: relative; width: 92px; height: 52px; }
+.constellation-icon::before, .constellation-icon::after { content: ""; position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(110,168,255,.7), transparent); transform-origin: left; }
+.constellation-icon::before { width: 76px; left: 8px; top: 24px; transform: rotate(-12deg); }
+.constellation-icon::after { width: 54px; left: 24px; top: 14px; transform: rotate(24deg); }
+.constellation-icon i { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: white; box-shadow: 0 0 10px var(--blue); }
+.constellation-icon i:nth-child(1) { left: 5px; top: 27px; }.constellation-icon i:nth-child(2) { left: 31px; top: 16px; }.constellation-icon i:nth-child(3) { right: 17px; top: 33px; }.constellation-icon i:nth-child(4) { right: 3px; top: 7px; background: var(--gold); }
+.guide-result { padding: 20px; }
+.reflection-card, .next-question { padding: 17px 18px; border: 1px solid rgba(110,168,255,.18); border-radius: 13px; background: linear-gradient(135deg, rgba(110,168,255,.07), rgba(158,140,255,.025)); }
+.card-kicker { display: block; margin-bottom: 7px; color: var(--blue); font-size: .63rem; letter-spacing: .13em; }
+.reflection-card p { margin: 0; color: #c2cede; font-size: .82rem; line-height: 1.75; }
+.prompt-line { display: flex; justify-content: space-between; gap: 12px; margin: 20px 2px 10px; color: var(--muted); font-size: .7rem; }
+.prompt-line span:last-child { color: var(--gold); white-space: nowrap; }
+.reframe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.reframe-card { position: relative; min-height: 132px; padding: 14px; text-align: left; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.018); cursor: pointer; transition: border .2s, background .2s, transform .2s; }
+.reframe-card:hover { transform: translateY(-2px); border-color: rgba(110,168,255,.42); background: rgba(110,168,255,.05); }
+.reframe-card.selected { border-color: rgba(243,196,107,.55); background: rgba(243,196,107,.05); }
+.reframe-card strong { display: flex; align-items: center; justify-content: space-between; color: var(--gold); font-size: .65rem; letter-spacing: .08em; }
+.reframe-card strong b { color: var(--dim); font: 500 .6rem monospace; }
+.reframe-card p { margin: 8px 0 4px; color: #bcc9db; font-size: .75rem; line-height: 1.58; }
+.reframe-card small { color: var(--dim); font-size: .61rem; line-height: 1.45; }
+.next-question { margin-top: 12px; border-color: rgba(243,196,107,.25); background: linear-gradient(135deg, rgba(243,196,107,.07), transparent); }
+.next-question .card-kicker { color: var(--gold); }
+.next-question h3 { margin: 5px 0; font-size: .9rem; font-weight: 600; line-height: 1.55; }
+.next-question p { margin: 0; color: var(--dim); font-size: .66rem; }
+
+.outcomes { min-height: 600px; }
+.loop-meter { padding: 18px; border-bottom: 1px solid var(--line); }
+.meter-head { display: flex; justify-content: space-between; color: var(--muted); font-size: .7rem; }
+.meter-head strong { color: var(--gold); font-size: .66rem; }
+.meter-track { height: 3px; margin: 12px 0 14px; overflow: hidden; background: rgba(255,255,255,.06); border-radius: 4px; }
+.meter-track i { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--blue), var(--gold)); box-shadow: 0 0 12px var(--gold); transition: width .45s ease; }
+.loop-meter ol { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin: 0; padding: 0; list-style: none; }
+.loop-meter li { display: grid; justify-items: center; gap: 5px; color: #58677b; text-align: center; font-size: .57rem; }
+.loop-meter li span { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; font: .58rem monospace; }
+.loop-meter li.done { color: #a7b7ca; }
+.loop-meter li.done span { color: #08141d; background: var(--mint); border-color: var(--mint); }
+.artifact-actions { padding: 18px; border-bottom: 1px solid var(--line); }
+.artifact-actions > p { margin: 0 0 10px; color: var(--muted); font-size: .68rem; }
+.artifact-types { display: grid; gap: 7px; }
+.artifact-types button { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.018); color: #aebdd0; text-align: left; font-size: .72rem; cursor: pointer; }
+.artifact-types button span { width: 20px; color: var(--blue); text-align: center; }
+.artifact-types button:hover:not(:disabled) { border-color: var(--line-bright); background: rgba(110,168,255,.05); }
+.artifact-types button:disabled { opacity: .35; cursor: not-allowed; }
+.artifact-panel { margin: 14px; border: 1px solid rgba(243,196,107,.2); border-radius: 12px; background: rgba(243,196,107,.025); overflow: hidden; }
+.artifact-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--line); color: var(--gold); font-size: .62rem; letter-spacing: .09em; }
+.artifact-header button { border: 0; background: transparent; color: var(--muted); font-size: .63rem; cursor: pointer; }
+.artifact-panel h3 { margin: 14px 14px 8px; font-size: .82rem; line-height: 1.5; }
+.artifact-preview { max-height: 250px; padding: 0 14px 12px; overflow: auto; color: #96a7bb; font-size: .67rem; line-height: 1.65; }
+.artifact-preview h2 { margin: 12px 0 4px; color: #c9d4e2; font-size: .74rem; }
+.artifact-preview p { margin: 0 0 8px; }
+.artifact-preview ul, .artifact-preview ol { margin: 3px 0 8px; padding-left: 18px; }
+.export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 12px; border-top: 1px solid var(--line); }
+.secondary-button { padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.025); color: var(--muted); font-size: .63rem; cursor: pointer; }
+.secondary-button:hover { color: var(--ink); border-color: var(--line-bright); }
+.data-actions { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--dim); font-size: .59rem; }
+.data-actions button { padding: 0; border: 0; background: transparent; color: #7b899b; font-size: .61rem; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(255,255,255,.18); text-underline-offset: 3px; }
+
+.poc-note { margin: 16px 0 0; padding: 15px 20px; display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; border: 1px dashed var(--line); border-radius: 14px; color: var(--dim); font-size: .69rem; }
+.poc-note span { color: var(--gold); font-size: .63rem; letter-spacing: .1em; }
+.poc-note p { margin: 0; }
+.help-panel { position: fixed; z-index: 51; right: 0; top: 0; width: min(420px, 92vw); height: 100vh; padding: 54px 34px; background: #0a1422; border-left: 1px solid var(--line-bright); box-shadow: -24px 0 70px rgba(0,0,0,.45); }
+.help-panel > button { position: absolute; right: 20px; top: 16px; border: 0; background: transparent; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+.help-panel h2 { margin: 18px 0 28px; font-family: "Songti SC", SimSun, serif; font-size: 1.35rem; font-weight: 500; line-height: 1.5; }
+.help-panel ol { margin: 0; padding: 0; list-style: none; }
+.help-panel li { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.help-panel li strong { color: var(--gold); font-size: .73rem; }
+.help-panel li span, .help-foot { color: var(--muted); font-size: .72rem; }
+.help-foot { margin-top: 28px; padding: 14px; border-radius: 10px; background: rgba(255,255,255,.025); }
+.scrim { position: fixed; z-index: 50; inset: 0; background: rgba(2,5,10,.72); backdrop-filter: blur(5px); }
+.noscript { position: fixed; z-index: 100; inset: auto 20px 20px; padding: 16px; background: #391b1b; border: 1px solid var(--danger); border-radius: 10px; }
+
+@media (max-width: 1120px) {
+  .workspace { grid-template-columns: minmax(190px, .65fr) minmax(430px, 1.35fr); }
+  .outcomes { grid-column: 1 / -1; min-height: auto; display: grid; grid-template-columns: 1fr 1fr; }
+  .outcomes .panel-heading { grid-column: 1 / -1; }
+  .artifact-panel { grid-column: 2; grid-row: 2 / span 2; }
+  .data-actions { grid-column: 1 / -1; }
+}
+
+@media (max-width: 860px) {
+  .topbar, main { width: min(100% - 24px, 720px); }
+  .topbar { height: 62px; }
+  .brand small, .local-badge { display: none; }
+  main { margin-top: 12px; }
+  .galaxy-shell { min-height: 520px; max-height: none; aspect-ratio: auto; }
+  .galaxy-shell::before { background: linear-gradient(0deg, rgba(5,9,18,.94), rgba(5,9,18,.25) 70%, rgba(5,9,18,.6)); }
+  .stage-copy { left: 24px; right: 24px; top: 38px; }
+  .stage-copy h1 { font-size: 1.6rem; }
+  .question-composer { left: 20px; right: 20px; bottom: 66px; }
+  .workspace { grid-template-columns: 1fr; }
+  .panel { min-height: auto; }
+  .rail { order: 2; }
+  .dialogue { order: 1; }
+  .outcomes { order: 3; display: block; }
+  .trail-list { min-height: 170px; }
+  .empty-state { min-height: 150px; }
+  .poc-note { grid-template-columns: 1fr; gap: 5px; }
+}
+
+@media (max-width: 540px) {
+  .top-actions { gap: 8px; }
+  .motion-toggle { font-size: 0; gap: 0; }
+  .galaxy-shell { min-height: 560px; border-radius: 18px; }
+  .stage-copy { top: 32px; }
+  .stage-copy p { font-size: .78rem; }
+  .question-composer { padding: 14px 14px 9px; }
+  .composer-row { grid-template-columns: 1fr; }
+  textarea { min-height: 74px; }
+  .launch-button { min-width: 100%; justify-content: space-between; height: 46px; }
+  .starter-strip { margin-inline: -12px; padding-inline: 12px; }
+  .self-report, .guide-result { padding: 16px; }
+  .reframe-grid { grid-template-columns: 1fr; }
+  .reframe-card { min-height: auto; }
+  .prompt-line { align-items: end; }
+  .panel-heading { padding-inline: 15px; }
+  .export-row { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after {
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#question-input">跳到投问框</a>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="问启星河首页">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span><strong>问启星河</strong><small>QUESTION-DRIVEN TERMINAL · POC 0.1</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="local-badge"><span aria-hidden="true">●</span> 本地模式</span>
+      <label class="motion-toggle" for="reduced-motion">
+        <input type="checkbox" id="reduced-motion">
+        <span aria-hidden="true"></span>
+        低动态
+      </label>
+      <button class="icon-button" id="help-button" type="button" aria-expanded="false" aria-controls="help-panel">?</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="galaxy-shell" aria-labelledby="welcome-title">
+      <canvas id="galaxy-canvas" aria-hidden="true"></canvas>
+      <div class="galaxy-fallback" aria-hidden="true"></div>
+      <div class="stage-copy">
+        <div class="eyebrow"><span></span> 今日坐标 · 从一个真问题开始</div>
+        <h1 id="welcome-title">把困惑投向星河，<br><em>让问题长出路径。</em></h1>
+        <p>这里不急着给答案。先把判断题打开，再选择一条值得验证的路。</p>
+      </div>
+      <form class="question-composer" id="question-form" novalidate>
+        <label for="question-input">此刻，你真正想弄明白什么？</label>
+        <div class="composer-row">
+          <textarea id="question-input" maxlength="520" rows="2" placeholder="例如：AI 是否真的能帮助我的公司赚钱？" aria-describedby="input-hint input-error"></textarea>
+          <button class="launch-button" type="submit">
+            <span>投问</span><b aria-hidden="true">↗</b>
+          </button>
+        </div>
+        <div class="composer-meta">
+          <span id="input-hint">Ctrl / ⌘ + Enter 投问</span>
+          <span id="char-count">0 / 500</span>
+        </div>
+        <p class="field-error" id="input-error" role="alert"></p>
+      </form>
+      <div class="stage-status" id="stage-status" role="status" aria-live="polite">
+        <span class="status-orbit" aria-hidden="true"></span>
+        <span id="stage-status-text">星河待命 · 数据只保存在这台设备</span>
+      </div>
+    </section>
+
+    <section class="starter-strip" id="starter-strip" aria-label="示例问题">
+      <span>不知道怎么开口？试试：</span>
+      <button type="button" data-example="AI 是否真的能帮助我的公司赚钱？">AI 与公司增长</button>
+      <button type="button" data-example="我该不该开始持续写作？">开始持续写作</button>
+      <button type="button" data-example="如何把零散经验变成一本书？">经验变成一本书</button>
+    </section>
+
+    <section class="workspace" aria-label="提问工作区">
+      <aside class="rail panel" aria-labelledby="trail-title">
+        <div class="panel-heading">
+          <div><span class="section-index">01</span><h2 id="trail-title">问题轨迹</h2></div>
+          <span class="count-pill" id="question-count">0 节点</span>
+        </div>
+        <ol class="trail-list" id="question-trail">
+          <li class="empty-state"><span>✦</span><p>第一个问题投出后，<br>这里会留下思考的轨迹。</p></li>
+        </ol>
+        <div class="privacy-note">
+          <span aria-hidden="true">⌂</span>
+          <p><strong>知识资产属于你</strong><br>不上传、不跟踪，可随时导出或清除。</p>
+        </div>
+      </aside>
+
+      <section class="dialogue panel" aria-labelledby="guide-title">
+        <div class="panel-heading">
+          <div><span class="section-index">02</span><h2 id="guide-title">苏格拉底引导</h2></div>
+          <span class="mode-pill">本地 POC 建议</span>
+        </div>
+
+        <div class="self-report" id="self-report">
+          <p>开始前，你愿意描述此刻的状态吗？<small>只用于调整本轮节奏，不用于心理判断。</small></p>
+          <div class="state-options" role="radiogroup" aria-label="当前状态">
+            <button type="button" role="radio" aria-checked="false" data-state="calm">平静</button>
+            <button type="button" role="radio" aria-checked="false" data-state="uncertain">不确定</button>
+            <button type="button" role="radio" aria-checked="false" data-state="energized">有动力</button>
+            <button type="button" role="radio" aria-checked="false" data-state="stuck">有点卡住</button>
+            <button type="button" role="radio" aria-checked="true" data-state="none">暂不选择</button>
+          </div>
+        </div>
+
+        <div class="guide-empty" id="guide-empty">
+          <div class="constellation-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <h3>答案可以晚一点，问题先清楚一点。</h3>
+          <p>投出问题后，我会先复述你的意图，再从定义、原因、路径与证据四个方向帮你打开它。</p>
+        </div>
+
+        <div class="guide-result" id="guide-result" hidden>
+          <article class="reflection-card">
+            <span class="card-kicker">我听见的是</span>
+            <p id="reflection-text"></p>
+          </article>
+          <div class="prompt-line">
+            <span>不用一次想完。先选一条你最想继续的路：</span>
+            <span>四向展开</span>
+          </div>
+          <div class="reframe-grid" id="reframe-grid"></div>
+          <article class="next-question" id="next-question" hidden>
+            <span class="card-kicker">此刻最值得回答的一问</span>
+            <h3 id="next-question-text"></h3>
+            <p>回答它，或直接生成一个阶段性成果。你仍然保有最终判断。</p>
+          </article>
+        </div>
+      </section>
+
+      <aside class="outcomes panel" aria-labelledby="artifact-title">
+        <div class="panel-heading">
+          <div><span class="section-index">03</span><h2 id="artifact-title">成果工作台</h2></div>
+          <span class="readiness" id="readiness-label">尚未启动</span>
+        </div>
+
+        <div class="loop-meter" aria-label="POC 闭环进度">
+          <div class="meter-head"><span>从问题到成果</span><strong id="progress-label">0 / 4</strong></div>
+          <div class="meter-track"><i id="progress-bar"></i></div>
+          <ol id="loop-steps">
+            <li data-step="question"><span>1</span>投出问题</li>
+            <li data-step="branch"><span>2</span>选择路径</li>
+            <li data-step="artifact"><span>3</span>形成成果</li>
+            <li data-step="export"><span>4</span>保存带走</li>
+          </ol>
+        </div>
+
+        <div class="artifact-actions" id="artifact-actions" aria-disabled="true">
+          <p>选择一种阶段性成果</p>
+          <div class="artifact-types">
+            <button type="button" data-artifact="brief" disabled><span>◇</span>问题简报</button>
+            <button type="button" data-artifact="research" disabled><span>⌕</span>研究计划</button>
+            <button type="button" data-artifact="outline" disabled><span>≡</span>文章提纲</button>
+          </div>
+        </div>
+
+        <article class="artifact-panel" id="artifact-panel" hidden>
+          <div class="artifact-header"><span>阶段性成果</span><button type="button" id="copy-artifact">复制</button></div>
+          <h3 id="artifact-name"></h3>
+          <div class="artifact-preview" id="artifact-preview"></div>
+          <div class="export-row">
+            <button class="secondary-button" type="button" id="export-markdown">导出 Markdown</button>
+            <button class="secondary-button" type="button" id="export-json">备份 JSON</button>
+          </div>
+        </article>
+
+        <div class="data-actions">
+          <button type="button" id="reset-session">清除本机记录</button>
+          <span id="save-status" role="status" aria-live="polite">尚无本地记录</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="poc-note">
+      <span>POC 边界</span>
+      <p>当前版本使用透明的本地规则验证交互闭环，不联网检索，也不把建议包装成事实答案。真实 AI 研究、多智能体与 Obsidian 文件同步将在验证核心价值后接入。</p>
+    </section>
+  </main>
+
+  <aside class="help-panel" id="help-panel" hidden>
+    <button type="button" id="close-help" aria-label="关闭说明">×</button>
+    <span class="section-index">使用说明</span>
+    <h2>这不是答案机器，<br>而是一张思考地图。</h2>
+    <ol>
+      <li><strong>投问</strong><span>写下真实困惑，不必先修饰。</span></li>
+      <li><strong>展开</strong><span>从四个方向选择最有感觉的一条。</span></li>
+      <li><strong>产出</strong><span>把阶段性思考做成可编辑成果。</span></li>
+      <li><strong>带走</strong><span>下载 Markdown 或 JSON，继续在 Obsidian 使用。</span></li>
+    </ol>
+    <p class="help-foot">系统不会根据措辞诊断情绪或人格。你的状态只来自主动选择，且仅保存在本机。</p>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <noscript><div class="noscript">此 POC 需要启用 JavaScript 才能运行。你的问题不会因此被上传。</div></noscript>
+  <script>const CLOSED_CUES = ['是否', '会不会', '能不能', '要不要', '是不是', '可不可以'];
+const OPEN_CUES = ['什么', '为什么', '如何', '怎么', '谁', '何时', '哪里', '哪些'];
+
+function cleanText(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function stripTerminalPunctuation(value) {
+  return cleanText(value).replace(/[？?。！!]+$/u, '');
+}
+
+function yamlString(value) {
+  return `"${String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, ' ')}"`;
+}
+
+function activeQuestion(session) {
+  return session.questions?.find((item) => item.id === session.activeQuestionId)
+    ?? session.questions?.at(-1)
+    ?? null;
+}
+
+function rootQuestion(session) {
+  return session.questions?.find((item) => item.parentId == null)
+    ?? session.questions?.[0]
+    ?? null;
+}
+
+function normalizeQuestion(text) {
+  const value = cleanText(text);
+  if (!value) {
+    return { ok: false, error: '先写下一个你真正想探索的问题。' };
+  }
+  if ([...value].length > 500) {
+    return {
+      ok: false,
+      error: '问题暂时超过 500 字，请先聚焦一个核心困惑。',
+      value,
+    };
+  }
+  const normalized = /[？?]$/u.test(value) ? value : `${value}？`;
+  return { ok: true, value: normalized };
+}
+
+function classifyQuestion(text) {
+  const value = cleanText(text);
+  const closedCue = CLOSED_CUES.find((cue) => value.includes(cue));
+  const openCue = OPEN_CUES.find((cue) => value.includes(cue));
+  return {
+    form: closedCue ? 'closed' : 'open',
+    cue: closedCue ?? openCue ?? '未识别',
+    needsScope: [...stripTerminalPunctuation(value)].length <= 6,
+  };
+}
+
+function buildReframes(text) {
+  const original = stripTerminalPunctuation(text);
+  const classification = classifyQuestion(original);
+  const subject = original
+    .replace(new RegExp(CLOSED_CUES.join('|'), 'gu'), '')
+    .replace(/^(我|我们)该/u, '')
+    .trim();
+  const scopeHint = classification.needsScope ? '在你最关心的一个具体场景里，' : '';
+
+  return [
+    {
+      lens: 'WHAT',
+      label: '先定义',
+      text: original.includes('赚钱')
+        ? `${scopeHint}“赚钱”具体指什么：收入增长、成本下降，还是风险降低？`
+        : `${scopeHint}这里最需要先界定的核心概念和成功标准是什么？`,
+      note: '把抽象词变成可以观察的标准。',
+    },
+    {
+      lens: 'WHY',
+      label: '找机制',
+      text: `${scopeHint}为什么${subject || '这件事'}可能发生，又为什么可能不发生？`,
+      note: '同时寻找推动因素与阻碍条件。',
+    },
+    {
+      lens: 'HOW',
+      label: '变路径',
+      text: `${scopeHint}如何用一个低成本、可逆的小实验验证${subject || '这个想法'}？`,
+      note: '把判断题转成可以开始的行动。',
+    },
+    {
+      lens: 'EVIDENCE',
+      label: '看证据',
+      text: `${scopeHint}什么证据会支持或推翻“${original}”这一判断？`,
+      note: '提前定义证据，减少只找支持材料。',
+    },
+  ];
+}
+
+function artifactBody(session, type) {
+  const root = rootQuestion(session)?.text ?? '尚未记录';
+  const current = activeQuestion(session)?.text ?? root;
+  const state = session.selfReport?.state ?? 'none';
+  const stateLabel = {
+    calm: '平静', uncertain: '不确定', energized: '有动力', stuck: '卡住', none: '未选择',
+  }[state] ?? '未选择';
+
+  if (type === 'research') {
+    return `## 研究目标\n\n围绕“${current}”形成一个可证伪的阶段性判断。\n\n## 待验证假设\n\n- 支持路径：哪些条件会让判断成立？\n- 反方路径：哪些条件会让判断不成立？\n- 边界条件：对谁、在什么时间与场景下成立？\n\n## 证据清单\n\n- [ ] 一手资料或原始数据\n- [ ] 一个支持案例\n- [ ] 一个反例或替代解释\n\n## 下一步最小行动\n\n在 25 分钟内找到一项可追溯来源，并记录它改变了什么判断。`;
+  }
+
+  if (type === 'outline') {
+    return `## 文章承诺\n\n帮助读者看清“${current}”背后的定义、机制与可行动路径。\n\n## 建议结构\n\n1. 用一个真实困境引出原始问题\n2. 澄清最容易混淆的核心概念\n3. 展开支持与反对的关键机制\n4. 给出证据、反例与适用边界\n5. 提供一个今天即可开始的小实验\n\n## 仍需补齐\n\n- 目标读者最具体的情境\n- 至少两项可核查来源\n- 作者自己的差异化判断`;
+  }
+
+  return `## 本轮意图\n\n你正在把一个判断转成可以研究和行动的问题；当前自报状态：${stateLabel}。\n\n## 问题谱系\n\n- 原始问题：${root}\n- 当前主问题：${current}\n\n## 暂定边界\n\n- 对象：需要进一步明确\n- 时间范围：建议先限定在未来 30–90 天\n- 成功标准：需要用一个可观察指标表达\n\n## 下一步最小行动\n\n用一句话补全：“如果只能验证一件事，我最想先知道 ______。”`;
+}
+
+function buildArtifact(session, type = 'brief') {
+  const safeType = ['brief', 'research', 'outline'].includes(type) ? type : 'brief';
+  const names = { brief: '问题简报', research: '研究计划', outline: '文章提纲' };
+  const projectTitle = cleanText(session.project?.title) || stripTerminalPunctuation(rootQuestion(session)?.text) || '未命名问题';
+  return {
+    type: safeType,
+    title: `${names[safeType]}｜${projectTitle}`,
+    markdown: artifactBody(session, safeType),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function serializeMarkdown(session) {
+  const project = session.project ?? {};
+  const artifact = session.artifact;
+  const questions = session.questions ?? [];
+  const questionLines = questions.map((item, index) => `${'  '.repeat(index)}- ${item.text} _(${item.lens})_`).join('\n');
+  const artifactLink = artifact ? `\n\n## 成果物\n\n[[${artifact.title}]]\n\n${artifact.markdown}` : '';
+  return `---\nschema_version: 1\nproject_id: ${yamlString(project.id ?? '')}\ntitle: ${yamlString(project.title ?? '')}\ncreated: ${yamlString(project.createdAt ?? '')}\nupdated: ${yamlString(project.updatedAt ?? '')}\ntags:\n  - 提问驱动\n  - 问启星河\n---\n\n# ${project.title || '未命名问题'}\n\n## 问题谱系\n\n${questionLines || '- 尚未记录'}${artifactLink}\n`;
+}
+
+function serializeJson(session) {
+  return JSON.stringify({ schemaVersion: 1, ...session }, null, 2);
+}
+
+function idFor(prefix, iso, ordinal = 0) {
+  const stamp = Number.isNaN(Date.parse(iso)) ? Date.now() : Date.parse(iso);
+  return `${prefix}_${stamp.toString(36)}_${ordinal}`;
+}
+
+function createSession(question, selfReport = 'none', now = new Date().toISOString()) {
+  const normalized = normalizeQuestion(question);
+  if (!normalized.ok) throw new Error(normalized.error);
+  const questionId = idFor('q', now);
+  const projectId = idFor('p', now);
+  const title = stripTerminalPunctuation(normalized.value).slice(0, 32);
+  return {
+    schemaVersion: 1,
+    project: { id: projectId, title, createdAt: now, updatedAt: now },
+    selfReport: { state: selfReport },
+    questions: [{
+      id: questionId,
+      parentId: null,
+      text: normalized.value,
+      lens: 'ORIGIN',
+      createdAt: now,
+    }],
+    activeQuestionId: questionId,
+    artifact: null,
+    events: [{ type: 'question_submitted', at: now, meta: { questionId } }],
+    settings: { reducedMotion: false, sound: false },
+  };
+}
+
+function selectBranch(session, reframe, now = new Date().toISOString()) {
+  const questionId = idFor('q', now, session.questions.length);
+  const question = {
+    id: questionId,
+    parentId: session.activeQuestionId,
+    text: normalizeQuestion(reframe.text).value,
+    lens: reframe.lens,
+    createdAt: now,
+  };
+  return {
+    ...session,
+    project: { ...session.project, updatedAt: now },
+    questions: [...session.questions, question],
+    activeQuestionId: questionId,
+    events: [...session.events, {
+      type: 'branch_selected',
+      at: now,
+      meta: { questionId, lens: reframe.lens },
+    }],
+  };
+}
+
+function recordArtifact(session, artifact, now = new Date().toISOString()) {
+  return {
+    ...session,
+    project: { ...session.project, updatedAt: now },
+    artifact: { ...artifact },
+    events: [...session.events, {
+      type: 'artifact_generated',
+      at: now,
+      meta: { artifactType: artifact.type },
+    }],
+  };
+}
+
+function saveSession(storage, key, session) {
+  try {
+    storage.setItem(key, serializeJson(session));
+    return { ok: true };
+  } catch {
+    return {
+      ok: false,
+      error: '\u6d4f\u89c8\u5668\u672a\u80fd\u4fdd\u5b58\uff1b\u5f53\u524d\u4f1a\u8bdd\u4ecd\u53ef\u7ee7\u7eed\u5e76\u5bfc\u51fa\u3002',
+    };
+  }
+}
+
+function loadSession(storage, key) {
+  try {
+    const raw = storage.getItem(key);
+    if (raw == null) return { ok: true, value: null };
+    const value = JSON.parse(raw);
+    if (!value || value.schemaVersion !== 1 || !Array.isArray(value.questions)) throw new Error('invalid');
+    return { ok: true, value };
+  } catch {
+    return {
+      ok: false,
+      error: '\u672c\u5730\u8bb0\u5f55\u5df2\u635f\u574f\uff0c\u5df2\u5207\u6362\u4e3a\u65b0\u7684\u4e34\u65f6\u4f1a\u8bdd\u3002',
+    };
+  }
+}
+
+
+function createGalaxy(canvas, shell, statusText) {
+  const context = canvas?.getContext?.('2d');
+  if (!context) {
+    canvas?.setAttribute('hidden', '');
+    return { setState() {}, setReducedMotion() {}, destroy() {} };
+  }
+
+  let width = 0;
+  let height = 0;
+  let ratio = 1;
+  let frame = 0;
+  let tick = 0;
+  let state = 'idle';
+  let reducedMotion = false;
+  let particles = [];
+  const labels = {
+    idle: '星河待命 · 数据只保存在这台设备',
+    reflecting: '正在理解你的意图 · 没有联网发送',
+    branching: '正在展开问题路径 · 由你选择方向',
+    ready: '路径已经点亮 · 可以形成阶段性成果',
+  };
+
+  function seedParticles() {
+    const compact = width < 700;
+    const count = compact ? 260 : Math.min(900, Math.round(width * .62));
+    particles = Array.from({ length: count }, (_, index) => {
+      const arm = index % 3;
+      const distance = Math.pow(Math.random(), .66);
+      const angle = Math.random() * Math.PI * 2 + arm * (Math.PI * 2 / 3) + distance * 4.4;
+      return {
+        distance,
+        angle,
+        size: .35 + Math.random() * (index % 17 === 0 ? 2.2 : 1.15),
+        speed: .0008 + Math.random() * .002,
+        alpha: .18 + Math.random() * .72,
+        hue: index % 11 === 0 ? 42 : (index % 4 === 0 ? 222 : 205),
+        offset: (Math.random() - .5) * .24,
+      };
+    });
+  }
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    ratio = Math.min(window.devicePixelRatio || 1, 2);
+    width = Math.max(1, rect.width);
+    height = Math.max(1, rect.height);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    seedParticles();
+    if (reducedMotion) draw();
+  }
+
+  function drawBackground() {
+    context.clearRect(0, 0, width, height);
+    const glow = context.createRadialGradient(width * .67, height * .42, 0, width * .67, height * .42, Math.max(width, height) * .48);
+    glow.addColorStop(0, 'rgba(176,190,255,.15)');
+    glow.addColorStop(.14, 'rgba(87,103,190,.12)');
+    glow.addColorStop(.42, 'rgba(29,57,100,.08)');
+    glow.addColorStop(1, 'rgba(2,7,14,0)');
+    context.fillStyle = glow;
+    context.fillRect(0, 0, width, height);
+  }
+
+  function draw() {
+    drawBackground();
+    const cx = width * (width < 700 ? .67 : .7);
+    const cy = height * .41;
+    const baseX = Math.min(width * .42, 520);
+    const baseY = state === 'idle' ? baseX * .42 : state === 'reflecting' ? baseX * .2 : baseX * .11;
+    const storm = state === 'branching' ? 1 : 0;
+    const rotation = state === 'idle' ? -.18 : -.07;
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
+
+    context.save();
+    context.globalCompositeOperation = 'lighter';
+    for (const particle of particles) {
+      if (!reducedMotion) particle.angle += particle.speed * (state === 'branching' ? 4.2 : 1);
+      const spiral = particle.angle + (storm ? Math.sin(tick * .012 + particle.distance * 8) * .16 : 0);
+      const radial = particle.distance * baseX;
+      const rawX = Math.cos(spiral) * radial;
+      const rawY = Math.sin(spiral) * particle.distance * baseY + particle.offset * baseY;
+      const x = cx + rawX * cos - rawY * sin;
+      const y = cy + rawX * sin + rawY * cos;
+      const flicker = reducedMotion ? 1 : .82 + Math.sin(tick * .018 + particle.angle * 4) * .18;
+      const alpha = particle.alpha * flicker * (1 - particle.distance * .34);
+      context.beginPath();
+      context.fillStyle = `hsla(${particle.hue}, 84%, ${particle.hue === 42 ? 72 : 78}%, ${alpha})`;
+      context.arc(x, y, particle.size * (storm ? 1.12 : 1), 0, Math.PI * 2);
+      context.fill();
+    }
+    context.restore();
+
+    const core = context.createRadialGradient(cx, cy, 0, cx, cy, baseX * .22);
+    core.addColorStop(0, 'rgba(255,238,191,.72)');
+    core.addColorStop(.08, 'rgba(175,190,255,.28)');
+    core.addColorStop(1, 'rgba(80,100,190,0)');
+    context.fillStyle = core;
+    context.beginPath();
+    context.ellipse(cx, cy, baseX * .25, Math.max(7, baseY * .3), rotation, 0, Math.PI * 2);
+    context.fill();
+
+    if (state === 'ready') {
+      context.strokeStyle = 'rgba(243,196,107,.2)';
+      context.lineWidth = 1;
+      const points = particles.filter((_, index) => index % 97 === 0).slice(0, 7);
+      context.beginPath();
+      points.forEach((particle, index) => {
+        const radial = particle.distance * baseX;
+        const x = cx + Math.cos(particle.angle) * radial;
+        const y = cy + Math.sin(particle.angle) * particle.distance * baseY;
+        if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
+      });
+      context.stroke();
+    }
+
+    tick += 1;
+    if (!reducedMotion) frame = requestAnimationFrame(draw);
+  }
+
+  function restart() {
+    cancelAnimationFrame(frame);
+    draw();
+  }
+
+  function setState(next) {
+    state = labels[next] ? next : 'idle';
+    shell.dataset.state = state;
+    if (statusText) statusText.textContent = labels[state];
+    restart();
+  }
+
+  function setReducedMotion(value) {
+    reducedMotion = Boolean(value);
+    restart();
+  }
+
+  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null;
+  observer?.observe(canvas);
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+  restart();
+
+  return {
+    setState,
+    setReducedMotion,
+    destroy() {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener('resize', resize);
+    },
+  };
+}
+
+
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'socratic-galaxy-poc-v1';
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const dom = {
+    shell: $('.galaxy-shell'),
+    canvas: $('#galaxy-canvas'),
+    statusText: $('#stage-status-text'),
+    form: $('#question-form'),
+    input: $('#question-input'),
+    inputError: $('#input-error'),
+    charCount: $('#char-count'),
+    selfReport: $('#self-report'),
+    guideEmpty: $('#guide-empty'),
+    guideResult: $('#guide-result'),
+    reflection: $('#reflection-text'),
+    reframes: $('#reframe-grid'),
+    nextQuestion: $('#next-question'),
+    nextQuestionText: $('#next-question-text'),
+    trail: $('#question-trail'),
+    questionCount: $('#question-count'),
+    artifactActions: $('#artifact-actions'),
+    artifactPanel: $('#artifact-panel'),
+    artifactName: $('#artifact-name'),
+    artifactPreview: $('#artifact-preview'),
+    readiness: $('#readiness-label'),
+    progressLabel: $('#progress-label'),
+    progressBar: $('#progress-bar'),
+    saveStatus: $('#save-status'),
+    reducedMotion: $('#reduced-motion'),
+    help: $('#help-panel'),
+    helpButton: $('#help-button'),
+    scrim: $('#scrim'),
+    reset: $('#reset-session'),
+  };
+
+  const systemPrefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  let selfReportState = 'none';
+  let session = null;
+  let currentReframes = [];
+  let resetArmed = false;
+  const galaxy = createGalaxy(dom.canvas, dom.shell, dom.statusText);
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"]/g, (character) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+    }[character]));
+  }
+
+  function renderMarkdown(markdown) {
+    const safe = escapeHtml(markdown);
+    return safe
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^(- \[[ x]\] .+)$/gm, '<p>$1</p>')
+      .replace(/^(- .+)$/gm, '<p>• $1</p>')
+      .replace(/^(\d+\. .+)$/gm, '<p>$1</p>')
+      .split(/\n{2,}/)
+      .map((block) => /^<(h2|p)>/.test(block) ? block : `<p>${block.replace(/\n/g, '<br>')}</p>`)
+      .join('');
+  }
+
+  function activeQuestionText() {
+    return session?.questions.find((item) => item.id === session.activeQuestionId)?.text ?? '';
+  }
+
+  function persist() {
+    if (!session) return;
+    const result = saveSession(localStorage, STORAGE_KEY, session);
+    dom.saveStatus.textContent = result.ok ? '已保存在本机' : result.error;
+    dom.saveStatus.dataset.error = result.ok ? 'false' : 'true';
+  }
+
+  function progressState() {
+    const types = new Set(session?.events.map((event) => event.type) ?? []);
+    const completed = [
+      types.has('question_submitted'),
+      types.has('branch_selected'),
+      types.has('artifact_generated'),
+      types.has('artifact_exported'),
+    ];
+    const count = completed.filter(Boolean).length;
+    dom.progressLabel.textContent = `${count} / 4`;
+    dom.progressBar.style.width = `${count * 25}%`;
+    $('#loop-steps li').forEach((item, index) => item.classList.toggle('done', completed[index]));
+    dom.readiness.textContent = count === 0 ? '尚未启动' : count < 2 ? '正在展开' : count < 4 ? '可以产出' : '闭环完成';
+    dom.readiness.classList.toggle('ready', count >= 2);
+  }
+
+  function renderTrail() {
+    dom.trail.replaceChildren();
+    if (!session?.questions.length) {
+      const empty = document.createElement('li');
+      empty.className = 'empty-state';
+      empty.innerHTML = '<span>✦</span><p>第一个问题投出后，<br>这里会留下思考的轨迹。</p>';
+      dom.trail.append(empty);
+      dom.questionCount.textContent = '0 节点';
+      return;
+    }
+    session.questions.forEach((question, index) => {
+      const item = document.createElement('li');
+      item.className = `trail-node${question.id === session.activeQuestionId ? ' active' : ''}`;
+      const dot = document.createElement('span');
+      dot.className = 'node-dot';
+      dot.setAttribute('aria-hidden', 'true');
+      const meta = document.createElement('small');
+      meta.textContent = index === 0 ? '原始问题' : `${question.lens} · 第 ${index + 1} 个节点`;
+      const text = document.createElement('p');
+      text.textContent = question.text;
+      item.append(dot, meta, text);
+      dom.trail.append(item);
+    });
+    dom.questionCount.textContent = `${session.questions.length} 节点`;
+  }
+
+  function reflectionFor(question) {
+    const classification = classifyQuestion(question);
+    const statePrefix = {
+      uncertain: '你允许“不确定”被看见，这会让探索更诚实。',
+      stuck: '你似乎需要的不是更多压力，而是一个更小的入口。',
+      energized: '你已经带着行动能量来到这里，可以尽快落到一次验证。',
+      calm: '你愿意从容地把这个问题看清，而不是急着站队。',
+      none: '你正在认真对待一个还没有定论的问题。',
+    }[selfReportState];
+    const form = classification.form === 'closed'
+      ? `它现在更像一道“${classification.cue}”判断题，我们可以保留你的关切，同时把它打开。`
+      : '它已经包含探索方向，我们可以继续补上边界、机制与证据。';
+    return `${statePrefix}${form}`;
+  }
+
+  function renderReframes(question) {
+    currentReframes = buildReframes(question);
+    dom.reframes.replaceChildren();
+    currentReframes.forEach((reframe) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'reframe-card';
+      button.dataset.lens = reframe.lens;
+      const heading = document.createElement('strong');
+      heading.append(document.createTextNode(reframe.label));
+      const code = document.createElement('b');
+      code.textContent = reframe.lens;
+      heading.append(code);
+      const text = document.createElement('p');
+      text.textContent = reframe.text;
+      const note = document.createElement('small');
+      note.textContent = reframe.note;
+      button.append(heading, text, note);
+      button.addEventListener('click', () => chooseReframe(reframe, button));
+      dom.reframes.append(button);
+    });
+  }
+
+  function showGuidance(question, resumed = false) {
+    dom.guideEmpty.hidden = true;
+    dom.guideResult.hidden = false;
+    dom.reflection.textContent = resumed
+      ? '这条问题路径保存在本机。你可以继续选择新的角度，或把当前思考做成阶段性成果。'
+      : reflectionFor(question);
+    renderReframes(question);
+  }
+
+  function enableArtifacts() {
+    dom.artifactActions.setAttribute('aria-disabled', 'false');
+    $('.artifact-types button').forEach((button) => { button.disabled = false; });
+  }
+
+  function chooseReframe(reframe, button) {
+    if (!session) return;
+    $('.reframe-card').forEach((card) => card.classList.remove('selected'));
+    button.classList.add('selected');
+    galaxy.setState('branching');
+    session = selectBranch(session, reframe);
+    renderTrail();
+    dom.nextQuestion.hidden = false;
+    dom.nextQuestionText.textContent = reframe.text;
+    enableArtifacts();
+    progressState();
+    persist();
+    window.setTimeout(() => galaxy.setState('ready'), session.settings.reducedMotion ? 0 : 520);
+  }
+
+  function startQuestion(raw) {
+    const normalized = normalizeQuestion(raw);
+    if (!normalized.ok) {
+      dom.inputError.textContent = normalized.error;
+      dom.input.focus();
+      return;
+    }
+    dom.inputError.textContent = '';
+    galaxy.setState('reflecting');
+    dom.form.setAttribute('aria-busy', 'true');
+    session = createSession(normalized.value, selfReportState);
+    session.settings.reducedMotion = dom.reducedMotion.checked;
+    renderTrail();
+    progressState();
+    persist();
+    window.setTimeout(() => {
+      showGuidance(normalized.value);
+      dom.form.removeAttribute('aria-busy');
+      galaxy.setState('branching');
+      dom.guideResult.scrollIntoView({ behavior: session.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+    }, session.settings.reducedMotion ? 0 : 460);
+  }
+
+  function generateArtifact(type) {
+    if (!session) return;
+    const artifact = buildArtifact(session, type);
+    session = recordArtifact(session, artifact);
+    renderArtifact();
+    progressState();
+    persist();
+    galaxy.setState('ready');
+  }
+
+  function renderArtifact() {
+    if (!session?.artifact) return;
+    dom.artifactPanel.hidden = false;
+    dom.artifactName.textContent = session.artifact.title;
+    dom.artifactPreview.innerHTML = renderMarkdown(session.artifact.markdown);
+  }
+
+  function safeFilename(value, extension) {
+    const base = String(value || '问启星河').replace(/[\\/:*?"<>|]/g, '-').slice(0, 60);
+    return `${base}.${extension}`;
+  }
+
+  function download(content, filename, type) {
+    try {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 500);
+      return true;
+    } catch {
+      dom.saveStatus.textContent = '浏览器未能下载，请先复制成果内容。';
+      return false;
+    }
+  }
+
+  function recordExport(kind) {
+    if (!session) return;
+    session = {
+      ...session,
+      events: [...session.events, { type: 'artifact_exported', at: new Date().toISOString(), meta: { kind } }],
+    };
+    progressState();
+    persist();
+  }
+
+  function exportMarkdown() {
+    if (!session) return;
+    if (download(serializeMarkdown(session), safeFilename(session.project.title, 'md'), 'text/markdown;charset=utf-8')) recordExport('markdown');
+  }
+
+  function exportJson() {
+    if (!session) return;
+    if (download(serializeJson(session), safeFilename(`${session.project.title}-backup`, 'json'), 'application/json;charset=utf-8')) recordExport('json');
+  }
+
+  async function copyArtifact() {
+    if (!session?.artifact) return;
+    try {
+      await navigator.clipboard.writeText(session.artifact.markdown);
+      $('#copy-artifact').textContent = '已复制';
+    } catch {
+      const area = document.createElement('textarea');
+      area.value = session.artifact.markdown;
+      document.body.append(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+      $('#copy-artifact').textContent = '已复制';
+    }
+    window.setTimeout(() => { $('#copy-artifact').textContent = '复制'; }, 1200);
+  }
+
+  function setReducedMotion(value) {
+    const reduced = Boolean(value);
+    dom.reducedMotion.checked = reduced;
+    document.body.classList.toggle('reduce-motion', reduced);
+    galaxy.setReducedMotion(reduced);
+    if (session) {
+      session = { ...session, settings: { ...session.settings, reducedMotion: reduced } };
+      persist();
+    }
+  }
+
+  function resetSession() {
+    if (!resetArmed) {
+      resetArmed = true;
+      dom.reset.textContent = '再次点击确认清除';
+      window.setTimeout(() => {
+        resetArmed = false;
+        dom.reset.textContent = '清除本机记录';
+      }, 3500);
+      return;
+    }
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* temporary mode */ }
+    session = null;
+    currentReframes = [];
+    dom.input.value = '';
+    dom.guideEmpty.hidden = false;
+    dom.guideResult.hidden = true;
+    dom.nextQuestion.hidden = true;
+    dom.artifactPanel.hidden = true;
+    dom.artifactActions.setAttribute('aria-disabled', 'true');
+    $('.artifact-types button').forEach((button) => { button.disabled = true; });
+    dom.saveStatus.textContent = '本机记录已清除';
+    renderTrail();
+    progressState();
+    galaxy.setState('idle');
+    resetArmed = false;
+    dom.reset.textContent = '清除本机记录';
+  }
+
+  function openHelp(open) {
+    dom.help.hidden = !open;
+    dom.scrim.hidden = !open;
+    dom.helpButton.setAttribute('aria-expanded', String(open));
+    if (open) $('#close-help').focus(); else dom.helpButton.focus();
+  }
+
+  function restore() {
+    const loaded = loadSession(localStorage, STORAGE_KEY);
+    if (!loaded.ok) {
+      dom.saveStatus.textContent = loaded.error;
+      return;
+    }
+    if (!loaded.value) return;
+    session = loaded.value;
+    selfReportState = session.selfReport?.state ?? 'none';
+    $('.state-options button').forEach((button) => button.setAttribute('aria-checked', String(button.dataset.state === selfReportState)));
+    setReducedMotion(Boolean(session.settings?.reducedMotion || systemPrefersReduced));
+    dom.input.value = session.questions[0]?.text ?? '';
+    dom.charCount.textContent = `${[...dom.input.value].length} / 500`;
+    renderTrail();
+    showGuidance(activeQuestionText(), true);
+    if (session.questions.length > 1) {
+      enableArtifacts();
+      dom.nextQuestion.hidden = false;
+      dom.nextQuestionText.textContent = activeQuestionText();
+      galaxy.setState('ready');
+    }
+    renderArtifact();
+    progressState();
+    dom.saveStatus.textContent = '已恢复本机记录';
+  }
+
+  dom.form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    startQuestion(dom.input.value);
+  });
+  dom.input.addEventListener('input', () => {
+    dom.charCount.textContent = `${[...dom.input.value].length} / 500`;
+    dom.inputError.textContent = '';
+  });
+  dom.input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      dom.form.requestSubmit();
+    }
+  });
+  $('#starter-strip [data-example]').forEach((button) => button.addEventListener('click', () => {
+    dom.input.value = button.dataset.example;
+    dom.input.dispatchEvent(new Event('input'));
+    dom.input.focus();
+  }));
+  $('.state-options button').forEach((button) => button.addEventListener('click', () => {
+    selfReportState = button.dataset.state;
+    $('.state-options button').forEach((item) => item.setAttribute('aria-checked', String(item === button)));
+    if (session) {
+      session = { ...session, selfReport: { state: selfReportState } };
+      persist();
+    }
+  }));
+  $('.artifact-types button').forEach((button) => button.addEventListener('click', () => generateArtifact(button.dataset.artifact)));
+  $('#copy-artifact').addEventListener('click', copyArtifact);
+  $('#export-markdown').addEventListener('click', exportMarkdown);
+  $('#export-json').addEventListener('click', exportJson);
+  dom.reducedMotion.addEventListener('change', () => setReducedMotion(dom.reducedMotion.checked));
+  dom.reset.addEventListener('click', resetSession);
+  dom.helpButton.addEventListener('click', () => openHelp(dom.help.hidden));
+  $('#close-help').addEventListener('click', () => openHelp(false));
+  dom.scrim.addEventListener('click', () => openHelp(false));
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !dom.help.hidden) openHelp(false); });
+
+  setReducedMotion(systemPrefersReduced);
+  restore();
+  progressState();
+  window.__QUESTION_TERMINAL_READY__ = true;
+})();
+</script>
+</body>
+</html>

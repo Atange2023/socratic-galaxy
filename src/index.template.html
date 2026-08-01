@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#07101c">
+  <title>问启星河｜提问驱动工作终端</title>
+  <style>/*__STYLES__*/</style>
+</head>
+<body>
+  <a class="skip-link" href="#question-input">跳到投问框</a>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="问启星河首页">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span><strong>问启星河</strong><small>QUESTION-DRIVEN TERMINAL · POC 0.1</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="local-badge"><span aria-hidden="true">●</span> 本地模式</span>
+      <label class="motion-toggle" for="reduced-motion">
+        <input type="checkbox" id="reduced-motion">
+        <span aria-hidden="true"></span>
+        低动态
+      </label>
+      <button class="icon-button" id="help-button" type="button" aria-expanded="false" aria-controls="help-panel">?</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="galaxy-shell" aria-labelledby="welcome-title">
+      <canvas id="galaxy-canvas" aria-hidden="true"></canvas>
+      <div class="galaxy-fallback" aria-hidden="true"></div>
+      <div class="stage-copy">
+        <div class="eyebrow"><span></span> 今日坐标 · 从一个真问题开始</div>
+        <h1 id="welcome-title">把困惑投向星河，<br><em>让问题长出路径。</em></h1>
+        <p>这里不急着给答案。先把判断题打开，再选择一条值得验证的路。</p>
+      </div>
+      <form class="question-composer" id="question-form" novalidate>
+        <label for="question-input">此刻，你真正想弄明白什么？</label>
+        <div class="composer-row">
+          <textarea id="question-input" maxlength="520" rows="2" placeholder="例如：AI 是否真的能帮助我的公司赚钱？" aria-describedby="input-hint input-error"></textarea>
+          <button class="launch-button" type="submit">
+            <span>投问</span><b aria-hidden="true">↗</b>
+          </button>
+        </div>
+        <div class="composer-meta">
+          <span id="input-hint">Ctrl / ⌘ + Enter 投问</span>
+          <span id="char-count">0 / 500</span>
+        </div>
+        <p class="field-error" id="input-error" role="alert"></p>
+      </form>
+      <div class="stage-status" id="stage-status" role="status" aria-live="polite">
+        <span class="status-orbit" aria-hidden="true"></span>
+        <span id="stage-status-text">星河待命 · 数据只保存在这台设备</span>
+      </div>
+    </section>
+
+    <section class="starter-strip" id="starter-strip" aria-label="示例问题">
+      <span>不知道怎么开口？试试：</span>
+      <button type="button" data-example="AI 是否真的能帮助我的公司赚钱？">AI 与公司增长</button>
+      <button type="button" data-example="我该不该开始持续写作？">开始持续写作</button>
+      <button type="button" data-example="如何把零散经验变成一本书？">经验变成一本书</button>
+    </section>
+
+    <section class="workspace" aria-label="提问工作区">
+      <aside class="rail panel" aria-labelledby="trail-title">
+        <div class="panel-heading">
+          <div><span class="section-index">01</span><h2 id="trail-title">问题轨迹</h2></div>
+          <span class="count-pill" id="question-count">0 节点</span>
+        </div>
+        <ol class="trail-list" id="question-trail">
+          <li class="empty-state"><span>✦</span><p>第一个问题投出后，<br>这里会留下思考的轨迹。</p></li>
+        </ol>
+        <div class="privacy-note">
+          <span aria-hidden="true">⌂</span>
+          <p><strong>知识资产属于你</strong><br>不上传、不跟踪，可随时导出或清除。</p>
+        </div>
+      </aside>
+
+      <section class="dialogue panel" aria-labelledby="guide-title">
+        <div class="panel-heading">
+          <div><span class="section-index">02</span><h2 id="guide-title">苏格拉底引导</h2></div>
+          <span class="mode-pill">本地 POC 建议</span>
+        </div>
+
+        <div class="self-report" id="self-report">
+          <p>开始前，你愿意描述此刻的状态吗？<small>只用于调整本轮节奏，不用于心理判断。</small></p>
+          <div class="state-options" role="radiogroup" aria-label="当前状态">
+            <button type="button" role="radio" aria-checked="false" data-state="calm">平静</button>
+            <button type="button" role="radio" aria-checked="false" data-state="uncertain">不确定</button>
+            <button type="button" role="radio" aria-checked="false" data-state="energized">有动力</button>
+            <button type="button" role="radio" aria-checked="false" data-state="stuck">有点卡住</button>
+            <button type="button" role="radio" aria-checked="true" data-state="none">暂不选择</button>
+          </div>
+        </div>
+
+        <div class="guide-empty" id="guide-empty">
+          <div class="constellation-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <h3>答案可以晚一点，问题先清楚一点。</h3>
+          <p>投出问题后，我会先复述你的意图，再从定义、原因、路径与证据四个方向帮你打开它。</p>
+        </div>
+
+        <div class="guide-result" id="guide-result" hidden>
+          <article class="reflection-card">
+            <span class="card-kicker">我听见的是</span>
+            <p id="reflection-text"></p>
+          </article>
+          <div class="prompt-line">
+            <span>不用一次想完。先选一条你最想继续的路：</span>
+            <span>四向展开</span>
+          </div>
+          <div class="reframe-grid" id="reframe-grid"></div>
+          <article class="next-question" id="next-question" hidden>
+            <span class="card-kicker">此刻最值得回答的一问</span>
+            <h3 id="next-question-text"></h3>
+            <p>回答它，或直接生成一个阶段性成果。你仍然保有最终判断。</p>
+          </article>
+        </div>
+      </section>
+
+      <aside class="outcomes panel" aria-labelledby="artifact-title">
+        <div class="panel-heading">
+          <div><span class="section-index">03</span><h2 id="artifact-title">成果工作台</h2></div>
+          <span class="readiness" id="readiness-label">尚未启动</span>
+        </div>
+
+        <div class="loop-meter" aria-label="POC 闭环进度">
+          <div class="meter-head"><span>从问题到成果</span><strong id="progress-label">0 / 4</strong></div>
+          <div class="meter-track"><i id="progress-bar"></i></div>
+          <ol id="loop-steps">
+            <li data-step="question"><span>1</span>投出问题</li>
+            <li data-step="branch"><span>2</span>选择路径</li>
+            <li data-step="artifact"><span>3</span>形成成果</li>
+            <li data-step="export"><span>4</span>保存带走</li>
+          </ol>
+        </div>
+
+        <div class="artifact-actions" id="artifact-actions" aria-disabled="true">
+          <p>选择一种阶段性成果</p>
+          <div class="artifact-types">
+            <button type="button" data-artifact="brief" disabled><span>◇</span>问题简报</button>
+            <button type="button" data-artifact="research" disabled><span>⌕</span>研究计划</button>
+            <button type="button" data-artifact="outline" disabled><span>≡</span>文章提纲</button>
+          </div>
+        </div>
+
+        <article class="artifact-panel" id="artifact-panel" hidden>
+          <div class="artifact-header"><span>阶段性成果</span><button type="button" id="copy-artifact">复制</button></div>
+          <h3 id="artifact-name"></h3>
+          <div class="artifact-preview" id="artifact-preview"></div>
+          <div class="export-row">
+            <button class="secondary-button" type="button" id="export-markdown">导出 Markdown</button>
+            <button class="secondary-button" type="button" id="export-json">备份 JSON</button>
+          </div>
+        </article>
+
+        <div class="data-actions">
+          <button type="button" id="reset-session">清除本机记录</button>
+          <span id="save-status" role="status" aria-live="polite">尚无本地记录</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="poc-note">
+      <span>POC 边界</span>
+      <p>当前版本使用透明的本地规则验证交互闭环，不联网检索，也不把建议包装成事实答案。真实 AI 研究、多智能体与 Obsidian 文件同步将在验证核心价值后接入。</p>
+    </section>
+  </main>
+
+  <aside class="help-panel" id="help-panel" hidden>
+    <button type="button" id="close-help" aria-label="关闭说明">×</button>
+    <span class="section-index">使用说明</span>
+    <h2>这不是答案机器，<br>而是一张思考地图。</h2>
+    <ol>
+      <li><strong>投问</strong><span>写下真实困惑，不必先修饰。</span></li>
+      <li><strong>展开</strong><span>从四个方向选择最有感觉的一条。</span></li>
+      <li><strong>产出</strong><span>把阶段性思考做成可编辑成果。</span></li>
+      <li><strong>带走</strong><span>下载 Markdown 或 JSON，继续在 Obsidian 使用。</span></li>
+    </ol>
+    <p class="help-foot">系统不会根据措辞诊断情绪或人格。你的状态只来自主动选择，且仅保存在本机。</p>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <noscript><div class="noscript">此 POC 需要启用 JavaScript 才能运行。你的问题不会因此被上传。</div></noscript>
+  <script>/*__SCRIPT__*/</script>
+</body>
+</html>
