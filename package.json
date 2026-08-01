@@ -1,0 +1,15 @@
+{
+  "name": "socratic-galaxy-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "问启星河：提问驱动工作终端单文件 POC",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test --test-isolation=none test/*.test.mjs",
+    "verify": "npm run build && npm test && node --check src/core.mjs && node --check src/galaxy.mjs && node --check src/app.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
