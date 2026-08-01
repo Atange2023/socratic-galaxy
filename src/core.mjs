@@ -134,3 +134,94 @@ export function serializeMarkdown(session) {
 export function serializeJson(session) {
   return JSON.stringify({ schemaVersion: 1, ...session }, null, 2);
 }
+
+function idFor(prefix, iso, ordinal = 0) {
+  const stamp = Number.isNaN(Date.parse(iso)) ? Date.now() : Date.parse(iso);
+  return `${prefix}_${stamp.toString(36)}_${ordinal}`;
+}
+
+export function createSession(question, selfReport = 'none', now = new Date().toISOString()) {
+  const normalized = normalizeQuestion(question);
+  if (!normalized.ok) throw new Error(normalized.error);
+  const questionId = idFor('q', now);
+  const projectId = idFor('p', now);
+  const title = stripTerminalPunctuation(normalized.value).slice(0, 32);
+  return {
+    schemaVersion: 1,
+    project: { id: projectId, title, createdAt: now, updatedAt: now },
+    selfReport: { state: selfReport },
+    questions: [{
+      id: questionId,
+      parentId: null,
+      text: normalized.value,
+      lens: 'ORIGIN',
+      createdAt: now,
+    }],
+    activeQuestionId: questionId,
+    artifact: null,
+    events: [{ type: 'question_submitted', at: now, meta: { questionId } }],
+    settings: { reducedMotion: false, sound: false },
+  };
+}
+
+export function selectBranch(session, reframe, now = new Date().toISOString()) {
+  const questionId = idFor('q', now, session.questions.length);
+  const question = {
+    id: questionId,
+    parentId: session.activeQuestionId,
+    text: normalizeQuestion(reframe.text).value,
+    lens: reframe.lens,
+    createdAt: now,
+  };
+  return {
+    ...session,
+    project: { ...session.project, updatedAt: now },
+    questions: [...session.questions, question],
+    activeQuestionId: questionId,
+    events: [...session.events, {
+      type: 'branch_selected',
+      at: now,
+      meta: { questionId, lens: reframe.lens },
+    }],
+  };
+}
+
+export function recordArtifact(session, artifact, now = new Date().toISOString()) {
+  return {
+    ...session,
+    project: { ...session.project, updatedAt: now },
+    artifact: { ...artifact },
+    events: [...session.events, {
+      type: 'artifact_generated',
+      at: now,
+      meta: { artifactType: artifact.type },
+    }],
+  };
+}
+
+export function saveSession(storage, key, session) {
+  try {
+    storage.setItem(key, serializeJson(session));
+    return { ok: true };
+  } catch {
+    return {
+      ok: false,
+      error: '\u6d4f\u89c8\u5668\u672a\u80fd\u4fdd\u5b58\uff1b\u5f53\u524d\u4f1a\u8bdd\u4ecd\u53ef\u7ee7\u7eed\u5e76\u5bfc\u51fa\u3002',
+    };
+  }
+}
+
+export function loadSession(storage, key) {
+  try {
+    const raw = storage.getItem(key);
+    if (raw == null) return { ok: true, value: null };
+    const value = JSON.parse(raw);
+    if (!value || value.schemaVersion !== 1 || !Array.isArray(value.questions)) throw new Error('invalid');
+    return { ok: true, value };
+  } catch {
+    return {
+      ok: false,
+      error: '\u672c\u5730\u8bb0\u5f55\u5df2\u635f\u574f\uff0c\u5df2\u5207\u6362\u4e3a\u65b0\u7684\u4e34\u65f6\u4f1a\u8bdd\u3002',
+    };
+  }
+}
