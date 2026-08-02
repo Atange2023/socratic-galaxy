@@ -22,8 +22,8 @@ export async function build() {
   ]);
   const script = [core, galaxy, app].map(inlineModule).join('\n\n');
   const html = template
-    .replace('/*__STYLES__*/', styles)
-    .replace('/*__SCRIPT__*/', script.replace(/<\/script/gi, '<\\/script'));
+    .replace('/*__STYLES__*/', () => styles)
+    .replace('/*__SCRIPT__*/', () => script.replace(/<\/script/gi, '<\\/script'));
   const outputPath = path.join(outputRoot, 'index.html');
   await mkdir(outputRoot, { recursive: true });
   await writeFile(outputPath, html, 'utf8');

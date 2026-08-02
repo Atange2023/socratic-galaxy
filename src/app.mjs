@@ -171,6 +171,7 @@
     if (!session) return;
     $$('.reframe-card').forEach((card) => card.classList.remove('selected'));
     button.classList.add('selected');
+    galaxy.launchImpact(0.58);
     galaxy.setState('branching');
     session = selectBranch(session, reframe);
     renderTrail();
@@ -190,6 +191,7 @@
       return;
     }
     dom.inputError.textContent = '';
+    galaxy.launchImpact(1);
     galaxy.setState('reflecting');
     dom.form.setAttribute('aria-busy', 'true');
     session = createSession(normalized.value, selfReportState);

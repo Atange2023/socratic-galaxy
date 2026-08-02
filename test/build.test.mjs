@@ -31,3 +31,12 @@ test('built HTML keeps working copy legible instead of using oversized headings'
   assert.match(html, /@media\s*\(max-width:\s*860px\)/);
   assert.match(html, /aspect-ratio:\s*16\s*\/\s*9/);
 });
+
+
+test('build preserves dollar-prefixed identifiers and emits parseable JavaScript', async () => {
+  const outputPath = await build();
+  const html = await readFile(outputPath, 'utf8');
+  const script = html.match(/<script>([\s\S]*?)<\/script>/i)?.[1] ?? '';
+  assert.match(script, /const \$\$ =/);
+  assert.doesNotThrow(() => new Function(script));
+});
