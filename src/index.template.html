@@ -82,18 +82,7 @@
       <section class="dialogue panel" aria-labelledby="guide-title">
         <div class="panel-heading">
           <div><span class="section-index">02</span><h2 id="guide-title">苏格拉底引导</h2></div>
-          <span class="mode-pill">本地 POC 建议</span>
-        </div>
-
-        <div class="self-report" id="self-report">
-          <p>开始前，你愿意描述此刻的状态吗？<small>只用于调整本轮节奏，不用于心理判断。</small></p>
-          <div class="state-options" role="radiogroup" aria-label="当前状态">
-            <button type="button" role="radio" aria-checked="false" data-state="calm">平静</button>
-            <button type="button" role="radio" aria-checked="false" data-state="uncertain">不确定</button>
-            <button type="button" role="radio" aria-checked="false" data-state="energized">有动力</button>
-            <button type="button" role="radio" aria-checked="false" data-state="stuck">有点卡住</button>
-            <button type="button" role="radio" aria-checked="true" data-state="none">暂不选择</button>
-          </div>
+          <span class="mode-pill" id="inquiry-mode">LLM 探寻 · 可降级</span>
         </div>
 
         <div class="guide-empty" id="guide-empty">
@@ -103,6 +92,11 @@
         </div>
 
         <div class="guide-result" id="guide-result" hidden>
+          <div class="inference-summary" id="inference-summary" hidden>
+            <span>本轮状态假设</span>
+            <strong id="inference-tone">等待分析</strong>
+            <small id="inference-confidence">置信度 —</small>
+          </div>
           <article class="reflection-card">
             <span class="card-kicker">我听见的是</span>
             <p id="reflection-text"></p>
@@ -179,7 +173,7 @@
       <li><strong>产出</strong><span>把阶段性思考做成可编辑成果。</span></li>
       <li><strong>带走</strong><span>下载 Markdown 或 JSON，继续在 Obsidian 使用。</span></li>
     </ol>
-    <p class="help-foot">系统不会根据措辞诊断情绪或人格。你的状态只来自主动选择，且仅保存在本机。</p>
+    <p class="help-foot">系统只推断本轮工作状态，不诊断疾病、人格或永久特征；模型判断带置信度并可被用户修正。</p>
   </aside>
   <div class="scrim" id="scrim" hidden></div>
 

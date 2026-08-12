@@ -13,14 +13,15 @@ function inlineModule(source) {
 export async function build() {
   const sourceRoot = path.join(projectRoot, 'src');
   const outputRoot = path.join(projectRoot, 'dist');
-  const [template, styles, core, galaxy, app] = await Promise.all([
+  const [template, styles, core, galaxy, inquiryClient, app] = await Promise.all([
     readFile(path.join(sourceRoot, 'index.template.html'), 'utf8'),
     readFile(path.join(sourceRoot, 'styles.css'), 'utf8'),
     readFile(path.join(sourceRoot, 'core.mjs'), 'utf8'),
     readFile(path.join(sourceRoot, 'galaxy.mjs'), 'utf8'),
+    readFile(path.join(sourceRoot, 'inquiry-client.mjs'), 'utf8'),
     readFile(path.join(sourceRoot, 'app.mjs'), 'utf8'),
   ]);
-  const script = [core, galaxy, app].map(inlineModule).join('\n\n');
+  const script = [core, galaxy, inquiryClient, app].map(inlineModule).join('\n\n');
   const html = template
     .replace('/*__STYLES__*/', () => styles)
     .replace('/*__SCRIPT__*/', () => script.replace(/<\/script/gi, '<\\/script'));

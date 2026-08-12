@@ -40,3 +40,13 @@ test('build preserves dollar-prefixed identifiers and emits parseable JavaScript
   assert.match(script, /const \$\$ =/);
   assert.doesNotThrow(() => new Function(script));
 });
+
+test('LLM build infers turn state instead of requiring a pre-question self report', async () => {
+  const outputPath = await build();
+  const html = await readFile(outputPath, 'utf8');
+  assert.doesNotMatch(html, /id="self-report"/);
+  assert.doesNotMatch(html, /开始前，你愿意描述此刻的状态吗/);
+  assert.match(html, /id="inference-summary"/);
+  assert.match(html, /requestInquiry\(/);
+  assert.match(html, /canUseInquiryApi\(/);
+});

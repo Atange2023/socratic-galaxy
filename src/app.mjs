@@ -153,9 +153,22 @@
     });
   }
 
-  function showGuidance(question, resumed = false) {
+  function showGuidance(question, resumed = false, modelResult = null) {
     dom.guideEmpty.hidden = true;
     dom.guideResult.hidden = false;
+    if (modelResult) {
+      dom.reflection.textContent = modelResult.guidance.reflection;
+      renderReframes(question, modelResult.guidance.candidateQuestions);
+      dom.inferenceSummary.hidden = false;
+      dom.inferenceTone.textContent = modelResult.turnState.emotionalTone;
+      dom.inferenceConfidence.textContent = `置信度 ${Math.round(modelResult.turnState.confidence * 100)}% · 仅代表本轮状态假设`;
+      dom.inquiryMode.textContent = modelResult.source === 'llm' ? 'DeepSeek · 结构化分析' : '模型不可用 · 本地降级';
+      dom.nextQuestion.hidden = false;
+      dom.nextQuestionText.textContent = modelResult.guidance.mainQuestion;
+      return;
+    }
+    dom.inferenceSummary.hidden = true;
+    dom.inquiryMode.textContent = canUseInquiryApi() ? 'LLM 探寻 · 可降级' : '离线模式 · 本地降级';
     dom.reflection.textContent = resumed
       ? '这条问题路径保存在本机。你可以继续选择新的角度，或把当前思考做成阶段性成果。'
       : reflectionFor(question);
@@ -183,7 +196,7 @@
     window.setTimeout(() => galaxy.setState('ready'), session.settings.reducedMotion ? 0 : 520);
   }
 
-  function startQuestion(raw) {
+  async function startQuestion(raw) {
     const normalized = normalizeQuestion(raw);
     if (!normalized.ok) {
       dom.inputError.textContent = normalized.error;
@@ -194,17 +207,45 @@
     galaxy.launchImpact(1);
     galaxy.setState('reflecting');
     dom.form.setAttribute('aria-busy', 'true');
-    session = createSession(normalized.value, selfReportState);
+    session = createSession(normalized.value, 'none');
     session.settings.reducedMotion = dom.reducedMotion.checked;
     renderTrail();
     progressState();
     persist();
-    window.setTimeout(() => {
+
+    if (!canUseInquiryApi()) {
+      window.setTimeout(() => {
+        showGuidance(normalized.value);
+        dom.form.removeAttribute('aria-busy');
+        galaxy.setState('branching');
+        dom.guideResult.scrollIntoView({ behavior: session.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+      }, session.settings.reducedMotion ? 0 : 460);
+      return;
+    }
+
+    try {
+      await requestInquiry({
+        question: normalized.value,
+        sessionId: session.project.id,
+        history: [],
+      }, {
+        status(data) {
+          if (data.state === 'analyzing') galaxy.setState('reflecting');
+          if (data.state === 'guiding') galaxy.setState('branching');
+        },
+        result(data) {
+          showGuidance(normalized.value, false, data);
+          dom.guideResult.scrollIntoView({ behavior: session.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+        },
+        done() { galaxy.setState('ready'); },
+      });
+    } catch {
       showGuidance(normalized.value);
-      dom.form.removeAttribute('aria-busy');
       galaxy.setState('branching');
-      dom.guideResult.scrollIntoView({ behavior: session.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
-    }, session.settings.reducedMotion ? 0 : 460);
+      window.setTimeout(() => galaxy.setState('ready'), session.settings.reducedMotion ? 0 : 520);
+    } finally {
+      dom.form.removeAttribute('aria-busy');
+    }
   }
 
   function generateArtifact(type) {

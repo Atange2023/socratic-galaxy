@@ -1,15 +1,28 @@
 {
   "name": "socratic-galaxy-poc",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "问启星河：提问驱动工作终端单文件 POC",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node --test --test-isolation=none test/*.test.mjs",
-    "verify": "npm run build && npm test && node --check src/core.mjs && node --check src/galaxy.mjs && node --check src/app.mjs"
+    "test": "npm run test:frontend && npm run test:server",
+    "verify": "npm run build && npm test && npm run typecheck && node --check src/core.mjs && node --check src/galaxy.mjs && node --check src/inquiry-client.mjs && node --check src/app.mjs",
+    "test:frontend": "node --test --test-isolation=none test/*.test.mjs",
+    "test:server": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test --test-isolation=none server/*.test.ts server/providers/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "dev": "node --experimental-strip-types --disable-warning=ExperimentalWarning --env-file-if-exists=.env server/index.ts",
+    "start": "node --experimental-strip-types --disable-warning=ExperimentalWarning --env-file-if-exists=.env server/index.ts"
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "fastify": "^5.11.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "typescript": "^7.0.2"
   }
 }

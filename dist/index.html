@@ -350,6 +350,25 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   animation-iteration-count: 1 !important;
   transition-duration: .01ms !important;
 }
+
+.inference-summary {
+  margin: 16px 20px 0;
+  padding: 11px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(102,217,188,.18);
+  border-radius: 11px;
+  background: rgba(102,217,188,.035);
+}
+.inference-summary > span { color: var(--mint); font-size: .62rem; letter-spacing: .08em; }
+.inference-summary strong { color: #bed7d1; font-size: .72rem; font-weight: 600; }
+.inference-summary small { color: var(--dim); font-size: .6rem; text-align: right; }
+@media (max-width: 540px) {
+  .inference-summary { grid-template-columns: 1fr; gap: 3px; margin-inline: 16px; }
+  .inference-summary small { text-align: left; }
+}
 </style>
 </head>
 <body>
@@ -426,18 +445,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
       <section class="dialogue panel" aria-labelledby="guide-title">
         <div class="panel-heading">
           <div><span class="section-index">02</span><h2 id="guide-title">苏格拉底引导</h2></div>
-          <span class="mode-pill">本地 POC 建议</span>
-        </div>
-
-        <div class="self-report" id="self-report">
-          <p>开始前，你愿意描述此刻的状态吗？<small>只用于调整本轮节奏，不用于心理判断。</small></p>
-          <div class="state-options" role="radiogroup" aria-label="当前状态">
-            <button type="button" role="radio" aria-checked="false" data-state="calm">平静</button>
-            <button type="button" role="radio" aria-checked="false" data-state="uncertain">不确定</button>
-            <button type="button" role="radio" aria-checked="false" data-state="energized">有动力</button>
-            <button type="button" role="radio" aria-checked="false" data-state="stuck">有点卡住</button>
-            <button type="button" role="radio" aria-checked="true" data-state="none">暂不选择</button>
-          </div>
+          <span class="mode-pill" id="inquiry-mode">LLM 探寻 · 可降级</span>
         </div>
 
         <div class="guide-empty" id="guide-empty">
@@ -447,6 +455,11 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
         </div>
 
         <div class="guide-result" id="guide-result" hidden>
+          <div class="inference-summary" id="inference-summary" hidden>
+            <span>本轮状态假设</span>
+            <strong id="inference-tone">等待分析</strong>
+            <small id="inference-confidence">置信度 —</small>
+          </div>
           <article class="reflection-card">
             <span class="card-kicker">我听见的是</span>
             <p id="reflection-text"></p>
@@ -523,7 +536,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
       <li><strong>产出</strong><span>把阶段性思考做成可编辑成果。</span></li>
       <li><strong>带走</strong><span>下载 Markdown 或 JSON，继续在 Obsidian 使用。</span></li>
     </ol>
-    <p class="help-foot">系统不会根据措辞诊断情绪或人格。你的状态只来自主动选择，且仅保存在本机。</p>
+    <p class="help-foot">系统只推断本轮工作状态，不诊断疾病、人格或永久特征；模型判断带置信度并可被用户修正。</p>
   </aside>
   <div class="scrim" id="scrim" hidden></div>
 
@@ -1147,6 +1160,60 @@ function createGalaxy(canvas, shell, statusText) {
 }
 
 
+function canUseInquiryApi(protocol = globalThis.location?.protocol) {
+  return protocol === 'http:' || protocol === 'https:';
+}
+
+function parseEvent(block) {
+  let event = 'message';
+  const data = [];
+  for (const line of block.split('\n')) {
+    if (line.startsWith('event:')) event = line.slice(6).trim();
+    if (line.startsWith('data:')) data.push(line.slice(5).trimStart());
+  }
+  if (!data.length) return null;
+  return { event, data: JSON.parse(data.join('\n')) };
+}
+
+async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
+  const response = await fetchImpl('/api/v1/inquiry', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) throw new Error(`Inquiry API returned HTTP ${response.status}`);
+  if (!response.body) throw new Error('Inquiry API returned no response stream');
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let result = null;
+
+  async function consume(block) {
+    const parsed = parseEvent(block);
+    if (!parsed) return;
+    if (parsed.event === 'result') result = parsed.data;
+    if (parsed.event === 'error') throw new Error(parsed.data?.message || 'Inquiry failed');
+    if (typeof handlers[parsed.event] === 'function') await handlers[parsed.event](parsed.data);
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done }).replace(/\r\n/g, '\n');
+    let boundary = buffer.indexOf('\n\n');
+    while (boundary >= 0) {
+      await consume(buffer.slice(0, boundary));
+      buffer = buffer.slice(boundary + 2);
+      boundary = buffer.indexOf('\n\n');
+    }
+    if (done) break;
+  }
+  if (buffer.trim()) await consume(buffer.trim());
+  if (!result) throw new Error('Inquiry API completed without a result');
+  return result;
+}
+
+
 (() => {
   'use strict';
 
@@ -1302,9 +1369,22 @@ function createGalaxy(canvas, shell, statusText) {
     });
   }
 
-  function showGuidance(question, resumed = false) {
+  function showGuidance(question, resumed = false, modelResult = null) {
     dom.guideEmpty.hidden = true;
     dom.guideResult.hidden = false;
+    if (modelResult) {
+      dom.reflection.textContent = modelResult.guidance.reflection;
+      renderReframes(question, modelResult.guidance.candidateQuestions);
+      dom.inferenceSummary.hidden = false;
+      dom.inferenceTone.textContent = modelResult.turnState.emotionalTone;
+      dom.inferenceConfidence.textContent = `置信度 ${Math.round(modelResult.turnState.confidence * 100)}% · 仅代表本轮状态假设`;
+      dom.inquiryMode.textContent = modelResult.source === 'llm' ? 'DeepSeek · 结构化分析' : '模型不可用 · 本地降级';
+      dom.nextQuestion.hidden = false;
+      dom.nextQuestionText.textContent = modelResult.guidance.mainQuestion;
+      return;
+    }
+    dom.inferenceSummary.hidden = true;
+    dom.inquiryMode.textContent = canUseInquiryApi() ? 'LLM 探寻 · 可降级' : '离线模式 · 本地降级';
     dom.reflection.textContent = resumed
       ? '这条问题路径保存在本机。你可以继续选择新的角度，或把当前思考做成阶段性成果。'
       : reflectionFor(question);
@@ -1332,7 +1412,7 @@ function createGalaxy(canvas, shell, statusText) {
     window.setTimeout(() => galaxy.setState('ready'), session.settings.reducedMotion ? 0 : 520);
   }
 
-  function startQuestion(raw) {
+  async function startQuestion(raw) {
     const normalized = normalizeQuestion(raw);
     if (!normalized.ok) {
       dom.inputError.textContent = normalized.error;
@@ -1343,17 +1423,45 @@ function createGalaxy(canvas, shell, statusText) {
     galaxy.launchImpact(1);
     galaxy.setState('reflecting');
     dom.form.setAttribute('aria-busy', 'true');
-    session = createSession(normalized.value, selfReportState);
+    session = createSession(normalized.value, 'none');
     session.settings.reducedMotion = dom.reducedMotion.checked;
     renderTrail();
     progressState();
     persist();
-    window.setTimeout(() => {
+
+    if (!canUseInquiryApi()) {
+      window.setTimeout(() => {
+        showGuidance(normalized.value);
+        dom.form.removeAttribute('aria-busy');
+        galaxy.setState('branching');
+        dom.guideResult.scrollIntoView({ behavior: session.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+      }, session.settings.reducedMotion ? 0 : 460);
+      return;
+    }
+
+    try {
+      await requestInquiry({
+        question: normalized.value,
+        sessionId: session.project.id,
+        history: [],
+      }, {
+        status(data) {
+          if (data.state === 'analyzing') galaxy.setState('reflecting');
+          if (data.state === 'guiding') galaxy.setState('branching');
+        },
+        result(data) {
+          showGuidance(normalized.value, false, data);
+          dom.guideResult.scrollIntoView({ behavior: session.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+        },
+        done() { galaxy.setState('ready'); },
+      });
+    } catch {
       showGuidance(normalized.value);
-      dom.form.removeAttribute('aria-busy');
       galaxy.setState('branching');
-      dom.guideResult.scrollIntoView({ behavior: session.settings.reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
-    }, session.settings.reducedMotion ? 0 : 460);
+      window.setTimeout(() => galaxy.setState('ready'), session.settings.reducedMotion ? 0 : 520);
+    } finally {
+      dom.form.removeAttribute('aria-busy');
+    }
   }
 
   function generateArtifact(type) {

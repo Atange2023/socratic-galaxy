@@ -2,3 +2,6 @@ qa/
 *.log
 .DS_Store
 Thumbs.db
+.env
+.data/
+node_modules/
