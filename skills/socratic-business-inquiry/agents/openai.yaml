@@ -1,4 +1,4 @@
 interface:
   display_name: "问启星河·经营问题探寻"
   short_description: "帮助企业家把真实经营困惑逐步淬炼为可研究、可行动的问题"
-  default_prompt: "使用 $socratic-business-inquiry 帮我从这个真实经营困惑开始，一次只问一个问题，逐步形成研究问题。"
+  default_prompt: "使用 $socratic-business-inquiry 帮我探寻一个真实经营问题；先理解我的原话，一次只问一个问题，并根据回答动态推进。"
