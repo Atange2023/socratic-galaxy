@@ -39,6 +39,30 @@ test('Agent Skill defines reusable workflow, method, and artifact contracts', as
   }
 });
 
+test('Agent Skill defines live conversation, correction, pause, and host-tool boundaries', async () => {
+  const [skill, conversation, research] = await Promise.all([
+    text('SKILL.md'),
+    text('references/conversation-protocol.md'),
+    text('references/research-protocol.md'),
+  ]);
+
+  assert.match(skill, /conversation-protocol\.md/);
+  assert.match(skill, /research-protocol\.md/);
+  assert.match(conversation, /启动回合/);
+  assert.match(conversation, /一次只[^\n]*一个[^\n]*问题/);
+  assert.match(conversation, /用户校正/);
+  assert.match(conversation, /暂停/);
+  assert.match(conversation, /恢复/);
+  assert.match(conversation, /决策探寻/);
+  assert.match(conversation, /研究探寻/);
+  assert.match(research, /metadata/);
+  assert.match(research, /abstract/);
+  assert.match(research, /full-text/);
+  assert.match(research, /授权/);
+  assert.match(research, /不得.*伪造|禁止.*伪造/);
+  assert.match(conversation, /不要过早|不得过早/);
+});
+
 test('Skill session validator accepts a minimal intelligent session and rejects missing provenance', async () => {
   const { validateSession } = await import('../skills/socratic-business-inquiry/scripts/validate-session.mjs');
   const base = {

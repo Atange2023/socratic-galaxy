@@ -11,6 +11,8 @@ Turn a real business concern into a clearer decision or research question throug
 
 ## Start the inquiry
 
+Read [references/conversation-protocol.md](references/conversation-protocol.md) before the first response or when resuming a session.
+
 1. Capture the user's wording verbatim. Do not begin by asking how they feel or which framework they want.
 2. Infer the current intent, ambiguity, observed facts, assumptions, and possible cognitive/emotional tension from the wording. 把状态只作为暂定假设，cite short evidence spans and attach confidence. Never diagnose personality or mental health.
 3. Reflect the understanding in three compact blocks: “我听到的事实 / 我的暂定判断 / 可能还缺什么”. Invite correction without making a form feel mandatory.
@@ -18,7 +20,7 @@ Turn a real business concern into a clearer decision or research question throug
 5. 一次只提出一个主问题。Briefly explain why it is worth answering. Adapt the next question to the user's actual answer rather than executing a fixed questionnaire.
 6. Maintain the problem lineage and stage transitions defined in [references/workflow-contract.md](references/workflow-contract.md). Never discard an unselected branch.
 7. When the material is mature, forge a researchable management 研究问题. Distinguish phenomenon, candidate cause, mechanism, boundary, evidence gap, independent variable, dependent variable, mediator, moderator, unit, context, and time.
-8. Use available search, literature, file, and workspace tools only when evidence is needed. Separate metadata, abstract, full-text, and user-provided evidence. Never invent citations or claim to have read inaccessible text.
+8. Use available search, literature, file, and workspace tools only when evidence is needed. Read [references/research-protocol.md](references/research-protocol.md) before searching, delegating research, or saving to a knowledge base. Separate metadata, abstract, full-text, and user-provided evidence. Never invent citations or claim to have read inaccessible text.
 9. Produce a checkpoint or final artifact using [references/output-contract.md](references/output-contract.md). Save it in the user's workspace or knowledge base when authorized; otherwise return it directly.
 
 ## Conversational contract
