@@ -50,3 +50,21 @@ test('LLM build infers turn state instead of requiring a pre-question self repor
   assert.match(html, /requestInquiry\(/);
   assert.match(html, /canUseInquiryApi\(/);
 });
+
+test('workbench exposes the six-stage UX shell and guided inquiry controls', async () => {
+  const outputPath = await build();
+  const html = await readFile(outputPath, 'utf8');
+  for (const id of [
+    'stage-track', 'problem-map', 'active-task', 'session-yield',
+    'understanding-panel', 'method-panel', 'exercise-panel', 'primary-action',
+  ]) assert.match(html, new RegExp(`id="${id}"`), `missing ${id}`);
+  assert.match(html, /放下问题/);
+  assert.match(html, /看清问题/);
+  assert.match(html, /选择练习/);
+  assert.match(html, /展开问题/);
+  assert.match(html, /锻造问题/);
+  assert.match(html, /核验证据/);
+  assert.match(html, /我的原话/);
+  assert.match(html, /AI 暂定/);
+  assert.match(html, /预计.*分钟/);
+});

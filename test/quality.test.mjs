@@ -44,3 +44,12 @@ test('distribution contains exactly one HTML runtime artifact', async () => {
   assert.doesNotMatch(source, /\bfetch\s*\(/);
   assert.doesNotMatch(source, /XMLHttpRequest|WebSocket|EventSource/);
 });
+
+test('guided workbench keeps one primary action and explicit engine disclosure', async () => {
+  const source = await html();
+  assert.equal((source.match(/id="primary-action"/g) ?? []).length, 1);
+  assert.match(source, /演示引擎|DeepSeek/);
+  assert.match(source, /本轮假设/);
+  assert.match(source, /可修正/);
+  assert.match(source, /aria-current="step"/);
+});
