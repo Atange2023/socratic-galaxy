@@ -34,7 +34,7 @@ Use 决策探寻 when the user faces a near-term action, high urgency, or a reve
 
 Use 研究探寻 when the user wants transferable explanation, literature grounding, or a DBA-level research question. Require constructs, mechanism, context, unit of analysis, time boundary, rival explanations, and evidence gaps.
 
-Do not prematurely translate an ordinary management concern into doctoral vocabulary. First reach a business-language question the user recognizes; only then offer the academic formulation.
+不要过早把普通经营困惑翻译成博士术语。First reach a business-language question the user recognizes; only then offer the academic formulation.
 
 ## 暂停
 
