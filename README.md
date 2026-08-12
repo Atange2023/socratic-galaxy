@@ -1,8 +1,16 @@
 # 问启星河 · 提问驱动工作终端 POC 0.3
 
-一个从经营困惑出发、由大语言模型协助澄清问题的单文件前端与受控服务端 POC。
+一个从经营困惑出发、由大语言模型协助澄清问题的 Agent Skill 与 Standalone 工作台项目。
 
-产品采用“一套思考内核、三种运行外壳”：无密钥演示版、DeepSeek 独立智能版、宿主 Agent Skill 版。三种形态共享工作流状态、结构化输入输出协议和方法资产，具体边界见 `docs/runtime-modes.md`。
+产品采用 **Skill-first** 路线：基础版是由宿主大模型驱动的 `socratic-business-inquiry` Agent Skill；下一阶段才把模型、检索和存储替换成 DeepSeek 后端与自有连接器，形成 Standalone。现有单 HTML 是 Standalone 的交互外壳原型，不是无智能的客户基础版。具体复用边界见 `docs/runtime-modes.md`。
+
+## 基础版：Agent Skill
+
+Skill 源码位于 `skills/socratic-business-inquiry`。它直接使用宿主 Agent 的模型处理用户真实问题，覆盖问题理解、状态暂定判断、方法推荐、逐轮探寻、问题簇、研究问题、证据边界与成果协议。
+
+在支持本地 Skill 的 Agent 中安装后，用户可以直接说：
+
+> 使用 `$socratic-business-inquiry` 帮我探寻：为什么我们公司的战略落地越来越慢？
 
 ## 直接体验
 
@@ -62,6 +70,4 @@ npm run verify
 
 ## 下一步
 
-按照 `docs/superpowers/plans/2026-08-12-demo-ready-golden-path.md`，先完成可向潜在客户展示的六阶段黄金路径，再接入真实学术检索、多智能体与 Obsidian 文件连接器。
-
-客户演示的逐屏操作、建议输入和能力边界见 `docs/demo-script.md`。
+先用 Agent Skill 对真实经营问题做前向测试，稳定共用数据契约；再让现有 Web 工作台通过 DeepSeek 和自有工具实现同一契约。详细节奏见 `docs/runtime-modes.md`。
