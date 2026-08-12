@@ -12,6 +12,18 @@ Skill 源码位于 `skills/socratic-business-inquiry`。它直接使用宿主 Ag
 
 > 使用 `$socratic-business-inquiry` 帮我探寻：为什么我们公司的战略落地越来越慢？
 
+Skill 可使用依赖零的会话工具保存连续工作状态：
+
+```powershell
+cd skills/socratic-business-inquiry
+node scripts/session-cli.mjs create --question "为什么战略落地越来越慢？" --out inquiry-session.json
+node scripts/session-cli.mjs validate inquiry-session.json
+node scripts/session-cli.mjs resume inquiry-session.json
+node scripts/session-cli.mjs checkpoint inquiry-session.json
+```
+
+语义分析和下一问仍由宿主 Agent 动态生成；脚本只负责可靠地保存原始问题、用户校正、阶段、问题簇、证据、未解决项和下一问，不包含固定答案。
+
 ## 直接体验
 
 有两种运行方式：
@@ -70,4 +82,4 @@ npm run verify
 
 ## 下一步
 
-先用 Agent Skill 对真实经营问题做前向测试，稳定共用数据契约；再让现有 Web 工作台通过 DeepSeek 和自有工具实现同一契约。详细节奏见 `docs/runtime-modes.md`。
+先用 Agent Skill 对五类真实经营问题做前向测试，稳定共用数据契约；再让现有 Web 工作台通过 DeepSeek 和自有工具实现同一契约。验收场景位于 `skills/socratic-business-inquiry/references/acceptance-scenarios.md`，详细节奏见 `docs/runtime-modes.md`。

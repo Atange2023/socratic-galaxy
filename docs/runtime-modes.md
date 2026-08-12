@@ -55,7 +55,7 @@ Skill 和 Standalone 必须共享以下语义，允许实现方式不同：
 
 ## 演进路线
 
-1. `0.4-skill-foundation`：安装并真实使用 `socratic-business-inquiry`，收集十类经营问题的会话记录。
+1. `0.4-skill-foundation`：安装并真实使用 `socratic-business-inquiry`；已提供会话生命周期、暂停恢复、检查点和五类经营问题验收合同，下一步收集真实会话记录。
 2. `0.5-skill-research`：接入宿主的权威文献搜索、概念核验和 Obsidian 写入。
 3. `0.6-contract-freeze`：根据真实使用稳定会话、问题簇、研究问题和成果协议。
 4. `0.7-standalone-alpha`：让 Web 工作台调用 DeepSeek 与同一协议，替换宿主能力而不重写思考内核。
