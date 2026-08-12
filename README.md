@@ -2,6 +2,8 @@
 
 一个从经营困惑出发、由大语言模型协助澄清问题的单文件前端与受控服务端 POC。
 
+产品采用“一套思考内核、三种运行外壳”：无密钥演示版、DeepSeek 独立智能版、宿主 Agent Skill 版。三种形态共享工作流状态、结构化输入输出协议和方法资产，具体边界见 `docs/runtime-modes.md`。
+
 ## 直接体验
 
 有两种运行方式：
@@ -29,7 +31,7 @@
 
 ```powershell
 npm install
-npm run dev
+npm run demo
 ```
 
 浏览器打开服务端输出的本地地址即可。若要启用 DeepSeek：
@@ -38,6 +40,8 @@ npm run dev
 Copy-Item .env.example .env
 # 在 .env 中设置 DEEPSEEK_API_KEY，然后重新运行 npm run dev
 ```
+
+不要把真实密钥粘贴到 HTML、前端设置、聊天记录或 Git。独立版中的密钥只应保存在部署主机的 `.env` 或云平台服务端密钥管理中。
 
 完整验证：
 
@@ -59,3 +63,5 @@ npm run verify
 ## 下一步
 
 按照 `docs/superpowers/plans/2026-08-12-demo-ready-golden-path.md`，先完成可向潜在客户展示的六阶段黄金路径，再接入真实学术检索、多智能体与 Obsidian 文件连接器。
+
+客户演示的逐屏操作、建议输入和能力边界见 `docs/demo-script.md`。

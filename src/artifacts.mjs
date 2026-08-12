@@ -23,7 +23,8 @@ ${workflow.originalQuestion}
 
 ${candidate.text}
 
-研究传统：${candidate.label}  
+研究传统：${candidate.label}
+
 证据状态：待核验
 
 ## 概念候选

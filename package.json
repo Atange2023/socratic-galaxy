@@ -11,6 +11,7 @@
     "test:frontend": "node --test --test-isolation=none test/*.test.mjs",
     "test:server": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test --test-isolation=none server/*.test.ts server/providers/*.test.ts",
     "typecheck": "tsc --noEmit",
+    "demo": "node --experimental-strip-types --disable-warning=ExperimentalWarning --env-file-if-exists=.env server/index.ts",
     "dev": "node --experimental-strip-types --disable-warning=ExperimentalWarning --env-file-if-exists=.env server/index.ts",
     "start": "node --experimental-strip-types --disable-warning=ExperimentalWarning --env-file-if-exists=.env server/index.ts"
   },
