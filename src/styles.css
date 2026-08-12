@@ -436,6 +436,19 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .save-strip { margin-top: auto; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--dim); font-size: .59rem; }
 .save-strip button { border: 0; background: transparent; color: #78889b; font-size: .59rem; text-decoration: underline; cursor: pointer; }
 .session-yield { display: flex; flex-direction: column; }
+.cluster-view, .construct-view, .rq-candidates, .evidence-results { display: grid; gap: 8px; }
+.cluster-card, .construct-card, .rq-card, .source-card { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.018); }
+.cluster-card { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center; }
+.cluster-card p, .construct-card p, .rq-card p, .source-card p { margin: 5px 0; color: #b5c2d2; font-size: .7rem; line-height: 1.55; }
+.cluster-card button, .rq-card button { padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--muted); font-size: .6rem; cursor: pointer; }
+.cluster-card.selected, .rq-card.selected { border-color: var(--gold); background: rgba(243,196,107,.045); }
+.construct-view, .rq-candidates { margin-top: 14px; }
+.construct-card header, .source-card header { display: flex; justify-content: space-between; gap: 8px; }
+.construct-card small, .rq-card small, .source-card small { color: var(--dim); font-size: .58rem; }
+.search-plan { margin-bottom: 12px; padding: 12px; border: 1px dashed var(--line-bright); border-radius: 10px; color: var(--muted); font-size: .66rem; }
+.source-card a { color: var(--blue); font-size: .64rem; }.source-card .depth { color: var(--gold); }
+.brief-preview { max-height: 390px; overflow: auto; padding: 16px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.015); color: #afbdce; font-size: .69rem; line-height: 1.65; }
+.brief-preview h3, .brief-preview h4 { color: #d7e0ec; }
 
 @media (max-width: 1120px) {
   .stage-track li { grid-template-columns: 22px 1fr; padding-inline: 5px; }

@@ -444,6 +444,19 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .save-strip { margin-top: auto; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--dim); font-size: .59rem; }
 .save-strip button { border: 0; background: transparent; color: #78889b; font-size: .59rem; text-decoration: underline; cursor: pointer; }
 .session-yield { display: flex; flex-direction: column; }
+.cluster-view, .construct-view, .rq-candidates, .evidence-results { display: grid; gap: 8px; }
+.cluster-card, .construct-card, .rq-card, .source-card { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.018); }
+.cluster-card { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center; }
+.cluster-card p, .construct-card p, .rq-card p, .source-card p { margin: 5px 0; color: #b5c2d2; font-size: .7rem; line-height: 1.55; }
+.cluster-card button, .rq-card button { padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--muted); font-size: .6rem; cursor: pointer; }
+.cluster-card.selected, .rq-card.selected { border-color: var(--gold); background: rgba(243,196,107,.045); }
+.construct-view, .rq-candidates { margin-top: 14px; }
+.construct-card header, .source-card header { display: flex; justify-content: space-between; gap: 8px; }
+.construct-card small, .rq-card small, .source-card small { color: var(--dim); font-size: .58rem; }
+.search-plan { margin-bottom: 12px; padding: 12px; border: 1px dashed var(--line-bright); border-radius: 10px; color: var(--muted); font-size: .66rem; }
+.source-card a { color: var(--blue); font-size: .64rem; }.source-card .depth { color: var(--gold); }
+.brief-preview { max-height: 390px; overflow: auto; padding: 16px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.015); color: #afbdce; font-size: .69rem; line-height: 1.65; }
+.brief-preview h3, .brief-preview h4 { color: #d7e0ec; }
 
 @media (max-width: 1120px) {
   .stage-track li { grid-template-columns: 22px 1fr; padding-inline: 5px; }
@@ -559,8 +572,23 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
           <div class="exercise-summary" id="exercise-summary" hidden></div>
         </section>
 
-        <section class="future-stage" id="future-stage" hidden>
-          <span class="object-label verified">本轮完成</span><h3>练习结果已加入问题地图</h3><p>下一阶段将从这些分支中选择研究主线，并把经营语言逐步转成可核验的研究问题。</p>
+        <section class="task-panel forge-panel" id="future-stage" hidden aria-labelledby="forge-title">
+          <div class="task-intro"><span>锻造问题 · 约 4 分钟</span><h3 id="forge-title">哪一个问题值得真正研究？</h3><p>先选择主线，再比较经营语言与研究语言；其他分支会保留。</p></div>
+          <div id="cluster-view" class="cluster-view"></div>
+          <div id="construct-view" class="construct-view" hidden></div>
+          <div id="rq-candidates" class="rq-candidates" hidden></div>
+        </section>
+
+        <section class="task-panel evidence-panel" id="evidence-panel" hidden aria-labelledby="evidence-title">
+          <div class="task-intro"><span>核验证据 · 预置演示</span><h3 id="evidence-title">这个问题在现有研究中站得住吗？</h3><p>本页使用可核验的预置来源演示证据工作流，不是实时联网检索。</p></div>
+          <div id="search-plan" class="search-plan"></div><div id="evidence-results" class="evidence-results"></div>
+        </section>
+
+        <section class="task-panel artifact-stage" id="artifact-stage" hidden aria-labelledby="artifact-stage-title">
+          <div class="task-intro"><span>阶段成果</span><h3 id="artifact-stage-title">把本轮真正形成的东西带走</h3><p>即使仍有未核验项，也可以带着明确标记导出。</p></div>
+          <div id="artifact-purpose" class="time-choice"><button type="button" data-purpose="continue" aria-pressed="true">下周继续研究</button><button type="button" data-purpose="team" aria-pressed="false">管理团队讨论</button><button type="button" data-purpose="advisor" aria-pressed="false">导师评审</button></div>
+          <article id="brief-preview" class="brief-preview"></article>
+          <div class="export-row"><button class="secondary-button" type="button" id="export-markdown">导出 Markdown</button><button class="secondary-button" type="button" id="export-json">备份 JSON</button></div>
         </section>
 
         <div class="task-footer" id="task-footer" hidden>
@@ -1096,6 +1124,94 @@ function answerSocraticTurn(run, rawAnswer) {
 }
 
 
+function node(id, kind, text, source = 'demo') {
+  return { id, kind, text, source, status: 'active', confidence: source === 'user' ? 1 : 0.68 };
+}
+
+function edge(from, to, relation, confidence = 0.65) {
+  return { from, to, relation, confidence };
+}
+
+function buildProblemCluster(analysis, methodRun) {
+  const nodes = [
+    node('phenomenon_1', 'phenomenon', analysis.observation, 'user'),
+    node('cause_1', 'cause', analysis.currentExplanation),
+    ...analysis.alternativeExplanations.map((text, index) => node(`cause_${index + 2}`, 'cause', text)),
+    node('mechanism_1', 'mechanism', '跨部门目标一致性可能影响销售机会推进'),
+    node('boundary_1', 'boundary', '不同市场环境与业务阶段下关系可能不同'),
+    ...methodRun.outputs.evidenceNeeds.map((text, index) => node(`gap_${index + 1}`, 'evidence-gap', text, 'user')),
+  ];
+  const edges = [
+    edge('cause_1', 'phenomenon_1', '可能导致'),
+    ...analysis.alternativeExplanations.map((_text, index) => edge(`cause_${index + 2}`, 'phenomenon_1', '替代解释')),
+    edge('mechanism_1', 'phenomenon_1', '可能影响'),
+    edge('boundary_1', 'mechanism_1', '限制条件'),
+    ...methodRun.outputs.evidenceNeeds.map((_text, index) => edge(`gap_${index + 1}`, 'phenomenon_1', '需要证据')),
+  ];
+  return { id: `cluster_${Date.now().toString(36)}`, nodes, edges, mainlineId: null, selectionReason: '', history: [] };
+}
+
+function mergeQuestionNodes(cluster, ids, text) {
+  if (!Array.isArray(ids) || ids.length < 2) throw new Error('至少选择两个节点合并。');
+  const selected = cluster.nodes.filter((item) => ids.includes(item.id));
+  if (selected.length !== ids.length) throw new Error('合并节点不存在。');
+  const mergedId = `merged_${cluster.history.length + 1}`;
+  return {
+    ...cluster,
+    nodes: [
+      ...cluster.nodes.map((item) => ids.includes(item.id) ? { ...item, status: 'merged', mergedInto: mergedId } : item),
+      node(mergedId, selected[0].kind, text, 'user'),
+    ],
+    history: [...cluster.history, {
+      type: 'nodes_merged', ids, mergedId,
+      inverse: { type: 'restore_nodes', ids, removeId: mergedId },
+    }],
+  };
+}
+
+function selectMainline(cluster, nodeId, reason) {
+  const selected = cluster.nodes.find((item) => item.id === nodeId && item.status === 'active');
+  if (!selected) throw new Error('请选择仍然有效的问题节点。');
+  return {
+    ...cluster,
+    mainlineId: nodeId,
+    selectionReason: String(reason ?? '').trim(),
+    history: [...cluster.history, { type: 'mainline_selected', nodeId, reason }],
+  };
+}
+
+function proposeConstructs(cluster) {
+  if (!cluster.mainlineId) throw new Error('请先选择研究主线。');
+  return {
+    phenomenon: '成长型企业的销售机会转化率持续下降',
+    unitOfAnalysis: '业务单元',
+    context: '中国 B2B SaaS 成长型企业',
+    constructs: [
+      { id: 'strategic_clarity', role: 'antecedent', name: '管理层战略清晰度', businessWording: '战略有没有讲清楚', evidenceStatus: 'unverified' },
+      { id: 'goal_alignment', role: 'mechanism', name: '跨部门目标一致性', businessWording: '销售和产品是不是各做各的', evidenceStatus: 'unverified' },
+      { id: 'opportunity_conversion', role: 'outcome', name: '销售机会转化率', businessWording: '机会最终有没有签约', evidenceStatus: 'unverified' },
+      { id: 'environmental_uncertainty', role: 'boundary', name: '环境不确定性', businessWording: '客户预算和市场变化有多大', evidenceStatus: 'unverified' },
+    ],
+    sourceClusterId: cluster.id,
+  };
+}
+
+function buildResearchQuestionCandidates(model) {
+  return [
+    {
+      id: 'rq_relationship', tradition: 'relationship', label: '关系 / 机制型',
+      text: `在${model.context}中，管理层战略清晰度如何通过跨部门目标一致性影响销售机会转化率？环境不确定性发挥什么边界作用？`,
+      evidenceStatus: 'unverified',
+    },
+    {
+      id: 'rq_process', tradition: 'process', label: '过程型',
+      text: `在${model.context}中，战略意图如何在跨部门协作过程中被转译、偏移或重新对齐，并最终影响销售机会推进？`,
+      evidenceStatus: 'unverified',
+    },
+  ];
+}
+
+
 const TWO_PI = Math.PI * 2;
 
 const GALAXY_STATE_PROFILES = Object.freeze({
@@ -1557,6 +1673,8 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     exercise: $('#exercise-panel'), exerciseProgress: $('#exercise-progress'), exerciseQuestion: $('#exercise-question-text'),
     exerciseAnswer: $('#exercise-answer'), exerciseFeedback: $('#exercise-feedback'), exerciseSummary: $('#exercise-summary'),
     future: $('#future-stage'), footer: $('#task-footer'), primary: $('#primary-action'), back: $('#back-action'),
+    cluster: $('#cluster-view'), constructs: $('#construct-view'), rqCandidates: $('#rq-candidates'),
+    evidencePanel: $('#evidence-panel'), artifactStage: $('#artifact-stage'),
     mode: $('#inquiry-mode'), engineBadge: $('#engine-badge'), readiness: $('#readiness-label'),
     observations: $('#observations-list'), assumptions: $('#assumptions-list'), evidenceNeeds: $('#evidence-needs-list'),
     saveStatus: $('#save-status'), reducedMotion: $('#reduced-motion'), help: $('#help-panel'),
@@ -1570,6 +1688,9 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
   let analysis = null;
   let recommendations = null;
   let methodRun = null;
+  let problemCluster = null;
+  let researchModel = null;
+  let researchCandidates = null;
   let timeBudget = 8;
   let resetArmed = false;
 
@@ -1581,7 +1702,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
 
   function persist() {
     if (!session) return;
-    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, timeBudget } };
+    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget } };
     const result = saveSession(localStorage, STORAGE_KEY, session);
     dom.saveStatus.textContent = result.ok ? '已自动保存在本机' : result.error;
   }
@@ -1706,7 +1827,29 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     dom.method.hidden = panel !== 'method';
     dom.exercise.hidden = panel !== 'explore';
     dom.future.hidden = panel !== 'forge';
+    dom.evidencePanel.hidden = panel !== 'evidence';
+    dom.artifactStage.hidden = panel !== 'artifact';
     dom.footer.hidden = panel === 'empty';
+  }
+
+  function renderForge() {
+    if (!problemCluster) problemCluster = buildProblemCluster(analysis, methodRun);
+    dom.cluster.replaceChildren();
+    problemCluster.nodes.filter((item) => ['phenomenon', 'cause', 'mechanism', 'boundary'].includes(item.kind) && item.status === 'active').forEach((item) => {
+      const card = document.createElement('article'); card.className = `cluster-card${problemCluster.mainlineId === item.id ? ' selected' : ''}`;
+      const tag = document.createElement('span'); tag.className = 'object-label ai'; tag.textContent = ({ phenomenon: '现象', cause: '原因候选', mechanism: '机制候选', boundary: '边界' })[item.kind];
+      const p = document.createElement('p'); p.textContent = item.text;
+      const button = document.createElement('button'); button.type = 'button'; button.dataset.mainline = item.id; button.textContent = problemCluster.mainlineId === item.id ? '已选主线' : '设为主线';
+      card.append(tag, p, button); dom.cluster.append(card);
+    });
+    if (!problemCluster.mainlineId) { dom.constructs.hidden = true; dom.rqCandidates.hidden = true; dom.primary.textContent = '请先选择一条主线'; dom.primary.disabled = true; return; }
+    researchModel = proposeConstructs(problemCluster);
+    researchCandidates = buildResearchQuestionCandidates(researchModel);
+    dom.constructs.hidden = false; dom.rqCandidates.hidden = false;
+    dom.constructs.innerHTML = `<div class="task-intro"><span>经营语言 → 研究语言</span><h3>概念候选</h3><p>所有概念目前均待文献核验。</p></div>${researchModel.constructs.map((item) => `<article class="construct-card"><header><span class="object-label user">${item.businessWording}</span><small>待核验</small></header><p>${item.name}</p><small>${item.role}</small></article>`).join('')}`;
+    dom.rqCandidates.innerHTML = `<div class="task-intro"><span>候选表述</span><h3>请选择一种研究传统</h3></div>${researchCandidates.map((item) => `<article class="rq-card${workflow.data.research?.acceptedQuestionId === item.id ? ' selected' : ''}"><span class="object-label ai">${item.label}</span><p>${item.text}</p><small>概念与关系尚未核验</small><button type="button" data-rq="${item.id}">${workflow.data.research?.acceptedQuestionId === item.id ? '已选择' : '选择此版本'}</button></article>`).join('')}`;
+    dom.primary.disabled = !workflow.data.research?.acceptedQuestionId;
+    dom.primary.textContent = workflow.data.research?.acceptedQuestionId ? '去核验证据' : '选择一个研究问题';
   }
 
   function render() {
@@ -1716,7 +1859,9 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     if (stage === 'understand') { showOnly('understand'); renderUnderstanding(); dom.primary.textContent = '形成问题底稿'; }
     if (stage === 'method') { showOnly('method'); renderMethods(); dom.primary.textContent = '开始这项练习'; }
     if (stage === 'explore') { showOnly('explore'); renderExercise(); }
-    if (stage === 'forge') showOnly('forge');
+    if (stage === 'forge') { showOnly('forge'); renderForge(); }
+    if (stage === 'evidence') { showOnly('evidence'); dom.primary.textContent = '生成阶段成果'; dom.primary.disabled = false; }
+    if (stage === 'artifact') { showOnly('artifact'); dom.footer.hidden = true; }
     dom.back.hidden = ['capture', 'understand'].includes(stage);
   }
 
@@ -1780,6 +1925,20 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     persist(); render();
   }
 
+  function chooseForgeItem(event) {
+    const mainline = event.target.closest('[data-mainline]');
+    if (mainline) {
+      problemCluster = selectMainline(problemCluster, mainline.dataset.mainline, '用户从问题簇中选择的研究主线');
+      persist(); render(); return;
+    }
+    const rq = event.target.closest('[data-rq]');
+    if (rq) {
+      const chosen = researchCandidates.find((item) => item.id === rq.dataset.rq);
+      workflow = { ...workflow, data: { ...workflow.data, research: { acceptedQuestionId: chosen.id, candidate: chosen, model: researchModel } } };
+      persist(); render();
+    }
+  }
+
   function goBack() {
     const target = { method: 'understand', explore: 'method', forge: 'explore' }[workflow.stage];
     if (!target) return;
@@ -1818,7 +1977,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     if (!loaded.ok) { dom.saveStatus.textContent = loaded.error; return; }
     if (!loaded.value?.workflow) return;
     session = loaded.value; workflow = session.workflow;
-    ({ analysis, recommendations, methodRun, timeBudget = 8 } = session.workbench ?? {});
+    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget = 8 } = session.workbench ?? {});
     dom.input.value = workflow.originalQuestion; dom.charCount.textContent = `${[...dom.input.value].length} / 800`;
     dom.saveStatus.textContent = '已恢复上次进度'; render(); setGalaxyState('ready', `已恢复 · 上次停在“${workflow.stage}”阶段`);
   }
@@ -1835,9 +1994,14 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     if (workflow.stage === 'understand') confirmUnderstanding();
     else if (workflow.stage === 'method') startMethod();
     else if (workflow.stage === 'explore') continueExercise();
+    else if (workflow.stage === 'forge' && workflow.data.research?.acceptedQuestionId) {
+      workflow = transitionWorkflow(workflow, { type: 'RESEARCH_QUESTION_CONFIRMED', payload: workflow.data.research }).value;
+      persist(); render(); setGalaxyState('ready', '研究问题 v1 已形成 · 开始核验概念与关系');
+    }
   });
   dom.back.addEventListener('click', goBack);
   dom.understandingList.addEventListener('click', editUnderstanding);
+  dom.future.addEventListener('click', chooseForgeItem);
   $$('.time-choice button').forEach((button) => button.addEventListener('click', () => {
     timeBudget = Number(button.dataset.time); $$('.time-choice button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); renderMethods();
   }));

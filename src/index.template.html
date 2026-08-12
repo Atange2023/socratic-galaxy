@@ -101,8 +101,23 @@
           <div class="exercise-summary" id="exercise-summary" hidden></div>
         </section>
 
-        <section class="future-stage" id="future-stage" hidden>
-          <span class="object-label verified">本轮完成</span><h3>练习结果已加入问题地图</h3><p>下一阶段将从这些分支中选择研究主线，并把经营语言逐步转成可核验的研究问题。</p>
+        <section class="task-panel forge-panel" id="future-stage" hidden aria-labelledby="forge-title">
+          <div class="task-intro"><span>锻造问题 · 约 4 分钟</span><h3 id="forge-title">哪一个问题值得真正研究？</h3><p>先选择主线，再比较经营语言与研究语言；其他分支会保留。</p></div>
+          <div id="cluster-view" class="cluster-view"></div>
+          <div id="construct-view" class="construct-view" hidden></div>
+          <div id="rq-candidates" class="rq-candidates" hidden></div>
+        </section>
+
+        <section class="task-panel evidence-panel" id="evidence-panel" hidden aria-labelledby="evidence-title">
+          <div class="task-intro"><span>核验证据 · 预置演示</span><h3 id="evidence-title">这个问题在现有研究中站得住吗？</h3><p>本页使用可核验的预置来源演示证据工作流，不是实时联网检索。</p></div>
+          <div id="search-plan" class="search-plan"></div><div id="evidence-results" class="evidence-results"></div>
+        </section>
+
+        <section class="task-panel artifact-stage" id="artifact-stage" hidden aria-labelledby="artifact-stage-title">
+          <div class="task-intro"><span>阶段成果</span><h3 id="artifact-stage-title">把本轮真正形成的东西带走</h3><p>即使仍有未核验项，也可以带着明确标记导出。</p></div>
+          <div id="artifact-purpose" class="time-choice"><button type="button" data-purpose="continue" aria-pressed="true">下周继续研究</button><button type="button" data-purpose="team" aria-pressed="false">管理团队讨论</button><button type="button" data-purpose="advisor" aria-pressed="false">导师评审</button></div>
+          <article id="brief-preview" class="brief-preview"></article>
+          <div class="export-row"><button class="secondary-button" type="button" id="export-markdown">导出 Markdown</button><button class="secondary-button" type="button" id="export-json">备份 JSON</button></div>
         </section>
 
         <div class="task-footer" id="task-footer" hidden>

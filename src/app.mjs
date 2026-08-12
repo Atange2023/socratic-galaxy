@@ -15,6 +15,8 @@
     exercise: $('#exercise-panel'), exerciseProgress: $('#exercise-progress'), exerciseQuestion: $('#exercise-question-text'),
     exerciseAnswer: $('#exercise-answer'), exerciseFeedback: $('#exercise-feedback'), exerciseSummary: $('#exercise-summary'),
     future: $('#future-stage'), footer: $('#task-footer'), primary: $('#primary-action'), back: $('#back-action'),
+    cluster: $('#cluster-view'), constructs: $('#construct-view'), rqCandidates: $('#rq-candidates'),
+    evidencePanel: $('#evidence-panel'), artifactStage: $('#artifact-stage'),
     mode: $('#inquiry-mode'), engineBadge: $('#engine-badge'), readiness: $('#readiness-label'),
     observations: $('#observations-list'), assumptions: $('#assumptions-list'), evidenceNeeds: $('#evidence-needs-list'),
     saveStatus: $('#save-status'), reducedMotion: $('#reduced-motion'), help: $('#help-panel'),
@@ -28,6 +30,9 @@
   let analysis = null;
   let recommendations = null;
   let methodRun = null;
+  let problemCluster = null;
+  let researchModel = null;
+  let researchCandidates = null;
   let timeBudget = 8;
   let resetArmed = false;
 
@@ -39,7 +44,7 @@
 
   function persist() {
     if (!session) return;
-    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, timeBudget } };
+    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget } };
     const result = saveSession(localStorage, STORAGE_KEY, session);
     dom.saveStatus.textContent = result.ok ? '已自动保存在本机' : result.error;
   }
@@ -164,7 +169,29 @@
     dom.method.hidden = panel !== 'method';
     dom.exercise.hidden = panel !== 'explore';
     dom.future.hidden = panel !== 'forge';
+    dom.evidencePanel.hidden = panel !== 'evidence';
+    dom.artifactStage.hidden = panel !== 'artifact';
     dom.footer.hidden = panel === 'empty';
+  }
+
+  function renderForge() {
+    if (!problemCluster) problemCluster = buildProblemCluster(analysis, methodRun);
+    dom.cluster.replaceChildren();
+    problemCluster.nodes.filter((item) => ['phenomenon', 'cause', 'mechanism', 'boundary'].includes(item.kind) && item.status === 'active').forEach((item) => {
+      const card = document.createElement('article'); card.className = `cluster-card${problemCluster.mainlineId === item.id ? ' selected' : ''}`;
+      const tag = document.createElement('span'); tag.className = 'object-label ai'; tag.textContent = ({ phenomenon: '现象', cause: '原因候选', mechanism: '机制候选', boundary: '边界' })[item.kind];
+      const p = document.createElement('p'); p.textContent = item.text;
+      const button = document.createElement('button'); button.type = 'button'; button.dataset.mainline = item.id; button.textContent = problemCluster.mainlineId === item.id ? '已选主线' : '设为主线';
+      card.append(tag, p, button); dom.cluster.append(card);
+    });
+    if (!problemCluster.mainlineId) { dom.constructs.hidden = true; dom.rqCandidates.hidden = true; dom.primary.textContent = '请先选择一条主线'; dom.primary.disabled = true; return; }
+    researchModel = proposeConstructs(problemCluster);
+    researchCandidates = buildResearchQuestionCandidates(researchModel);
+    dom.constructs.hidden = false; dom.rqCandidates.hidden = false;
+    dom.constructs.innerHTML = `<div class="task-intro"><span>经营语言 → 研究语言</span><h3>概念候选</h3><p>所有概念目前均待文献核验。</p></div>${researchModel.constructs.map((item) => `<article class="construct-card"><header><span class="object-label user">${item.businessWording}</span><small>待核验</small></header><p>${item.name}</p><small>${item.role}</small></article>`).join('')}`;
+    dom.rqCandidates.innerHTML = `<div class="task-intro"><span>候选表述</span><h3>请选择一种研究传统</h3></div>${researchCandidates.map((item) => `<article class="rq-card${workflow.data.research?.acceptedQuestionId === item.id ? ' selected' : ''}"><span class="object-label ai">${item.label}</span><p>${item.text}</p><small>概念与关系尚未核验</small><button type="button" data-rq="${item.id}">${workflow.data.research?.acceptedQuestionId === item.id ? '已选择' : '选择此版本'}</button></article>`).join('')}`;
+    dom.primary.disabled = !workflow.data.research?.acceptedQuestionId;
+    dom.primary.textContent = workflow.data.research?.acceptedQuestionId ? '去核验证据' : '选择一个研究问题';
   }
 
   function render() {
@@ -174,7 +201,9 @@
     if (stage === 'understand') { showOnly('understand'); renderUnderstanding(); dom.primary.textContent = '形成问题底稿'; }
     if (stage === 'method') { showOnly('method'); renderMethods(); dom.primary.textContent = '开始这项练习'; }
     if (stage === 'explore') { showOnly('explore'); renderExercise(); }
-    if (stage === 'forge') showOnly('forge');
+    if (stage === 'forge') { showOnly('forge'); renderForge(); }
+    if (stage === 'evidence') { showOnly('evidence'); dom.primary.textContent = '生成阶段成果'; dom.primary.disabled = false; }
+    if (stage === 'artifact') { showOnly('artifact'); dom.footer.hidden = true; }
     dom.back.hidden = ['capture', 'understand'].includes(stage);
   }
 
@@ -238,6 +267,20 @@
     persist(); render();
   }
 
+  function chooseForgeItem(event) {
+    const mainline = event.target.closest('[data-mainline]');
+    if (mainline) {
+      problemCluster = selectMainline(problemCluster, mainline.dataset.mainline, '用户从问题簇中选择的研究主线');
+      persist(); render(); return;
+    }
+    const rq = event.target.closest('[data-rq]');
+    if (rq) {
+      const chosen = researchCandidates.find((item) => item.id === rq.dataset.rq);
+      workflow = { ...workflow, data: { ...workflow.data, research: { acceptedQuestionId: chosen.id, candidate: chosen, model: researchModel } } };
+      persist(); render();
+    }
+  }
+
   function goBack() {
     const target = { method: 'understand', explore: 'method', forge: 'explore' }[workflow.stage];
     if (!target) return;
@@ -276,7 +319,7 @@
     if (!loaded.ok) { dom.saveStatus.textContent = loaded.error; return; }
     if (!loaded.value?.workflow) return;
     session = loaded.value; workflow = session.workflow;
-    ({ analysis, recommendations, methodRun, timeBudget = 8 } = session.workbench ?? {});
+    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget = 8 } = session.workbench ?? {});
     dom.input.value = workflow.originalQuestion; dom.charCount.textContent = `${[...dom.input.value].length} / 800`;
     dom.saveStatus.textContent = '已恢复上次进度'; render(); setGalaxyState('ready', `已恢复 · 上次停在“${workflow.stage}”阶段`);
   }
@@ -293,9 +336,14 @@
     if (workflow.stage === 'understand') confirmUnderstanding();
     else if (workflow.stage === 'method') startMethod();
     else if (workflow.stage === 'explore') continueExercise();
+    else if (workflow.stage === 'forge' && workflow.data.research?.acceptedQuestionId) {
+      workflow = transitionWorkflow(workflow, { type: 'RESEARCH_QUESTION_CONFIRMED', payload: workflow.data.research }).value;
+      persist(); render(); setGalaxyState('ready', '研究问题 v1 已形成 · 开始核验概念与关系');
+    }
   });
   dom.back.addEventListener('click', goBack);
   dom.understandingList.addEventListener('click', editUnderstanding);
+  dom.future.addEventListener('click', chooseForgeItem);
   $$('.time-choice button').forEach((button) => button.addEventListener('click', () => {
     timeBudget = Number(button.dataset.time); $$('.time-choice button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); renderMethods();
   }));
