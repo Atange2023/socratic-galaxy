@@ -64,3 +64,16 @@ When pausing, deliver:
 - `obsidian-note`: YAML frontmatter, question lineage, wiki links, evidence and unresolved tasks.
 
 Always state the engine mode, generation time, unresolved items, and whether literature search was actually performed.
+
+## Session commands
+
+Run these commands from the Skill directory. They use only Node.js built-ins and never call a model or network service.
+
+```powershell
+node scripts/session-cli.mjs create --question "为什么战略落地越来越慢？" --out inquiry-session.json
+node scripts/session-cli.mjs validate inquiry-session.json
+node scripts/session-cli.mjs resume inquiry-session.json
+node scripts/session-cli.mjs checkpoint inquiry-session.json
+```
+
+The host Agent performs semantic reasoning, applies lifecycle events through `scripts/session-core.mjs`, and writes the updated JSON only when the user has authorized workspace persistence. `checkpoint` prints Obsidian-compatible Markdown; redirect or save it only within the authorized workspace.
