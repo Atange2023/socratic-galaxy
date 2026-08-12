@@ -1274,6 +1274,84 @@ function noResultsMessage(query) {
 }
 
 
+function lines(items, fallback = '尚未形成') {
+  return items?.length ? items.map((item) => `- ${item}`).join('\n') : `- ${fallback}`;
+}
+
+function buildResearchBrief(context) {
+  const { workflow, analysis, run, cluster, model, candidate, evidence } = context;
+  const sourceIds = evidence.sources.map((item) => item.id);
+  const markdown = `# 问启星河｜阶段研究简报
+
+> 当前状态：阶段性成果；构念、关系与研究空白仍待真实文献核验。
+
+## 我的原话
+
+${workflow.originalQuestion}
+
+## 问题怎样发生了变化
+
+- 最初解释：${analysis.currentExplanation}
+- 已确认现象：${analysis.observation}
+- 当前主线：${cluster.nodes.find((item) => item.id === cluster.mainlineId)?.text ?? '尚未选择'}
+
+## 研究问题候选
+
+${candidate.text}
+
+研究传统：${candidate.label}  
+证据状态：待核验
+
+## 概念候选
+
+${model.constructs.map((item) => `- ${item.name}（${item.role}）：来自“${item.businessWording}”；待核验`).join('\n')}
+
+## 本轮证据缺口
+
+${lines(run.outputs.evidenceNeeds)}
+
+## 预置演示证据
+
+${evidence.sources.map((source) => `- [${source.title}](${source.doiOrUrl})｜${source.accessDepth}｜${source.relation}`).join('\n')}
+
+> 上述为预置演示来源，不是本轮实时全网检索；仅元数据来源不支持原文或因果结论。
+
+## 下一步最小行动
+
+- 拆分销售漏斗各阶段数据并确认下降位置。
+- 核对战略变化、跨部门目标和交接时长。
+- 使用实时学术检索核验构念定义、量表与既有关系。
+`;
+  return {
+    schemaVersion: 2,
+    id: `brief_${Date.now().toString(36)}`,
+    title: `阶段研究简报｜${workflow.originalQuestion.replace(/[？?]+$/u, '').slice(0, 28)}`,
+    markdown,
+    unresolvedItems: ['核心构念定义待核验', '关系方向与因果性待核验', '数据层级与可得性待确认'],
+    provenance: { workflowId: workflow.id, sourceIds, engineMode: evidence.mode },
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function buildDecisionHypothesisCard(context) {
+  return {
+    title: '经营决策假设卡',
+    hypothesis: context.analysis.currentExplanation,
+    observation: context.analysis.observation,
+    disconfirmingEvidence: context.run.outputs.evidenceNeeds,
+    nextAction: '先用漏斗与跨部门协作数据验证，而不是直接把结果归因于团队。',
+  };
+}
+
+function serializeObsidianBundle(brief) {
+  return `---\nschema_version: 2\nartifact_id: "${brief.id}"\ngenerated: "${brief.generatedAt}"\nengine_mode: "${brief.provenance.engineMode}"\ntags:\n  - 问启星河\n  - 经营研究\n  - 待核验\n---\n\n${brief.markdown}`;
+}
+
+function buildResumeSummary(context) {
+  return `你最初认为：${context.originalBelief}。\n上次发现：${context.latestInsight}。\n当前主问题：${context.mainQuestion}\n尚未完成：${context.unfinishedTask}。`;
+}
+
+
 const TWO_PI = Math.PI * 2;
 
 const GALAXY_STATE_PROFILES = Object.freeze({
@@ -1737,6 +1815,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     future: $('#future-stage'), footer: $('#task-footer'), primary: $('#primary-action'), back: $('#back-action'),
     cluster: $('#cluster-view'), constructs: $('#construct-view'), rqCandidates: $('#rq-candidates'),
     evidencePanel: $('#evidence-panel'), searchPlan: $('#search-plan'), evidenceResults: $('#evidence-results'), artifactStage: $('#artifact-stage'),
+    briefPreview: $('#brief-preview'),
     mode: $('#inquiry-mode'), engineBadge: $('#engine-badge'), readiness: $('#readiness-label'),
     observations: $('#observations-list'), assumptions: $('#assumptions-list'), evidenceNeeds: $('#evidence-needs-list'),
     saveStatus: $('#save-status'), reducedMotion: $('#reduced-motion'), help: $('#help-panel'),
@@ -1754,6 +1833,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
   let researchModel = null;
   let researchCandidates = null;
   let evidenceState = null;
+  let finalArtifact = null;
   let timeBudget = 8;
   let resetArmed = false;
 
@@ -1765,7 +1845,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
 
   function persist() {
     if (!session) return;
-    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget } };
+    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, finalArtifact, timeBudget } };
     const result = saveSession(localStorage, STORAGE_KEY, session);
     dom.saveStatus.textContent = result.ok ? '已自动保存在本机' : result.error;
   }
@@ -1924,6 +2004,25 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     dom.evidenceResults.innerHTML = evidenceState.sources.map((source) => `<article class="source-card"><header><span class="object-label ${source.accessDepth === 'fulltext' ? 'verified' : 'gap'}">${source.accessDepth === 'fulltext' ? '已读页面' : source.accessDepth === 'abstract' ? '摘要层' : '仅元数据'}</span><small>${source.year} · ${source.sourceType}</small></header><p><strong>${source.title}</strong></p><p>${source.relation}</p><a href="${source.doiOrUrl}" target="_blank" rel="noreferrer">打开可核验来源</a></article>`).join('');
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[character]);
+  }
+
+  function renderArtifactStage() {
+    if (!finalArtifact) return;
+    dom.briefPreview.innerHTML = escapeHtml(finalArtifact.markdown)
+      .replace(/^###? (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^- (.+)$/gm, '<p>• $1</p>')
+      .replace(/\n{2,}/g, '<br>');
+  }
+
+  function download(content, filename, type) {
+    const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; document.body.append(anchor); anchor.click(); anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 500);
+  }
+
   function render() {
     renderStageTrack(); renderMap(); renderYield();
     const stage = workflow?.stage ?? 'capture';
@@ -1933,7 +2032,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     if (stage === 'explore') { showOnly('explore'); renderExercise(); }
     if (stage === 'forge') { showOnly('forge'); renderForge(); }
     if (stage === 'evidence') { showOnly('evidence'); renderEvidence(); dom.primary.textContent = workflow.data.evidence?.reviewed ? '生成阶段成果' : '我已查看证据状态'; dom.primary.disabled = false; }
-    if (stage === 'artifact') { showOnly('artifact'); dom.footer.hidden = true; }
+    if (stage === 'artifact') { showOnly('artifact'); renderArtifactStage(); dom.footer.hidden = true; }
     dom.back.hidden = ['capture', 'understand'].includes(stage);
   }
 
@@ -2049,7 +2148,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     if (!loaded.ok) { dom.saveStatus.textContent = loaded.error; return; }
     if (!loaded.value?.workflow) return;
     session = loaded.value; workflow = session.workflow;
-    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget = 8 } = session.workbench ?? {});
+    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, finalArtifact, timeBudget = 8 } = session.workbench ?? {});
     dom.input.value = workflow.originalQuestion; dom.charCount.textContent = `${[...dom.input.value].length} / 800`;
     dom.saveStatus.textContent = '已恢复上次进度'; render(); setGalaxyState('ready', `已恢复 · 上次停在“${workflow.stage}”阶段`);
   }
@@ -2074,6 +2173,11 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
       if (!workflow.data.evidence?.reviewed) {
         workflow = transitionWorkflow(workflow, { type: 'EVIDENCE_REVIEWED', payload: { reviewed: true, mode: 'curated-demo', sourceIds: evidenceState.sources.map((item) => item.id) } }).value;
         persist(); render(); setGalaxyState('ready', '证据状态已记录 · 当前仍有构念待真实文献核验');
+      } else {
+        const candidate = researchCandidates.find((item) => item.id === workflow.data.research.acceptedQuestionId);
+        finalArtifact = buildResearchBrief({ workflow, analysis, run: methodRun, cluster: problemCluster, model: researchModel, candidate, evidence: evidenceState });
+        workflow = transitionWorkflow(workflow, { type: 'ARTIFACT_GENERATED', payload: { artifactId: finalArtifact.id } }).value;
+        persist(); render(); setGalaxyState('ready', '阶段研究简报已生成 · 未完成项已明确标记');
       }
     }
   });
@@ -2086,6 +2190,9 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
   $('#rephrase-question').addEventListener('click', () => { dom.exerciseFeedback.textContent = `换一种说法：如果“${analysis.currentExplanation}”不是主要原因，你会先检查什么？`; });
   $('#skip-question').addEventListener('click', () => { dom.exerciseAnswer.value = '这一项暂时不确定，需要后续验证。'; continueExercise(); });
   $('#pause-exercise').addEventListener('click', () => { persist(); dom.exerciseFeedback.textContent = '已保存。你可以放心离开，下次从这里继续。'; });
+  $('#export-markdown').addEventListener('click', () => { if (finalArtifact) download(serializeObsidianBundle(finalArtifact), '问启星河-阶段研究简报.md', 'text/markdown;charset=utf-8'); });
+  $('#export-json').addEventListener('click', () => { if (session) download(JSON.stringify(session, null, 2), '问启星河-会话备份.json', 'application/json;charset=utf-8'); });
+  $$('#artifact-purpose button').forEach((button) => button.addEventListener('click', () => { $$('#artifact-purpose button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); }));
   dom.reducedMotion.addEventListener('change', () => setReducedMotion(dom.reducedMotion.checked));
   dom.reset.addEventListener('click', resetSession);
   dom.helpButton.addEventListener('click', () => openHelp(dom.help.hidden));

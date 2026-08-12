@@ -17,6 +17,7 @@
     future: $('#future-stage'), footer: $('#task-footer'), primary: $('#primary-action'), back: $('#back-action'),
     cluster: $('#cluster-view'), constructs: $('#construct-view'), rqCandidates: $('#rq-candidates'),
     evidencePanel: $('#evidence-panel'), searchPlan: $('#search-plan'), evidenceResults: $('#evidence-results'), artifactStage: $('#artifact-stage'),
+    briefPreview: $('#brief-preview'),
     mode: $('#inquiry-mode'), engineBadge: $('#engine-badge'), readiness: $('#readiness-label'),
     observations: $('#observations-list'), assumptions: $('#assumptions-list'), evidenceNeeds: $('#evidence-needs-list'),
     saveStatus: $('#save-status'), reducedMotion: $('#reduced-motion'), help: $('#help-panel'),
@@ -34,6 +35,7 @@
   let researchModel = null;
   let researchCandidates = null;
   let evidenceState = null;
+  let finalArtifact = null;
   let timeBudget = 8;
   let resetArmed = false;
 
@@ -45,7 +47,7 @@
 
   function persist() {
     if (!session) return;
-    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget } };
+    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, finalArtifact, timeBudget } };
     const result = saveSession(localStorage, STORAGE_KEY, session);
     dom.saveStatus.textContent = result.ok ? '已自动保存在本机' : result.error;
   }
@@ -204,6 +206,25 @@
     dom.evidenceResults.innerHTML = evidenceState.sources.map((source) => `<article class="source-card"><header><span class="object-label ${source.accessDepth === 'fulltext' ? 'verified' : 'gap'}">${source.accessDepth === 'fulltext' ? '已读页面' : source.accessDepth === 'abstract' ? '摘要层' : '仅元数据'}</span><small>${source.year} · ${source.sourceType}</small></header><p><strong>${source.title}</strong></p><p>${source.relation}</p><a href="${source.doiOrUrl}" target="_blank" rel="noreferrer">打开可核验来源</a></article>`).join('');
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[character]);
+  }
+
+  function renderArtifactStage() {
+    if (!finalArtifact) return;
+    dom.briefPreview.innerHTML = escapeHtml(finalArtifact.markdown)
+      .replace(/^###? (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^- (.+)$/gm, '<p>• $1</p>')
+      .replace(/\n{2,}/g, '<br>');
+  }
+
+  function download(content, filename, type) {
+    const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; document.body.append(anchor); anchor.click(); anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 500);
+  }
+
   function render() {
     renderStageTrack(); renderMap(); renderYield();
     const stage = workflow?.stage ?? 'capture';
@@ -213,7 +234,7 @@
     if (stage === 'explore') { showOnly('explore'); renderExercise(); }
     if (stage === 'forge') { showOnly('forge'); renderForge(); }
     if (stage === 'evidence') { showOnly('evidence'); renderEvidence(); dom.primary.textContent = workflow.data.evidence?.reviewed ? '生成阶段成果' : '我已查看证据状态'; dom.primary.disabled = false; }
-    if (stage === 'artifact') { showOnly('artifact'); dom.footer.hidden = true; }
+    if (stage === 'artifact') { showOnly('artifact'); renderArtifactStage(); dom.footer.hidden = true; }
     dom.back.hidden = ['capture', 'understand'].includes(stage);
   }
 
@@ -329,7 +350,7 @@
     if (!loaded.ok) { dom.saveStatus.textContent = loaded.error; return; }
     if (!loaded.value?.workflow) return;
     session = loaded.value; workflow = session.workflow;
-    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget = 8 } = session.workbench ?? {});
+    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, finalArtifact, timeBudget = 8 } = session.workbench ?? {});
     dom.input.value = workflow.originalQuestion; dom.charCount.textContent = `${[...dom.input.value].length} / 800`;
     dom.saveStatus.textContent = '已恢复上次进度'; render(); setGalaxyState('ready', `已恢复 · 上次停在“${workflow.stage}”阶段`);
   }
@@ -354,6 +375,11 @@
       if (!workflow.data.evidence?.reviewed) {
         workflow = transitionWorkflow(workflow, { type: 'EVIDENCE_REVIEWED', payload: { reviewed: true, mode: 'curated-demo', sourceIds: evidenceState.sources.map((item) => item.id) } }).value;
         persist(); render(); setGalaxyState('ready', '证据状态已记录 · 当前仍有构念待真实文献核验');
+      } else {
+        const candidate = researchCandidates.find((item) => item.id === workflow.data.research.acceptedQuestionId);
+        finalArtifact = buildResearchBrief({ workflow, analysis, run: methodRun, cluster: problemCluster, model: researchModel, candidate, evidence: evidenceState });
+        workflow = transitionWorkflow(workflow, { type: 'ARTIFACT_GENERATED', payload: { artifactId: finalArtifact.id } }).value;
+        persist(); render(); setGalaxyState('ready', '阶段研究简报已生成 · 未完成项已明确标记');
       }
     }
   });
@@ -366,6 +392,9 @@
   $('#rephrase-question').addEventListener('click', () => { dom.exerciseFeedback.textContent = `换一种说法：如果“${analysis.currentExplanation}”不是主要原因，你会先检查什么？`; });
   $('#skip-question').addEventListener('click', () => { dom.exerciseAnswer.value = '这一项暂时不确定，需要后续验证。'; continueExercise(); });
   $('#pause-exercise').addEventListener('click', () => { persist(); dom.exerciseFeedback.textContent = '已保存。你可以放心离开，下次从这里继续。'; });
+  $('#export-markdown').addEventListener('click', () => { if (finalArtifact) download(serializeObsidianBundle(finalArtifact), '问启星河-阶段研究简报.md', 'text/markdown;charset=utf-8'); });
+  $('#export-json').addEventListener('click', () => { if (session) download(JSON.stringify(session, null, 2), '问启星河-会话备份.json', 'application/json;charset=utf-8'); });
+  $$('#artifact-purpose button').forEach((button) => button.addEventListener('click', () => { $$('#artifact-purpose button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); }));
   dom.reducedMotion.addEventListener('change', () => setReducedMotion(dom.reducedMotion.checked));
   dom.reset.addEventListener('click', resetSession);
   dom.helpButton.addEventListener('click', () => openHelp(dom.help.hidden));
