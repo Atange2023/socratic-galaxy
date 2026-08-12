@@ -35,5 +35,12 @@ export function buildFallbackInquiry(rawInput: InquiryInput): InquiryResult {
       ],
     },
     safety: { clinicalInference: false, humanReviewRequired: false },
+    interaction: {
+      observation: question,
+      currentExplanation: '尚未确认',
+      unknowns: ['需要明确可观察现象', '需要定义关注的结果', '需要区分事实与当前解释'],
+      alternativeExplanations: ['尚待用户补充情境后生成'],
+      claimStatus: 'hypothesis',
+    },
   });
 }

@@ -894,6 +894,154 @@ function transitionWorkflow(workflow, event) {
 }
 
 
+const GOLDEN_PATTERN = /公司.*增长.*(执行力|团队)|增长慢.*执行力/u;
+
+function clean(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function analyzeDemoQuestion(question) {
+  const text = clean(question);
+  if (!text) throw new Error('演示分析需要一个原始问题。');
+  const golden = GOLDEN_PATTERN.test(text);
+
+  if (golden) {
+    return {
+      source: 'demo',
+      disclosure: '由预置演示引擎生成，非本轮实时联网研究。',
+      originalQuestion: text,
+      observation: '公司增长正在放缓，但具体指标与起始时间尚未明确',
+      currentExplanation: '团队执行力可能不足',
+      unknowns: [
+        '“增长慢”具体对应哪个指标、从何时开始',
+        '执行力具体指目标、能力、协作、资源还是激励',
+        '外部需求、线索质量或产品竞争力是否同时变化',
+      ],
+      toneHypothesis: '这件事可能较紧迫，而且你对团队已有一些失望',
+      confidence: 0.78,
+      claimStatus: 'hypothesis',
+      alternativeExplanations: ['线索质量下降', '客户预算收缩', '战略重点变化', '销售与产品交接变慢'],
+      corrections: [],
+    };
+  }
+
+  return {
+    source: 'demo',
+    disclosure: '由非联网演示引擎生成，仅用于展示梳理流程，不代表事实判断。',
+    originalQuestion: text,
+    observation: text.replace(/[？?]+$/u, ''),
+    currentExplanation: '尚未确认',
+    unknowns: ['需要明确可观察现象', '需要定义关注的结果', '需要区分事实与当前解释'],
+    toneHypothesis: '暂不推断',
+    confidence: 0.35,
+    claimStatus: 'hypothesis',
+    alternativeExplanations: ['尚待用户补充情境后生成'],
+    corrections: [],
+  };
+}
+
+function correctUnderstanding(analysis, field, value, at = new Date().toISOString()) {
+  const allowed = ['observation', 'currentExplanation', 'toneHypothesis'];
+  if (!allowed.includes(field)) throw new Error(`不可校正的理解字段：${field}`);
+  const nextValue = clean(value);
+  if (!nextValue) throw new Error('校正内容不能为空。');
+  return {
+    ...analysis,
+    [field]: nextValue,
+    corrections: [...(analysis.corrections ?? []), {
+      field,
+      previousValue: analysis[field],
+      value: nextValue,
+      at,
+    }],
+  };
+}
+
+
+function method(id, name, reason, minutes, expectedOutputs, questionsCount) {
+  return { id, name, reason, minutes, expectedOutputs, questionsCount };
+}
+
+function recommendMethods(analysis, timeBudget = 12) {
+  const hasAttribution = analysis.currentExplanation && analysis.currentExplanation !== '尚未确认';
+  const primary = method(
+    'socratic',
+    '苏格拉底式澄清',
+    hasAttribution
+      ? '当前表达已经包含较强归因或假设，先澄清定义、证据和替代解释，可以避免过早追错原因。'
+      : '当前现象和解释还没有分开，先用短问题澄清关注结果和判断依据。',
+    timeBudget <= 8 ? 8 : 12,
+    ['更准确的问题', '待验证假设', '证据缺口'],
+    timeBudget <= 8 ? 4 : 5,
+  );
+  return {
+    primary,
+    alternatives: [
+      method('five-whys', '多因版 5-Why', '如果你更想追查原因，可从多个候选原因分别向下验证。', 10, ['原因树', '验证点'], 5),
+      method('nine-grid', '九宫扩展', '如果问题视角过窄，可先补足相邻维度。', 12, ['维度地图', '遗漏视角'], 8),
+    ],
+    disclosure: analysis.disclosure,
+  };
+}
+
+function questionsFor(analysis) {
+  const explanation = analysis.currentExplanation === '尚未确认'
+    ? '当前解释'
+    : analysis.currentExplanation;
+  return [
+    { id: 'evidence', kind: 'evidence', text: `什么证据会让你相信这是“${explanation}”，而不是其他解释造成的？` },
+    { id: 'definition', kind: 'definition', text: `这里的“${explanation}”具体指哪些可以观察的行为或结果？` },
+    { id: 'counterexample', kind: 'counterexample', text: '有没有哪个团队表现符合你的期待，但结果依然没有改善？' },
+    { id: 'boundary', kind: 'boundary', text: '这个判断在哪些部门、时间或客户情境中可能不成立？' },
+    { id: 'action', kind: 'action', text: '如果只能先验证一件事，你最想拿到哪项数据？' },
+  ];
+}
+
+function createSocraticRun(analysis, options = {}) {
+  const timeBudget = Number(options.timeBudget ?? 12);
+  const mode = timeBudget <= 8 ? 'short' : 'standard';
+  const questions = questionsFor(analysis).slice(0, mode === 'short' ? 4 : 5);
+  return {
+    id: `socratic_${Date.now().toString(36)}`,
+    methodId: 'socratic',
+    mode,
+    questions,
+    currentTurn: 0,
+    answers: [],
+    outputs: { observations: [], assumptions: [], evidenceNeeds: [], newQuestions: [] },
+    status: 'in_progress',
+  };
+}
+
+function extractEvidenceNeed(answer) {
+  if (/漏斗/u.test(answer)) return '拆分销售漏斗各阶段数据，定位转化下降发生的位置';
+  if (/数据|没有|尚未|只是.*感觉/u.test(answer)) return '补充能支持或推翻当前解释的一手数据';
+  return '为这项判断补充可核验的事实或反例';
+}
+
+function answerSocraticTurn(run, rawAnswer) {
+  const answer = String(rawAnswer ?? '').replace(/\s+/g, ' ').trim();
+  if (!answer) throw new Error('请先写下这一问的回答。');
+  if (run.status !== 'in_progress') throw new Error('这轮练习已经结束。');
+  const question = run.questions[run.currentTurn];
+  if (!question) throw new Error('当前没有待回答问题。');
+  const nextTurn = run.currentTurn + 1;
+  const completed = nextTurn >= run.questions.length;
+  const evidenceNeed = extractEvidenceNeed(answer);
+  return {
+    ...run,
+    currentTurn: nextTurn,
+    answers: [...run.answers, { questionId: question.id, answer }],
+    outputs: {
+      ...run.outputs,
+      evidenceNeeds: [...run.outputs.evidenceNeeds, evidenceNeed],
+    },
+    feedback: '我先把这段内容记为当前观察，并把尚未获得的证据单独列出。',
+    status: completed ? 'completed' : 'in_progress',
+  };
+}
+
+
 const TWO_PI = Math.PI * 2;
 
 const GALAXY_STATE_PROFILES = Object.freeze({

@@ -45,6 +45,13 @@ export const InquiryResultSchema = z.object({
     clinicalInference: z.literal(false),
     humanReviewRequired: z.boolean(),
   }),
+  interaction: z.object({
+    observation: z.string().trim().min(1).max(240),
+    currentExplanation: z.string().trim().min(1).max(240),
+    unknowns: z.array(z.string().trim().min(1).max(180)).max(8),
+    alternativeExplanations: z.array(z.string().trim().min(1).max(180)).max(8),
+    claimStatus: z.literal('hypothesis'),
+  }).optional(),
 });
 
 export type InquiryInput = z.infer<typeof InquiryInputSchema>;
