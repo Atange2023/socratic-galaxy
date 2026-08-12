@@ -13,7 +13,7 @@ function inlineModule(source) {
 export async function build() {
   const sourceRoot = path.join(projectRoot, 'src');
   const outputRoot = path.join(projectRoot, 'dist');
-  const [template, styles, core, workflow, demoEngine, methods, researchForge, galaxy, inquiryClient, app] = await Promise.all([
+  const [template, styles, core, workflow, demoEngine, methods, researchForge, evidence, galaxy, inquiryClient, app] = await Promise.all([
     readFile(path.join(sourceRoot, 'index.template.html'), 'utf8'),
     readFile(path.join(sourceRoot, 'styles.css'), 'utf8'),
     readFile(path.join(sourceRoot, 'core.mjs'), 'utf8'),
@@ -21,11 +21,12 @@ export async function build() {
     readFile(path.join(sourceRoot, 'demo-engine.mjs'), 'utf8'),
     readFile(path.join(sourceRoot, 'methods.mjs'), 'utf8'),
     readFile(path.join(sourceRoot, 'research-forge.mjs'), 'utf8'),
+    readFile(path.join(sourceRoot, 'evidence.mjs'), 'utf8'),
     readFile(path.join(sourceRoot, 'galaxy.mjs'), 'utf8'),
     readFile(path.join(sourceRoot, 'inquiry-client.mjs'), 'utf8'),
     readFile(path.join(sourceRoot, 'app.mjs'), 'utf8'),
   ]);
-  const script = [core, workflow, demoEngine, methods, researchForge, galaxy, inquiryClient, app].map(inlineModule).join('\n\n');
+  const script = [core, workflow, demoEngine, methods, researchForge, evidence, galaxy, inquiryClient, app].map(inlineModule).join('\n\n');
   const html = template
     .replace('/*__STYLES__*/', () => styles)
     .replace('/*__SCRIPT__*/', () => script.replace(/<\/script/gi, '<\\/script'));

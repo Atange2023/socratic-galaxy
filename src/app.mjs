@@ -16,7 +16,7 @@
     exerciseAnswer: $('#exercise-answer'), exerciseFeedback: $('#exercise-feedback'), exerciseSummary: $('#exercise-summary'),
     future: $('#future-stage'), footer: $('#task-footer'), primary: $('#primary-action'), back: $('#back-action'),
     cluster: $('#cluster-view'), constructs: $('#construct-view'), rqCandidates: $('#rq-candidates'),
-    evidencePanel: $('#evidence-panel'), artifactStage: $('#artifact-stage'),
+    evidencePanel: $('#evidence-panel'), searchPlan: $('#search-plan'), evidenceResults: $('#evidence-results'), artifactStage: $('#artifact-stage'),
     mode: $('#inquiry-mode'), engineBadge: $('#engine-badge'), readiness: $('#readiness-label'),
     observations: $('#observations-list'), assumptions: $('#assumptions-list'), evidenceNeeds: $('#evidence-needs-list'),
     saveStatus: $('#save-status'), reducedMotion: $('#reduced-motion'), help: $('#help-panel'),
@@ -33,6 +33,7 @@
   let problemCluster = null;
   let researchModel = null;
   let researchCandidates = null;
+  let evidenceState = null;
   let timeBudget = 8;
   let resetArmed = false;
 
@@ -44,7 +45,7 @@
 
   function persist() {
     if (!session) return;
-    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget } };
+    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget } };
     const result = saveSession(localStorage, STORAGE_KEY, session);
     dom.saveStatus.textContent = result.ok ? '已自动保存在本机' : result.error;
   }
@@ -194,6 +195,15 @@
     dom.primary.textContent = workflow.data.research?.acceptedQuestionId ? '去核验证据' : '选择一个研究问题';
   }
 
+  function renderEvidence() {
+    if (!evidenceState) {
+      const plan = buildDemoSearchPlan(researchModel);
+      evidenceState = { ...searchDemoEvidence(plan), claims: [] };
+    }
+    dom.searchPlan.innerHTML = `<strong>检索预览</strong><p>${evidenceState.plan.queries.zh.join('；')}</p><p>${evidenceState.plan.queries.en.join('；')}</p><small>${evidenceState.plan.disclosure}</small>`;
+    dom.evidenceResults.innerHTML = evidenceState.sources.map((source) => `<article class="source-card"><header><span class="object-label ${source.accessDepth === 'fulltext' ? 'verified' : 'gap'}">${source.accessDepth === 'fulltext' ? '已读页面' : source.accessDepth === 'abstract' ? '摘要层' : '仅元数据'}</span><small>${source.year} · ${source.sourceType}</small></header><p><strong>${source.title}</strong></p><p>${source.relation}</p><a href="${source.doiOrUrl}" target="_blank" rel="noreferrer">打开可核验来源</a></article>`).join('');
+  }
+
   function render() {
     renderStageTrack(); renderMap(); renderYield();
     const stage = workflow?.stage ?? 'capture';
@@ -202,7 +212,7 @@
     if (stage === 'method') { showOnly('method'); renderMethods(); dom.primary.textContent = '开始这项练习'; }
     if (stage === 'explore') { showOnly('explore'); renderExercise(); }
     if (stage === 'forge') { showOnly('forge'); renderForge(); }
-    if (stage === 'evidence') { showOnly('evidence'); dom.primary.textContent = '生成阶段成果'; dom.primary.disabled = false; }
+    if (stage === 'evidence') { showOnly('evidence'); renderEvidence(); dom.primary.textContent = workflow.data.evidence?.reviewed ? '生成阶段成果' : '我已查看证据状态'; dom.primary.disabled = false; }
     if (stage === 'artifact') { showOnly('artifact'); dom.footer.hidden = true; }
     dom.back.hidden = ['capture', 'understand'].includes(stage);
   }
@@ -319,7 +329,7 @@
     if (!loaded.ok) { dom.saveStatus.textContent = loaded.error; return; }
     if (!loaded.value?.workflow) return;
     session = loaded.value; workflow = session.workflow;
-    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget = 8 } = session.workbench ?? {});
+    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget = 8 } = session.workbench ?? {});
     dom.input.value = workflow.originalQuestion; dom.charCount.textContent = `${[...dom.input.value].length} / 800`;
     dom.saveStatus.textContent = '已恢复上次进度'; render(); setGalaxyState('ready', `已恢复 · 上次停在“${workflow.stage}”阶段`);
   }
@@ -339,6 +349,12 @@
     else if (workflow.stage === 'forge' && workflow.data.research?.acceptedQuestionId) {
       workflow = transitionWorkflow(workflow, { type: 'RESEARCH_QUESTION_CONFIRMED', payload: workflow.data.research }).value;
       persist(); render(); setGalaxyState('ready', '研究问题 v1 已形成 · 开始核验概念与关系');
+    }
+    else if (workflow.stage === 'evidence') {
+      if (!workflow.data.evidence?.reviewed) {
+        workflow = transitionWorkflow(workflow, { type: 'EVIDENCE_REVIEWED', payload: { reviewed: true, mode: 'curated-demo', sourceIds: evidenceState.sources.map((item) => item.id) } }).value;
+        persist(); render(); setGalaxyState('ready', '证据状态已记录 · 当前仍有构念待真实文献核验');
+      }
     }
   });
   dom.back.addEventListener('click', goBack);

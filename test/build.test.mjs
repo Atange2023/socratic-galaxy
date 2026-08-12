@@ -20,7 +20,9 @@ test('build produces one self-contained semantic HTML application', async () => 
   assert.match(html, /window\.__QUESTION_TERMINAL_READY__/);
   assert.doesNotMatch(html, /<script[^>]+src=/i);
   assert.doesNotMatch(html, /<link[^>]+rel=["']stylesheet/i);
-  assert.doesNotMatch(html, /https?:\/\//i);
+  assert.doesNotMatch(html, /<(?:script|img)[^>]+src=["']https?:\/\//i);
+  assert.doesNotMatch(html, /<link[^>]+href=["']https?:\/\//i);
+  assert.match(html, /打开可核验来源/);
 });
 
 test('built HTML keeps working copy legible instead of using oversized headings', async () => {

@@ -1212,6 +1212,68 @@ function buildResearchQuestionCandidates(model) {
 }
 
 
+const DEMO_SOURCES = Object.freeze([
+  {
+    id: 'aom_canvas_2024', title: 'The Management Research Canvas', authors: ['Academy of Management Journal'], year: 2024,
+    doiOrUrl: 'https://journals.aom.org/doi/10.5465/amj.2024.4005', sourceType: 'peer-reviewed journal', accessDepth: 'fulltext',
+    relation: '研究问题需要明确理论构念、关系与解释机制，并可采用方差、过程或类型等形式。', verificationStatus: 'curated', demoDisclosure: true,
+  },
+  {
+    id: 'aom_theory_cases_2015', title: 'Theory Building from Cases', authors: ['Academy of Management Review'], year: 2015,
+    doiOrUrl: 'https://journals.aom.org/doi/10.5465/amr.2015.0094', sourceType: 'peer-reviewed journal', accessDepth: 'abstract',
+    relation: '理论问题需要说明 What、How、Why 以及适用的 Who、Where、When。', verificationStatus: 'needs-fulltext-review', demoDisclosure: true,
+  },
+  {
+    id: 'openalex_api', title: 'OpenAlex API Introduction', authors: ['OpenAlex'], year: 2026,
+    doiOrUrl: 'https://developers.openalex.org/api-reference/introduction', sourceType: 'official documentation', accessDepth: 'fulltext',
+    relation: '可用于后续连接作品、作者、来源、机构和主题等学术图谱实体。', verificationStatus: 'curated', demoDisclosure: true,
+  },
+  {
+    id: 'crossref_rest', title: 'Crossref REST API', authors: ['Crossref'], year: 2026,
+    doiOrUrl: 'https://support.crossref.org/hc/en-us/articles/214320426-REST-API', sourceType: 'official documentation', accessDepth: 'metadata',
+    relation: '可用于 DOI 与出版元数据核验，不代表已读取论文正文。', verificationStatus: 'metadata-only', demoDisclosure: true,
+  },
+]);
+
+function buildDemoSearchPlan(model) {
+  const names = model.constructs.map((item) => item.name);
+  return {
+    mode: 'curated-demo',
+    disclosure: '当前展示预置可核验来源，非实时全网检索结果。',
+    queries: {
+      zh: [`${names.join(' 与 ')} 管理研究`, '战略清晰度 跨部门目标一致性 销售绩效'],
+      en: ['strategic clarity goal alignment sales performance', 'management research constructs mechanisms boundary conditions'],
+    },
+    sources: ['AOM', 'OpenAlex', 'Crossref'],
+  };
+}
+
+function searchDemoEvidence(plan) {
+  return { plan, sources: DEMO_SOURCES.map((item) => ({ ...item })), searchedAt: new Date().toISOString(), mode: 'curated-demo' };
+}
+
+function attachEvidence(state, claim, source) {
+  if (!source) throw new Error('证据来源不存在。');
+  if (claim.kind === 'quotation' && source.accessDepth === 'metadata') {
+    throw new Error('仅有元数据，未读取摘要或全文，不能核验原文引用。');
+  }
+  return {
+    ...state,
+    claims: [...(state.claims ?? []), {
+      ...claim,
+      sourceId: source.id,
+      sourceUrl: source.doiOrUrl,
+      accessDepth: source.accessDepth,
+      verificationStatus: source.accessDepth === 'metadata' ? 'needs-review' : 'verified',
+    }],
+  };
+}
+
+function noResultsMessage(query) {
+  return `当前检索词“${query}”未检索到足够结果。可以放宽年份、拆分构念或补充同义词；这不代表相关研究不存在。`;
+}
+
+
 const TWO_PI = Math.PI * 2;
 
 const GALAXY_STATE_PROFILES = Object.freeze({
@@ -1674,7 +1736,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     exerciseAnswer: $('#exercise-answer'), exerciseFeedback: $('#exercise-feedback'), exerciseSummary: $('#exercise-summary'),
     future: $('#future-stage'), footer: $('#task-footer'), primary: $('#primary-action'), back: $('#back-action'),
     cluster: $('#cluster-view'), constructs: $('#construct-view'), rqCandidates: $('#rq-candidates'),
-    evidencePanel: $('#evidence-panel'), artifactStage: $('#artifact-stage'),
+    evidencePanel: $('#evidence-panel'), searchPlan: $('#search-plan'), evidenceResults: $('#evidence-results'), artifactStage: $('#artifact-stage'),
     mode: $('#inquiry-mode'), engineBadge: $('#engine-badge'), readiness: $('#readiness-label'),
     observations: $('#observations-list'), assumptions: $('#assumptions-list'), evidenceNeeds: $('#evidence-needs-list'),
     saveStatus: $('#save-status'), reducedMotion: $('#reduced-motion'), help: $('#help-panel'),
@@ -1691,6 +1753,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
   let problemCluster = null;
   let researchModel = null;
   let researchCandidates = null;
+  let evidenceState = null;
   let timeBudget = 8;
   let resetArmed = false;
 
@@ -1702,7 +1765,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
 
   function persist() {
     if (!session) return;
-    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget } };
+    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget } };
     const result = saveSession(localStorage, STORAGE_KEY, session);
     dom.saveStatus.textContent = result.ok ? '已自动保存在本机' : result.error;
   }
@@ -1852,6 +1915,15 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     dom.primary.textContent = workflow.data.research?.acceptedQuestionId ? '去核验证据' : '选择一个研究问题';
   }
 
+  function renderEvidence() {
+    if (!evidenceState) {
+      const plan = buildDemoSearchPlan(researchModel);
+      evidenceState = { ...searchDemoEvidence(plan), claims: [] };
+    }
+    dom.searchPlan.innerHTML = `<strong>检索预览</strong><p>${evidenceState.plan.queries.zh.join('；')}</p><p>${evidenceState.plan.queries.en.join('；')}</p><small>${evidenceState.plan.disclosure}</small>`;
+    dom.evidenceResults.innerHTML = evidenceState.sources.map((source) => `<article class="source-card"><header><span class="object-label ${source.accessDepth === 'fulltext' ? 'verified' : 'gap'}">${source.accessDepth === 'fulltext' ? '已读页面' : source.accessDepth === 'abstract' ? '摘要层' : '仅元数据'}</span><small>${source.year} · ${source.sourceType}</small></header><p><strong>${source.title}</strong></p><p>${source.relation}</p><a href="${source.doiOrUrl}" target="_blank" rel="noreferrer">打开可核验来源</a></article>`).join('');
+  }
+
   function render() {
     renderStageTrack(); renderMap(); renderYield();
     const stage = workflow?.stage ?? 'capture';
@@ -1860,7 +1932,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     if (stage === 'method') { showOnly('method'); renderMethods(); dom.primary.textContent = '开始这项练习'; }
     if (stage === 'explore') { showOnly('explore'); renderExercise(); }
     if (stage === 'forge') { showOnly('forge'); renderForge(); }
-    if (stage === 'evidence') { showOnly('evidence'); dom.primary.textContent = '生成阶段成果'; dom.primary.disabled = false; }
+    if (stage === 'evidence') { showOnly('evidence'); renderEvidence(); dom.primary.textContent = workflow.data.evidence?.reviewed ? '生成阶段成果' : '我已查看证据状态'; dom.primary.disabled = false; }
     if (stage === 'artifact') { showOnly('artifact'); dom.footer.hidden = true; }
     dom.back.hidden = ['capture', 'understand'].includes(stage);
   }
@@ -1977,7 +2049,7 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     if (!loaded.ok) { dom.saveStatus.textContent = loaded.error; return; }
     if (!loaded.value?.workflow) return;
     session = loaded.value; workflow = session.workflow;
-    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, timeBudget = 8 } = session.workbench ?? {});
+    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, timeBudget = 8 } = session.workbench ?? {});
     dom.input.value = workflow.originalQuestion; dom.charCount.textContent = `${[...dom.input.value].length} / 800`;
     dom.saveStatus.textContent = '已恢复上次进度'; render(); setGalaxyState('ready', `已恢复 · 上次停在“${workflow.stage}”阶段`);
   }
@@ -1997,6 +2069,12 @@ async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
     else if (workflow.stage === 'forge' && workflow.data.research?.acceptedQuestionId) {
       workflow = transitionWorkflow(workflow, { type: 'RESEARCH_QUESTION_CONFIRMED', payload: workflow.data.research }).value;
       persist(); render(); setGalaxyState('ready', '研究问题 v1 已形成 · 开始核验概念与关系');
+    }
+    else if (workflow.stage === 'evidence') {
+      if (!workflow.data.evidence?.reviewed) {
+        workflow = transitionWorkflow(workflow, { type: 'EVIDENCE_REVIEWED', payload: { reviewed: true, mode: 'curated-demo', sourceIds: evidenceState.sources.map((item) => item.id) } }).value;
+        persist(); render(); setGalaxyState('ready', '证据状态已记录 · 当前仍有构念待真实文献核验');
+      }
     }
   });
   dom.back.addEventListener('click', goBack);
