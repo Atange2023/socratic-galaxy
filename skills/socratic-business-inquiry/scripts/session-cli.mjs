@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import { buildResumeView, createInquirySession, validateSession } from './session-core.mjs';
+import { buildResumeView, createInquirySession, executeWalkthrough, validateSession } from './session-core.mjs';
 
 function option(args, name) {
   const index = args.indexOf(name);
@@ -48,6 +48,26 @@ export async function runCli(args, io = {}) {
       write('Session contract is valid.');
       return 0;
     }
+    if (command === 'walkthrough') {
+      const out = option(args, '--out');
+      if (!out) throw new Error('walkthrough requires --out');
+      const session = executeWalkthrough();
+      await writeFile(out, `${JSON.stringify(session, null, 2)}\n`, 'utf8');
+      write(
+        [
+          `Walked through a full inquiry session -> ${out}`,
+          `原始问题：${session.originalQuestion}`,
+          `阶段：${session.stage}`,
+          `问题簇节点：${session.questionCluster.length}`,
+          `研究问题：${session.researchQuestion ? session.researchQuestion.businessWording : '(未锻造)'}`,
+          `检索计划：${session.evidenceSearch.length} 条（状态 ${session.evidenceSearch[0]?.status || '-'}）`,
+          `证据：${session.evidence.length} 条（含概念核验 ${session.evidence.filter((e) => e.verification).length} 条）`,
+          `制品：${session.artifacts.map((a) => a.type).join(', ') || '(无)'}`,
+          `未解决项：${session.unresolvedItems.length} 条`,
+        ].join('\n'),
+      );
+      return 0;
+    }
     if (command === 'resume') {
       const view = buildResumeView(await readSession(fileArg));
       write(`阶段：${view.stage}\n最新洞察：${view.latestInsight || '尚未形成'}\n下一问：${view.nextQuestion || '需要宿主 Agent 生成'}`);
@@ -57,7 +77,7 @@ export async function runCli(args, io = {}) {
       write(serializeCheckpoint(await readSession(fileArg)));
       return 0;
     }
-    throw new Error('Usage: session-cli.mjs create|validate|resume|checkpoint');
+    throw new Error('Usage: session-cli.mjs create|validate|resume|checkpoint|walkthrough');
   } catch (cause) {
     error(cause instanceof Error ? cause.message : String(cause));
     return 1;

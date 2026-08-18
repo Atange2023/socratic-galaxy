@@ -117,7 +117,10 @@ node scripts/session-cli.mjs create --question "为什么战略落地越来越�
 node scripts/session-cli.mjs validate inquiry-session.json
 node scripts/session-cli.mjs resume inquiry-session.json
 node scripts/session-cli.mjs checkpoint inquiry-session.json
+node scripts/session-cli.mjs walkthrough --out inquiry-session.json
 ```
+
+`walkthrough` 快速复现一整条端到端会话：把"为什么战略落地越来越慢？"从 capture 推进到 artifact（含研究问题锻造、检索计划、概念核验证据和研究简报制品），落盘一个 `artifact` 阶段、可校验的会话 JSON，并在终端回显各阶段产物。它是离线、确定性的演示推演（检索计划为 `planned`、不伪造真实联网检索），用于让引导价值可复现、可检查。
 
 In the `evidence` stage, companion research commands keep retrieval and writes deterministic (see `research-protocol.md`):
 
