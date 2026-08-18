@@ -26,6 +26,8 @@ These are behavioral contracts for forward-testing the Skill. They define observ
 - **推进信号：** The user defines target workflow, expected outcome, constraints, counterfactual, and evidence threshold.
 - **目标成果：** A staged investment decision hypothesis plus a researchable mechanism question when deeper study is warranted.
 
+**JTBD 检查点（0.6）：** 在展开"全都要投入"的功能/竞品清单前，先完成雇佣时刻、被雇佣任务、真实替代三问——他们会在什么时刻想起你（而非他们要什么功能）、那一刻想完成什么（而非你要提供的）、没有你他们会怎么办（而非你比谁强）。把三答落到 `boundary`/`cause`/`rival` 节点后，再判断该不该投入。
+
 ## 紧急经营决策
 
 - **用户原话：** “现金只够三个月，我今天必须决定砍产品还是砍销售。”

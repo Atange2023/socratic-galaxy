@@ -37,3 +37,16 @@ Resume at the earliest incomplete stage. If the user adds material that invalida
 - `decision`: an action choice that depends on the inquiry.
 
 Each node keeps `id`, `type`, `text`, `source`, `status`, `parentIds`, and `confidence`. Use `source: user` for direct user content and `source: agent-hypothesis` for generated interpretations.
+
+## JTBD 三问 → 节点映射
+
+当采用雇佣式探寻时，把三问的回答落到既有节点类型，不新增类型：
+
+| JTBD 事实 | 映射节点类型 | 含义 |
+| --- | --- | --- |
+| 雇佣时刻 / 使用场景 | `boundary` | 在哪些时刻、场景、人群里被雇佣 |
+| 雇佣任务 / 动机（被雇佣的任务） | `cause`、`mechanism` | 他们想完成什么，通过什么过程 |
+| 真实替代 / 对手 | `rival` | 没有本产品时他们会用什么 |
+| 未被满足或不可见的雇佣任务 | `evidence-gap`、`decision` | 需要观察/求证，或由此导向决策 |
+
+选择主线改变优先级，不删除其他分支（沿用既有 `question-cluster` 不变量）。

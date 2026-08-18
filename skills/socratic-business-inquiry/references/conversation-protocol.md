@@ -28,6 +28,22 @@ The Agent may internally maintain several candidate branches, but must not expos
 
 Treat correction as new evidence, not resistance. State what changed, preserve the old value in `corrections`, update the working hypothesis, and reconsider downstream outputs. Never defend the prior inference.
 
+## 雇佣/场景探寻（JTBD）
+
+用户初始提问常从自己的供给方视角出发（讲功能、讲竞品、要不要投入），此时真正的瓶颈往往不是语义不清，而是**还没进入被雇佣的一方**。当理解暴露以下信号时，本轮主问优先切换到雇佣者/使用者视角，而不是继续拟真澄清：
+
+- 问题停留在"我们卖什么/要不要某某/比竞品强不强"；
+- 用户提到顾客、使用者、下游团队、利益相关者的行为或动机；
+- 需要澄清"他们到底为什么用、在什么时刻用、不用会怎样"。
+
+用到三个问题（详见 `method-library.md` 的 `雇佣式探寻`），依旧一次只问一个，按信息价值排序：
+
+1. **他们会在什么时刻想起我？**
+2. **那一刻，他们想完成什么？**
+3. **如果没有我，他们会怎么办？**
+
+一旦雇佣时刻、被雇佣任务与真实替代清楚，再回到既有的因果/机制探寻或研究问题锻造。不要把三问当作固定问卷连续倾倒。
+
 ## 决策探寻与研究探寻
 
 Use 决策探寻 when the user faces a near-term action, high urgency, or a reversible experiment. Produce a decision hypothesis card once the decision, signals, risks, and review point are clear.

@@ -9,6 +9,7 @@ Choose the method from the thinking bottleneck, not from novelty. Recommend one 
 | 六顶思考帽 | Stakeholders are arguing from incompatible modes such as facts, risk and opportunity | One factual definition is the only bottleneck | Parallel viewpoints, conflicts, synthesis |
 | 曼陀罗思考法 | The original frame is narrow and adjacent dimensions are missing | The user is already overloaded with branches | Eight dimensions, adjacent questions, opportunity map |
 | A4 纸思考法 | The user needs rapid externalization of many fragments | Deep evidence review is immediately required | Time-boxed notes, repeated patterns, next actions |
+| 雇佣式探寻（JTBD） | The question is framed from the supply side (features, competitors, adoption), or the user's user/team/beneficiary and their real moment matter, or the real substitute is unknown | The user already has a precise scene-level task and only needs causal verification within their own process | Hiring moment, hired job, real substitute, decision/research interface |
 
 ## Socratic sequence
 
@@ -37,6 +38,16 @@ Use hats as lenses, not personas:
 - yellow: value and opportunity;
 - green: alternatives and experiments;
 - blue: synthesis, decision rule and next step.
+
+## 雇佣式探寻（JTBD）三问
+
+当问题停留在供给方视角（功能、竞品、要不要投入）或涉及你的用户/团队/受益者的真实使用时刻时，用这三个问题把视角从"我"换到"他/他们"，逐步找到真正被雇佣的任务与真实对手。逐问，一次只问信息价值最高的一问，不要倾倒问卷：
+
+1. **他们会在什么时刻想起我？**——定位雇佣时刻与使用场景（when / where / who）。
+2. **那一刻，他们想完成什么？**——识别被雇佣的任务与动机（job），而不是"产品有什么功能"。
+3. **如果没有我，他们会怎么办？**——找到真实替代方案（substitute），也就是你真正的竞争对手。
+
+产出映射到问题簇既有节点类型：雇佣时刻/场景 → `boundary`；被雇佣的任务/动机 → `cause`/`mechanism`；真实替代/对手 → `rival`；尚不可见或未满足的任务 → `evidence-gap`/`decision`。追问遵循 Socratic sequence 的"Ask only the question that unlocks the largest uncertainty now"。
 
 ## Research-question readiness
 
