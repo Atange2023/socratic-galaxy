@@ -33,6 +33,7 @@ export function createInquirySession(originalQuestion, options = {}) {
     questionCluster: [],
     researchQuestion: null,
     evidence: [],
+    evidenceSearch: [],
     artifacts: [],
     unresolvedItems: [],
     nextQuestion: null,
@@ -49,6 +50,7 @@ export function applySessionEvent(session, event) {
   if (!event || typeof event.type !== 'string') return resultError(session, 'event type is required');
   const at = timestamp(event.at);
   const next = clone(session);
+  if (!Array.isArray(next.evidenceSearch)) next.evidenceSearch = [];
 
   switch (event.type) {
     case 'UNDERSTANDING_PROPOSED':
@@ -90,6 +92,21 @@ export function applySessionEvent(session, event) {
     case 'EVIDENCE_ATTACHED':
       if (session.stage !== 'evidence') return resultError(session, 'evidence can only be attached at evidence stage');
       next.evidence.push(...(Array.isArray(event.payload) ? clone(event.payload) : [clone(event.payload)]));
+      break;
+    case 'RESEARCH_SEARCH_RECORDED':
+      if (session.stage !== 'evidence') return resultError(session, 'search can only be recorded at evidence stage');
+      if (!event.payload || typeof event.payload.plan !== 'object') return resultError(session, 'RESEARCH_SEARCH_RECORDED requires a search plan');
+      next.evidenceSearch.push(clone(event.payload));
+      break;
+    case 'CONCEPT_VERIFIED':
+      if (session.stage !== 'evidence') return resultError(session, 'concept can only be verified at evidence stage');
+      if (!event.payload || typeof event.payload.evidenceIndex !== 'number' || typeof event.payload.verification !== 'object') {
+        return resultError(session, 'CONCEPT_VERIFIED requires evidenceIndex and verification');
+      }
+      if (!Number.isInteger(event.payload.evidenceIndex) || event.payload.evidenceIndex < 0 || event.payload.evidenceIndex >= next.evidence.length) {
+        return resultError(session, 'CONCEPT_VERIFIED evidenceIndex is out of range');
+      }
+      next.evidence[event.payload.evidenceIndex].verification = clone(event.payload.verification);
       break;
     case 'ARTIFACT_RECORDED':
       if (session.stage !== 'evidence' && session.stage !== 'artifact') return resultError(session, 'artifact can only be recorded after evidence stage');
@@ -133,6 +150,7 @@ export function validateSession(value) {
   if (!STAGES.includes(value.stage)) errors.push('stage is invalid');
   if (typeof value.originalQuestion !== 'string' || !value.originalQuestion.trim()) errors.push('originalQuestion is required');
   for (const field of ['questionCluster', 'evidence', 'unresolvedItems']) if (!Array.isArray(value[field])) errors.push(`${field} must be an array`);
+  if (value.evidenceSearch !== undefined && !Array.isArray(value.evidenceSearch)) errors.push('evidenceSearch must be an array when present');
   const turnState = value.understanding?.turnState;
   if (turnState) {
     if (typeof turnState.confidence !== 'number' || turnState.confidence < 0 || turnState.confidence > 1) errors.push('turnState.confidence must be between 0 and 1');

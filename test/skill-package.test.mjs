@@ -84,3 +84,21 @@ test('Skill session validator accepts a minimal intelligent session and rejects 
   assert.equal(validateSession({ ...base, originalQuestion: '' }).ok, false);
   assert.equal(validateSession({ ...base, understanding: { ...base.understanding, turnState: { label: '焦虑', confidence: 0.9, evidenceSpans: [] } } }).ok, false);
 });
+
+test('Agent Skill defines deterministic research sub-flows (search, verify, obsidian)', async () => {
+  const [research, output, skill] = await Promise.all([
+    text('references/research-protocol.md'),
+    text('references/output-contract.md'),
+    text('SKILL.md'),
+  ]);
+
+  for (const cmd of ['search-brief', 'verify-concept', 'obsidian-note']) {
+    assert.match(research, new RegExp(cmd));
+    assert.match(output, new RegExp(cmd));
+  }
+  assert.match(research, /research-cli\.mjs/);
+  assert.match(output, /evidenceSearch/);
+  assert.match(output, /verification/);
+  assert.match(skill, /research-cli\.mjs/);
+  assert.match(research, /RESEARCH_SEARCH_RECORDED|CONCEPT_VERIFIED/);
+});

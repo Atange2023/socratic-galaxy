@@ -73,3 +73,46 @@ test('invalid transitions return errors and preserve the input object', () => {
   assert.deepEqual(initial, snapshot);
   assert.equal(result.value, initial);
 });
+
+test('RESEARCH_SEARCH_RECORDED appends a search plan only at the evidence stage', () => {
+  const initial = createInquirySession(originalQuestion);
+  const proposed = applySessionEvent(initial, { type: 'UNDERSTANDING_PROPOSED', payload: understanding }).value;
+  const confirmed = applySessionEvent(proposed, { type: 'UNDERSTANDING_CONFIRMED' }).value;
+  const method = applySessionEvent(confirmed, { type: 'METHOD_SELECTED', payload: { id: 'socratic', name: '苏格拉底式探寻' } }).value;
+  const forged = applySessionEvent(method, { type: 'RESEARCH_QUESTION_FORGED', payload: { businessWording: '战略落地速度' } }).value;
+
+  const plan = { plan: { question: '战略落地速度如何度量', baselineConstructs: ['战略落地'] } };
+  const recorded = applySessionEvent(forged, { type: 'RESEARCH_SEARCH_RECORDED', payload: plan });
+  assert.equal(recorded.ok, true);
+  assert.equal(recorded.value.evidenceSearch.length, 1);
+  assert.equal(recorded.value.evidenceSearch[0].plan.baselineConstructs[0], '战略落地');
+  assert.equal(recorded.value.stage, 'evidence');
+
+  // search not allowed before the evidence stage
+  const early = applySessionEvent(confirmed, { type: 'RESEARCH_SEARCH_RECORDED', payload: plan });
+  assert.equal(early.ok, false);
+});
+
+test('CONCEPT_VERIFIED attaches verification to an existing evidence item', () => {
+  const initial = createInquirySession(originalQuestion);
+  const proposed = applySessionEvent(initial, { type: 'UNDERSTANDING_PROPOSED', payload: understanding }).value;
+  const confirmed = applySessionEvent(proposed, { type: 'UNDERSTANDING_CONFIRMED' }).value;
+  const method = applySessionEvent(confirmed, { type: 'METHOD_SELECTED', payload: { id: 'socratic', name: '苏格拉底式探寻' } }).value;
+  const forged = applySessionEvent(method, { type: 'RESEARCH_QUESTION_FORGED', payload: { businessWording: '心理所有权与协同' } }).value;
+
+  const attached = applySessionEvent(forged, { type: 'EVIDENCE_ATTACHED', payload: { claim: '心理所有权提升协同', sourceTitle: '某期刊', accessDepth: 'abstract' } });
+  const idx = attached.value.evidence.length - 1;
+  const verified = applySessionEvent(attached.value, {
+    type: 'CONCEPT_VERIFIED',
+    payload: { evidenceIndex: idx, verification: { concept: '心理所有权', definitionConsensus: ['员工对目标对象的拥有感'], provisional: false } },
+  });
+
+  assert.equal(verified.ok, true);
+  assert.equal(verified.value.evidence[idx].verification.definitionConsensus[0], '员工对目标对象的拥有感');
+
+  // out-of-range index rejected and input preserved
+  const before = structuredClone(attached.value);
+  const bad = applySessionEvent(attached.value, { type: 'CONCEPT_VERIFIED', payload: { evidenceIndex: 99, verification: { concept: 'x' } } });
+  assert.equal(bad.ok, false);
+  assert.deepEqual(attached.value, before);
+});

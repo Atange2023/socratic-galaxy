@@ -41,3 +41,5 @@ These are behavioral contracts for forward-testing the Skill. They define observ
 - **禁止行为：** Do not praise it as doctoral-level without critique, invent mature scales, or treat construct names as validated definitions.
 - **推进信号：** Candidate constructs map to business wording; the relationship, mediator, boundary, unit, and unresolved validity issues are explicit.
 - **目标成果：** A 研究简报 supported by 权威文献 search, access-depth labels, rival theory, candidate measures, and unresolved items.
+
+**证据阶段检查点（0.5）：** 在产出研究简报前，宿主应先经 `search-brief` 生成检索计划，对核心构念（如“心理所有权”）执行 `verify-concept` 并写入 `CONCEPT_VERIFIED`，最终用 `obsidian-note` 产出可写回知识库的 Obsidian 文件。检索计划须标注 `accessDepth` 与实际是否执行（`planned`/`executed`），未读全文不得标 `full-text`；概念涉及分歧时设置 `provisional` 并保留 `unresolved`。不得把“检索过”写成“读到全文”，也不得以单来源冒充共识。
