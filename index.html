@@ -1,0 +1,2207 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#07101c">
+  <title>问启星河｜企业家研究工作台</title>
+  <style>:root {
+  color-scheme: dark;
+  --ink: #eef5ff;
+  --muted: #91a1b8;
+  --dim: #66758b;
+  --night: #050912;
+  --surface: rgba(10, 18, 31, .82);
+  --surface-strong: #0c1625;
+  --line: rgba(143, 174, 214, .15);
+  --line-bright: rgba(143, 174, 214, .28);
+  --gold: #f3c46b;
+  --blue: #6ea8ff;
+  --violet: #9e8cff;
+  --mint: #66d9bc;
+  --danger: #ff9a9a;
+  --title-max: 2rem;
+  --radius: 18px;
+  --shadow: 0 24px 80px rgba(0, 0, 0, .32);
+  font-family: Inter, "SF Pro Text", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--night);
+  color: var(--ink);
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  line-height: 1.65;
+  background:
+    radial-gradient(circle at 8% 3%, rgba(63, 89, 146, .15), transparent 28rem),
+    radial-gradient(circle at 90% 45%, rgba(88, 66, 139, .11), transparent 32rem),
+    var(--night);
+  overflow-x: hidden;
+}
+button, textarea, input { font: inherit; }
+button { color: inherit; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+[hidden] { display: none !important; }
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  left: 18px;
+  top: -60px;
+  padding: 10px 14px;
+  color: #07101c;
+  background: var(--gold);
+  border-radius: 8px;
+  transition: top .2s ease;
+}
+.skip-link:focus { top: 16px; }
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .32;
+  background-image: radial-gradient(circle, rgba(255,255,255,.26) 0 1px, transparent 1.3px);
+  background-size: 52px 52px;
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
+}
+
+.topbar {
+  position: relative;
+  z-index: 10;
+  width: min(1500px, calc(100% - 40px));
+  height: 72px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: inline-flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; }
+.brand > span:last-child { display: flex; flex-direction: column; line-height: 1.15; }
+.brand strong { font-size: 1rem; letter-spacing: .12em; }
+.brand small { margin-top: 5px; color: var(--dim); font-size: .58rem; letter-spacing: .18em; }
+.brand-mark { position: relative; width: 38px; height: 38px; display: grid; place-items: center; }
+.brand-mark::before, .brand-mark::after, .brand-mark i {
+  content: ""; position: absolute; border: 1px solid rgba(243,196,107,.7); border-radius: 50%; transform: rotate(-24deg);
+}
+.brand-mark::before { width: 34px; height: 12px; }
+.brand-mark::after { width: 24px; height: 8px; opacity: .65; }
+.brand-mark i:nth-child(1) { width: 5px; height: 5px; background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+.brand-mark i:nth-child(2) { width: 2px; height: 2px; left: 6px; top: 10px; background: white; }
+.brand-mark i:nth-child(3) { width: 2px; height: 2px; right: 5px; bottom: 9px; background: var(--blue); }
+.top-actions { display: flex; align-items: center; gap: 14px; }
+.local-badge { color: var(--muted); font-size: .76rem; letter-spacing: .06em; }
+.local-badge span { margin-right: 6px; color: var(--mint); font-size: .62rem; text-shadow: 0 0 10px var(--mint); }
+.motion-toggle { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .76rem; cursor: pointer; }
+.motion-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.motion-toggle > span { position: relative; width: 34px; height: 19px; border-radius: 12px; background: rgba(255,255,255,.1); border: 1px solid var(--line-bright); }
+.motion-toggle > span::after { content: ""; position: absolute; width: 13px; height: 13px; top: 2px; left: 3px; background: var(--muted); border-radius: 50%; transition: .2s ease; }
+.motion-toggle input:checked + span { background: rgba(102,217,188,.18); }
+.motion-toggle input:checked + span::after { transform: translateX(14px); background: var(--mint); }
+.icon-button { width: 32px; height: 32px; padding: 0; border: 1px solid var(--line-bright); border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; }
+
+main { position: relative; z-index: 1; width: min(1500px, calc(100% - 40px)); margin: 24px auto 48px; }
+.galaxy-shell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 420px;
+  max-height: min(58vh, 620px);
+  overflow: hidden;
+  border: 1px solid var(--line-bright);
+  border-radius: 24px;
+  background: #050a13;
+  box-shadow: var(--shadow), inset 0 0 90px rgba(80, 108, 180, .1);
+  isolation: isolate;
+}
+.galaxy-shell::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(5,9,18,.8) 0%, rgba(5,9,18,.28) 52%, rgba(5,9,18,.68) 100%), linear-gradient(0deg, rgba(5,9,18,.88), transparent 48%);
+  pointer-events: none;
+}
+#galaxy-canvas, .galaxy-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
+#galaxy-canvas {
+  z-index: 1;
+  opacity: 1;
+  filter: saturate(1.18) contrast(1.08) brightness(1.06);
+  transition: filter .7s ease;
+}
+.galaxy-fallback {
+  z-index: 0;
+  background: radial-gradient(ellipse at 66% 42%, rgba(122,107,212,.18), transparent 12%), radial-gradient(ellipse at 66% 42%, rgba(82,137,207,.18), transparent 28%);
+}
+.galaxy-shell[data-state="reflecting"] #galaxy-canvas { filter: saturate(1.3) contrast(1.12) brightness(1.12); }
+.galaxy-shell[data-state="branching"] #galaxy-canvas { filter: saturate(1.48) contrast(1.16) brightness(1.2); }
+.galaxy-shell[data-state="ready"] #galaxy-canvas { filter: saturate(1.28) contrast(1.1) brightness(1.1); }
+.stage-copy { position: absolute; z-index: 3; left: clamp(28px, 5vw, 76px); top: clamp(38px, 10%, 80px); max-width: 560px; }
+.eyebrow { display: flex; align-items: center; gap: 9px; color: var(--gold); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; }
+.eyebrow span { width: 18px; height: 1px; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.stage-copy h1 { margin: 14px 0 14px; max-width: 18em; font-family: "Songti SC", SimSun, serif; font-size: clamp(1.55rem, 3.1vw, var(--title-max)); font-weight: 500; line-height: 1.35; letter-spacing: .045em; }
+.stage-copy h1 em { color: #dbe7ff; font-style: normal; text-shadow: 0 0 28px rgba(110,168,255,.38); }
+.stage-copy p { max-width: 460px; margin: 0; color: var(--muted); font-size: clamp(.82rem, 1.1vw, .95rem); }
+.question-composer {
+  position: absolute;
+  z-index: 3;
+  left: clamp(28px, 5vw, 76px);
+  right: clamp(28px, 5vw, 76px);
+  bottom: 66px;
+  padding: 16px 18px 10px;
+  border: 1px solid rgba(166, 193, 230, .26);
+  border-radius: 16px;
+  background: rgba(8, 15, 27, .82);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 16px 50px rgba(0,0,0,.32), inset 0 1px rgba(255,255,255,.03);
+}
+.question-composer:focus-within { border-color: rgba(243,196,107,.52); box-shadow: 0 18px 56px rgba(0,0,0,.4), 0 0 0 3px rgba(243,196,107,.06); }
+.question-composer label { display: block; margin-bottom: 4px; color: var(--gold); font-size: .72rem; letter-spacing: .09em; }
+.composer-row { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 14px; }
+textarea { width: 100%; min-height: 62px; max-height: 132px; resize: vertical; padding: 7px 0; color: var(--ink); caret-color: var(--gold); background: transparent; border: 0; font-size: clamp(.98rem, 1.35vw, 1.1rem); line-height: 1.6; }
+textarea::placeholder { color: #64748a; }
+textarea:focus { outline: none; }
+.launch-button { display: flex; align-items: center; gap: 20px; min-width: 130px; height: 52px; padding: 0 18px 0 22px; border: 0; border-radius: 12px; color: #101318; background: linear-gradient(135deg, #f6d184, #dda750); font-weight: 700; cursor: pointer; box-shadow: 0 8px 22px rgba(225,174,84,.23); }
+.launch-button:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.launch-button b { font-size: 1.2rem; font-weight: 400; }
+.composer-meta { display: flex; justify-content: space-between; color: var(--dim); font-size: .68rem; letter-spacing: .04em; }
+.field-error { min-height: 0; margin: 2px 0 0; color: var(--danger); font-size: .75rem; }
+.field-error:not(:empty) { min-height: 22px; }
+.stage-status { position: absolute; z-index: 4; left: clamp(28px, 5vw, 76px); right: clamp(28px, 5vw, 76px); bottom: 22px; display: flex; align-items: center; gap: 10px; color: #7f91a8; font-size: .69rem; letter-spacing: .08em; }
+.status-orbit { width: 8px; height: 8px; border: 1px solid var(--blue); border-radius: 50%; box-shadow: 0 0 9px rgba(110,168,255,.6); }
+.galaxy-shell[data-state="reflecting"] .status-orbit, .galaxy-shell[data-state="branching"] .status-orbit { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.7); opacity: .45; } }
+
+.starter-strip { min-height: 62px; display: flex; align-items: center; gap: 10px; padding: 14px 4px; color: var(--dim); font-size: .75rem; overflow-x: auto; }
+.starter-strip > span { white-space: nowrap; }
+.starter-strip button { white-space: nowrap; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.025); cursor: pointer; }
+.starter-strip button:hover { color: var(--ink); border-color: var(--line-bright); }
+
+.workspace { display: grid; grid-template-columns: minmax(220px, .72fr) minmax(460px, 1.55fr) minmax(270px, .9fr); gap: 16px; align-items: start; }
+.panel { min-height: 520px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(160deg, rgba(14,24,40,.88), rgba(7,13,23,.92)); box-shadow: 0 20px 50px rgba(0,0,0,.16); overflow: hidden; }
+.panel-heading { min-height: 66px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.panel-heading > div { display: flex; align-items: center; gap: 9px; }
+.panel-heading h2 { margin: 0; font-size: .92rem; font-weight: 650; letter-spacing: .04em; }
+.section-index { color: var(--gold); font: 600 .64rem/1 monospace; letter-spacing: .08em; }
+.count-pill, .mode-pill, .readiness { padding: 4px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--dim); font-size: .62rem; }
+.mode-pill { color: #8ea7c7; }
+.readiness.ready { color: var(--mint); border-color: rgba(102,217,188,.28); }
+
+.rail { display: flex; flex-direction: column; }
+.trail-list { flex: 1; min-height: 320px; margin: 0; padding: 18px; list-style: none; }
+.empty-state { min-height: 280px; display: grid; place-content: center; text-align: center; color: var(--dim); }
+.empty-state span { color: var(--blue); font-size: 1.3rem; }
+.empty-state p { font-size: .77rem; line-height: 1.8; }
+.trail-node { position: relative; padding: 0 0 20px 30px; }
+.trail-node::before { content: ""; position: absolute; left: 7px; top: 20px; bottom: 0; width: 1px; background: linear-gradient(var(--line-bright), transparent); }
+.trail-node:last-child::before { display: none; }
+.trail-node .node-dot { position: absolute; left: 2px; top: 5px; width: 11px; height: 11px; border: 2px solid var(--surface-strong); border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 1px var(--blue), 0 0 12px rgba(110,168,255,.35); }
+.trail-node.active .node-dot { background: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 12px rgba(243,196,107,.4); }
+.trail-node small { display: block; margin-bottom: 4px; color: var(--dim); font-size: .62rem; letter-spacing: .08em; }
+.trail-node p { margin: 0; color: #b8c5d8; font-size: .77rem; line-height: 1.6; }
+.privacy-note { margin: 0 16px 16px; padding: 13px; display: flex; align-items: flex-start; gap: 10px; border: 1px solid rgba(102,217,188,.13); border-radius: 12px; background: rgba(102,217,188,.035); }
+.privacy-note > span { color: var(--mint); }
+.privacy-note p { margin: 0; color: var(--dim); font-size: .66rem; }
+.privacy-note strong { color: #a9c8c0; font-size: .7rem; }
+
+.dialogue { min-height: 600px; }
+.self-report { padding: 18px 20px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.012); }
+.self-report p { margin: 0 0 12px; color: #a8b6c9; font-size: .76rem; }
+.self-report small { display: block; color: var(--dim); font-size: .65rem; }
+.state-options { display: flex; flex-wrap: wrap; gap: 7px; }
+.state-options button { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); font-size: .68rem; cursor: pointer; }
+.state-options button[aria-checked="true"] { color: #0a1520; background: #b7c7d8; border-color: #b7c7d8; }
+.guide-empty { min-height: 370px; padding: 44px 28px; display: grid; place-items: center; align-content: center; text-align: center; }
+.guide-empty h3 { margin: 26px 0 8px; font-family: "Songti SC", SimSun, serif; font-size: 1.05rem; font-weight: 500; letter-spacing: .05em; }
+.guide-empty p { max-width: 420px; margin: 0; color: var(--dim); font-size: .76rem; }
+.constellation-icon { position: relative; width: 92px; height: 52px; }
+.constellation-icon::before, .constellation-icon::after { content: ""; position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(110,168,255,.7), transparent); transform-origin: left; }
+.constellation-icon::before { width: 76px; left: 8px; top: 24px; transform: rotate(-12deg); }
+.constellation-icon::after { width: 54px; left: 24px; top: 14px; transform: rotate(24deg); }
+.constellation-icon i { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: white; box-shadow: 0 0 10px var(--blue); }
+.constellation-icon i:nth-child(1) { left: 5px; top: 27px; }.constellation-icon i:nth-child(2) { left: 31px; top: 16px; }.constellation-icon i:nth-child(3) { right: 17px; top: 33px; }.constellation-icon i:nth-child(4) { right: 3px; top: 7px; background: var(--gold); }
+.guide-result { padding: 20px; }
+.reflection-card, .next-question { padding: 17px 18px; border: 1px solid rgba(110,168,255,.18); border-radius: 13px; background: linear-gradient(135deg, rgba(110,168,255,.07), rgba(158,140,255,.025)); }
+.card-kicker { display: block; margin-bottom: 7px; color: var(--blue); font-size: .63rem; letter-spacing: .13em; }
+.reflection-card p { margin: 0; color: #c2cede; font-size: .82rem; line-height: 1.75; }
+.prompt-line { display: flex; justify-content: space-between; gap: 12px; margin: 20px 2px 10px; color: var(--muted); font-size: .7rem; }
+.prompt-line span:last-child { color: var(--gold); white-space: nowrap; }
+.reframe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.reframe-card { position: relative; min-height: 132px; padding: 14px; text-align: left; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.018); cursor: pointer; transition: border .2s, background .2s, transform .2s; }
+.reframe-card:hover { transform: translateY(-2px); border-color: rgba(110,168,255,.42); background: rgba(110,168,255,.05); }
+.reframe-card.selected { border-color: rgba(243,196,107,.55); background: rgba(243,196,107,.05); }
+.reframe-card strong { display: flex; align-items: center; justify-content: space-between; color: var(--gold); font-size: .65rem; letter-spacing: .08em; }
+.reframe-card strong b { color: var(--dim); font: 500 .6rem monospace; }
+.reframe-card p { margin: 8px 0 4px; color: #bcc9db; font-size: .75rem; line-height: 1.58; }
+.reframe-card small { color: var(--dim); font-size: .61rem; line-height: 1.45; }
+.next-question { margin-top: 12px; border-color: rgba(243,196,107,.25); background: linear-gradient(135deg, rgba(243,196,107,.07), transparent); }
+.next-question .card-kicker { color: var(--gold); }
+.next-question h3 { margin: 5px 0; font-size: .9rem; font-weight: 600; line-height: 1.55; }
+.next-question p { margin: 0; color: var(--dim); font-size: .66rem; }
+
+.outcomes { min-height: 600px; }
+.loop-meter { padding: 18px; border-bottom: 1px solid var(--line); }
+.meter-head { display: flex; justify-content: space-between; color: var(--muted); font-size: .7rem; }
+.meter-head strong { color: var(--gold); font-size: .66rem; }
+.meter-track { height: 3px; margin: 12px 0 14px; overflow: hidden; background: rgba(255,255,255,.06); border-radius: 4px; }
+.meter-track i { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--blue), var(--gold)); box-shadow: 0 0 12px var(--gold); transition: width .45s ease; }
+.loop-meter ol { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin: 0; padding: 0; list-style: none; }
+.loop-meter li { display: grid; justify-items: center; gap: 5px; color: #58677b; text-align: center; font-size: .57rem; }
+.loop-meter li span { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; font: .58rem monospace; }
+.loop-meter li.done { color: #a7b7ca; }
+.loop-meter li.done span { color: #08141d; background: var(--mint); border-color: var(--mint); }
+.artifact-actions { padding: 18px; border-bottom: 1px solid var(--line); }
+.artifact-actions > p { margin: 0 0 10px; color: var(--muted); font-size: .68rem; }
+.artifact-types { display: grid; gap: 7px; }
+.artifact-types button { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.018); color: #aebdd0; text-align: left; font-size: .72rem; cursor: pointer; }
+.artifact-types button span { width: 20px; color: var(--blue); text-align: center; }
+.artifact-types button:hover:not(:disabled) { border-color: var(--line-bright); background: rgba(110,168,255,.05); }
+.artifact-types button:disabled { opacity: .35; cursor: not-allowed; }
+.artifact-panel { margin: 14px; border: 1px solid rgba(243,196,107,.2); border-radius: 12px; background: rgba(243,196,107,.025); overflow: hidden; }
+.artifact-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--line); color: var(--gold); font-size: .62rem; letter-spacing: .09em; }
+.artifact-header button { border: 0; background: transparent; color: var(--muted); font-size: .63rem; cursor: pointer; }
+.artifact-panel h3 { margin: 14px 14px 8px; font-size: .82rem; line-height: 1.5; }
+.artifact-preview { max-height: 250px; padding: 0 14px 12px; overflow: auto; color: #96a7bb; font-size: .67rem; line-height: 1.65; }
+.artifact-preview h2 { margin: 12px 0 4px; color: #c9d4e2; font-size: .74rem; }
+.artifact-preview p { margin: 0 0 8px; }
+.artifact-preview ul, .artifact-preview ol { margin: 3px 0 8px; padding-left: 18px; }
+.export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 12px; border-top: 1px solid var(--line); }
+.secondary-button { padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.025); color: var(--muted); font-size: .63rem; cursor: pointer; }
+.secondary-button:hover { color: var(--ink); border-color: var(--line-bright); }
+.data-actions { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--dim); font-size: .59rem; }
+.data-actions button { padding: 0; border: 0; background: transparent; color: #7b899b; font-size: .61rem; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(255,255,255,.18); text-underline-offset: 3px; }
+
+.poc-note { margin: 16px 0 0; padding: 15px 20px; display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; border: 1px dashed var(--line); border-radius: 14px; color: var(--dim); font-size: .69rem; }
+.poc-note span { color: var(--gold); font-size: .63rem; letter-spacing: .1em; }
+.poc-note p { margin: 0; }
+.help-panel { position: fixed; z-index: 51; right: 0; top: 0; width: min(420px, 92vw); height: 100vh; padding: 54px 34px; background: #0a1422; border-left: 1px solid var(--line-bright); box-shadow: -24px 0 70px rgba(0,0,0,.45); }
+.help-panel > button { position: absolute; right: 20px; top: 16px; border: 0; background: transparent; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+.help-panel h2 { margin: 18px 0 28px; font-family: "Songti SC", SimSun, serif; font-size: 1.35rem; font-weight: 500; line-height: 1.5; }
+.help-panel ol { margin: 0; padding: 0; list-style: none; }
+.help-panel li { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.help-panel li strong { color: var(--gold); font-size: .73rem; }
+.help-panel li span, .help-foot { color: var(--muted); font-size: .72rem; }
+.help-foot { margin-top: 28px; padding: 14px; border-radius: 10px; background: rgba(255,255,255,.025); }
+.scrim { position: fixed; z-index: 50; inset: 0; background: rgba(2,5,10,.72); backdrop-filter: blur(5px); }
+.noscript { position: fixed; z-index: 100; inset: auto 20px 20px; padding: 16px; background: #391b1b; border: 1px solid var(--danger); border-radius: 10px; }
+
+@media (max-width: 1120px) {
+  .workspace { grid-template-columns: minmax(190px, .65fr) minmax(430px, 1.35fr); }
+  .outcomes { grid-column: 1 / -1; min-height: auto; display: grid; grid-template-columns: 1fr 1fr; }
+  .outcomes .panel-heading { grid-column: 1 / -1; }
+  .artifact-panel { grid-column: 2; grid-row: 2 / span 2; }
+  .data-actions { grid-column: 1 / -1; }
+}
+
+@media (max-width: 860px) {
+  .topbar, main { width: min(100% - 24px, 720px); }
+  .topbar { height: 62px; }
+  .brand small, .local-badge { display: none; }
+  main { margin-top: 12px; }
+  .galaxy-shell { min-height: 520px; max-height: none; aspect-ratio: auto; }
+  .galaxy-shell::before { background: linear-gradient(0deg, rgba(5,9,18,.94), rgba(5,9,18,.25) 70%, rgba(5,9,18,.6)); }
+  .stage-copy { left: 24px; right: 24px; top: 38px; }
+  .stage-copy h1 { font-size: 1.6rem; }
+  .question-composer { left: 20px; right: 20px; bottom: 66px; }
+  .workspace { grid-template-columns: 1fr; }
+  .panel { min-height: auto; }
+  .rail { order: 2; }
+  .dialogue { order: 1; }
+  .outcomes { order: 3; display: block; }
+  .trail-list { min-height: 170px; }
+  .empty-state { min-height: 150px; }
+  .poc-note { grid-template-columns: 1fr; gap: 5px; }
+}
+
+@media (max-width: 540px) {
+  .top-actions { gap: 8px; }
+  .motion-toggle { font-size: 0; gap: 0; }
+  .galaxy-shell { min-height: 560px; border-radius: 18px; }
+  .stage-copy { top: 32px; }
+  .stage-copy p { font-size: .78rem; }
+  .question-composer { padding: 14px 14px 9px; }
+  .composer-row { grid-template-columns: 1fr; }
+  textarea { min-height: 74px; }
+  .launch-button { min-width: 100%; justify-content: space-between; height: 46px; }
+  .starter-strip { margin-inline: -12px; padding-inline: 12px; }
+  .self-report, .guide-result { padding: 16px; }
+  .reframe-grid { grid-template-columns: 1fr; }
+  .reframe-card { min-height: auto; }
+  .prompt-line { align-items: end; }
+  .panel-heading { padding-inline: 15px; }
+  .export-row { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after {
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+
+.inference-summary {
+  margin: 16px 20px 0;
+  padding: 11px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(102,217,188,.18);
+  border-radius: 11px;
+  background: rgba(102,217,188,.035);
+}
+.inference-summary > span { color: var(--mint); font-size: .62rem; letter-spacing: .08em; }
+.inference-summary strong { color: #bed7d1; font-size: .72rem; font-weight: 600; }
+.inference-summary small { color: var(--dim); font-size: .6rem; text-align: right; }
+@media (max-width: 540px) {
+  .inference-summary { grid-template-columns: 1fr; gap: 3px; margin-inline: 16px; }
+  .inference-summary small { text-align: left; }
+}
+
+/* v0.4 guided workbench */
+.workbench-hero { max-height: min(54vh, 590px); }
+.stage-track { margin: 14px 0 16px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(8,15,27,.78); }
+.stage-track ol { display: grid; grid-template-columns: repeat(6, 1fr); margin: 0; padding: 0; list-style: none; }
+.stage-track li { position: relative; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: auto auto; column-gap: 8px; padding: 6px 10px; color: #58677b; }
+.stage-track li:not(:last-child)::after { content: ""; position: absolute; top: 18px; right: -6px; width: 12px; height: 1px; background: var(--line-bright); }
+.stage-track li span { grid-row: 1 / 3; width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; font: 600 .62rem/1 monospace; }
+.stage-track li b { color: #7f91a8; font-size: .68rem; font-weight: 650; }
+.stage-track li small { font-size: .57rem; }
+.stage-track li[aria-current="step"] span { color: #101318; border-color: var(--gold); background: var(--gold); box-shadow: 0 0 18px rgba(243,196,107,.25); }
+.stage-track li[aria-current="step"] b { color: var(--gold); }
+.stage-track li.done span { color: #07151b; border-color: var(--mint); background: var(--mint); }
+.stage-track li.done b { color: #9ebbb4; }
+.stage-track li.locked { opacity: .56; }
+
+.original-question { margin: 16px 16px 0; padding: 14px; border: 1px solid rgba(243,196,107,.22); border-radius: 12px; background: rgba(243,196,107,.04); }
+.original-question p { margin: 7px 0 0; color: #d7dfeb; font-size: .78rem; line-height: 1.65; }
+.object-label { display: inline-flex; align-items: center; width: fit-content; padding: 3px 7px; border: 1px solid currentColor; border-radius: 999px; font-size: .56rem; line-height: 1; letter-spacing: .06em; }
+.object-label.user { color: var(--gold); }.object-label.ai { color: #91a9e7; }.object-label.verified { color: var(--mint); }.object-label.gap { color: #d8a07c; }
+.empty-state.compact { min-height: 150px; }
+
+.task-panel { padding: 20px; }
+.task-intro > span { color: var(--gold); font-size: .62rem; letter-spacing: .09em; }
+.task-intro h3 { margin: 7px 0 4px; font-size: 1rem; }
+.task-intro p { margin: 0 0 16px; color: var(--dim); font-size: .7rem; }
+.understanding-list { display: grid; gap: 8px; margin-top: 12px; }
+.understanding-row { padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.015); }
+.understanding-row > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.row-label { color: var(--muted); font-size: .64rem; }
+.understanding-row p { margin: 8px 0; color: #c4cfde; font-size: .76rem; line-height: 1.55; }
+.row-actions { display: flex; gap: 7px; }
+.row-actions button, .exercise-tools button, .time-choice button, .alternative-card { padding: 5px 9px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--dim); font-size: .6rem; cursor: pointer; }
+.row-actions button:hover, .exercise-tools button:hover { color: var(--ink); border-color: var(--line-bright); }
+.primary-prompt { display: grid; gap: 7px; margin-top: 14px; padding: 14px; border: 1px solid rgba(243,196,107,.2); border-radius: 11px; background: rgba(243,196,107,.035); }
+.primary-prompt label { color: #d7c8a6; font-size: .72rem; line-height: 1.55; }
+.primary-prompt textarea, .answer-box textarea { padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: rgba(4,9,17,.58); }
+
+.time-choice { display: flex; gap: 7px; margin-bottom: 12px; }
+.time-choice button[aria-pressed="true"] { color: #0a1420; border-color: var(--mint); background: var(--mint); }
+.method-card { padding: 17px; border: 1px solid rgba(110,168,255,.26); border-radius: 13px; background: linear-gradient(135deg, rgba(110,168,255,.08), rgba(158,140,255,.025)); }
+.method-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.method-meta b { color: var(--dim); font-size: .6rem; font-weight: 500; }
+.method-card h3 { margin: 12px 0 6px; color: #dce6f4; font-size: .95rem; }
+.method-card > p { margin: 0; color: #a9b8cc; font-size: .73rem; line-height: 1.65; }
+.method-output { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 13px; color: var(--dim); font-size: .6rem; }
+.method-output b { padding: 4px 7px; border-radius: 7px; color: #b9c9dc; background: rgba(255,255,255,.04); font-weight: 500; }
+.alternative-methods { margin-top: 12px; color: var(--muted); font-size: .66rem; }
+.alternative-methods summary { cursor: pointer; }
+#alternative-method-list { display: grid; gap: 7px; margin-top: 8px; }
+.alternative-card { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; text-align: left; }
+.alternative-card strong { color: #b8c5d6; }.alternative-card span { color: var(--dim); }.alternative-card small { color: var(--gold); }
+
+.exercise-question { margin: 14px 0; padding: 17px; border: 1px solid rgba(110,168,255,.25); border-radius: 13px; background: rgba(110,168,255,.05); }
+.exercise-question h3 { margin: 9px 0 0; font-size: .92rem; font-weight: 600; line-height: 1.6; }
+.answer-box { display: grid; gap: 7px; color: var(--gold); font-size: .64rem; }
+.exercise-tools { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+.exercise-summary h3 { margin: 12px 0; }
+.exercise-summary dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.exercise-summary dl div { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.015); }
+.exercise-summary dt { color: var(--gold); font-size: .6rem; }.exercise-summary dd { margin: 6px 0 0; color: #b9c5d5; font-size: .7rem; line-height: 1.55; }
+.future-stage { min-height: 420px; padding: 36px; display: grid; place-content: center; text-align: center; }
+.future-stage h3 { margin: 14px 0 7px; }.future-stage p { max-width: 420px; margin: 0; color: var(--dim); font-size: .72rem; }
+.task-footer { margin-top: auto; padding: 14px 20px; display: flex; justify-content: flex-end; gap: 9px; border-top: 1px solid var(--line); }
+.dialogue { display: flex; flex-direction: column; }
+.primary-action { min-height: 40px; padding: 0 17px; border: 0; border-radius: 9px; color: #101318; background: linear-gradient(135deg, #f6d184, #dda750); font-weight: 700; cursor: pointer; }
+
+.yield-groups { display: grid; gap: 0; }
+.yield-groups section { padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.yield-groups h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 9px; color: #aebdd0; font-size: .68rem; }
+.yield-groups ul { margin: 0; padding-left: 17px; color: #a8b7c9; font-size: .67rem; line-height: 1.65; }
+.yield-groups li + li { margin-top: 5px; }.yield-groups .muted-item { color: #56667a; }
+.save-strip { margin-top: auto; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--dim); font-size: .59rem; }
+.save-strip button { border: 0; background: transparent; color: #78889b; font-size: .59rem; text-decoration: underline; cursor: pointer; }
+.session-yield { display: flex; flex-direction: column; }
+.cluster-view, .construct-view, .rq-candidates, .evidence-results { display: grid; gap: 8px; }
+.cluster-card, .construct-card, .rq-card, .source-card { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.018); }
+.cluster-card { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center; }
+.cluster-card p, .construct-card p, .rq-card p, .source-card p { margin: 5px 0; color: #b5c2d2; font-size: .7rem; line-height: 1.55; }
+.cluster-card button, .rq-card button { padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--muted); font-size: .6rem; cursor: pointer; }
+.cluster-card.selected, .rq-card.selected { border-color: var(--gold); background: rgba(243,196,107,.045); }
+.construct-view, .rq-candidates { margin-top: 14px; }
+.construct-card header, .source-card header { display: flex; justify-content: space-between; gap: 8px; }
+.construct-card small, .rq-card small, .source-card small { color: var(--dim); font-size: .58rem; }
+.search-plan { margin-bottom: 12px; padding: 12px; border: 1px dashed var(--line-bright); border-radius: 10px; color: var(--muted); font-size: .66rem; }
+.source-card a { color: var(--blue); font-size: .64rem; }.source-card .depth { color: var(--gold); }
+.brief-preview { max-height: 390px; overflow: auto; padding: 16px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.015); color: #afbdce; font-size: .69rem; line-height: 1.65; }
+.brief-preview h3, .brief-preview h4 { color: #d7e0ec; }
+
+@media (max-width: 1120px) {
+  .stage-track li { grid-template-columns: 22px 1fr; padding-inline: 5px; }
+  .stage-track li small { display: none; }
+  .stage-track li span { width: 22px; height: 22px; }
+}
+@media (max-width: 860px) {
+  .stage-track { overflow-x: auto; }
+  .stage-track ol { min-width: 650px; }
+  .workbench .rail { order: 2; }.workbench .active-task { order: 1; }.workbench .session-yield { order: 3; }
+}
+@media (max-width: 540px) {
+  .stage-track { margin-inline: 0; padding-inline: 8px; }
+  .task-panel { padding: 16px; }
+  .inference-summary { margin-inline: 0; }
+  .alternative-card { grid-template-columns: 1fr; }
+  .exercise-summary dl { grid-template-columns: 1fr; }
+  .task-footer { position: sticky; bottom: 0; z-index: 4; background: rgba(7,13,23,.96); }
+  .task-footer .primary-action { flex: 1; }
+}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#question-input">跳到问题输入框</a>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="问启星河首页">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span><strong>问启星河</strong><small>ENTREPRENEUR RESEARCH WORKBENCH · DEMO</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="local-badge" id="engine-badge"><span aria-hidden="true">●</span> 演示引擎</span>
+      <label class="motion-toggle" for="reduced-motion">
+        <input type="checkbox" id="reduced-motion"><span aria-hidden="true"></span>低动态
+      </label>
+      <button class="icon-button" id="help-button" type="button" aria-expanded="false" aria-controls="help-panel">?</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="galaxy-shell workbench-hero" aria-labelledby="welcome-title">
+      <canvas id="galaxy-canvas" aria-hidden="true"></canvas>
+      <div class="galaxy-fallback" aria-hidden="true"></div>
+      <div class="stage-copy">
+        <div class="eyebrow"><span></span> 从一个真实经营困惑开始</div>
+        <h1 id="welcome-title">最近哪件经营上的事，<br><em>让你反复想却还没想清楚？</em></h1>
+        <p>不必先把问题说得专业。AI 会先区分现象、判断与未知，再推荐一项合适的思考练习。</p>
+      </div>
+      <form class="question-composer" id="question-form" novalidate>
+        <label for="question-input">我的原始问题</label>
+        <div class="composer-row">
+          <textarea id="question-input" maxlength="800" rows="2" placeholder="例如：公司最近增长慢，是不是团队执行力不行？" aria-describedby="input-hint input-error"></textarea>
+          <button class="launch-button" type="submit"><span>开始梳理</span><b aria-hidden="true">→</b></button>
+        </div>
+        <div class="composer-meta"><span id="input-hint">Ctrl / ⌘ + Enter 提交</span><span id="char-count">0 / 800</span></div>
+        <p class="field-error" id="input-error" role="alert"></p>
+      </form>
+      <div class="stage-status" id="stage-status" role="status" aria-live="polite">
+        <span class="status-orbit" aria-hidden="true"></span><span id="stage-status-text">星河待命 · 数据只保存在这台设备</span>
+      </div>
+    </section>
+
+    <nav class="stage-track" id="stage-track" aria-label="问题淬炼阶段">
+      <ol>
+        <li data-stage="capture" aria-current="step"><span>1</span><b>放下问题</b><small>保留原话</small></li>
+        <li data-stage="understand"><span>2</span><b>看清问题</b><small>校正理解</small></li>
+        <li data-stage="method"><span>3</span><b>选择练习</b><small>匹配方法</small></li>
+        <li data-stage="explore"><span>4</span><b>展开问题</b><small>完成练习</small></li>
+        <li data-stage="forge"><span>5</span><b>锻造问题</b><small>形成主线</small></li>
+        <li data-stage="evidence"><span>6</span><b>核验证据</b><small>文献修订</small></li>
+      </ol>
+    </nav>
+
+    <section class="workspace workbench" aria-label="企业家研究工作台">
+      <aside class="rail panel" id="problem-map" aria-labelledby="map-title">
+        <div class="panel-heading"><div><span class="section-index">01</span><h2 id="map-title">问题地图</h2></div><span class="count-pill" id="question-count">0 节点</span></div>
+        <div class="original-question" id="original-question" hidden><span class="object-label user">我的原话</span><p id="original-question-text"></p></div>
+        <ol class="trail-list" id="question-trail"><li class="empty-state"><span>✦</span><p>问题提交后，这里会保留原话、<br>分支和证据缺口。</p></li></ol>
+        <div class="privacy-note"><span aria-hidden="true">◎</span><p><strong>私人工作区</strong><br>不上传、不跟踪；HTTP 模式仅向已配置的模型服务发送本轮内容。</p></div>
+      </aside>
+
+      <section class="dialogue panel active-task" id="active-task" aria-labelledby="task-title">
+        <div class="panel-heading"><div><span class="section-index">02</span><h2 id="task-title">当前任务</h2></div><span class="mode-pill" id="inquiry-mode">演示引擎 · 可切换 DeepSeek</span></div>
+
+        <div class="guide-empty" id="guide-empty">
+          <div class="constellation-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <h3>先把问题放下来，不急着给答案。</h3>
+          <p>提交后，你会先看到系统怎样理解这件事，并可以逐项修正。</p>
+        </div>
+
+        <section class="task-panel" id="understanding-panel" hidden aria-labelledby="understanding-title">
+          <div class="task-intro"><span>看清问题 · 约 2 分钟</span><h3 id="understanding-title">我暂时这样理解</h3><p>以下都是本轮假设，不是事实结论；每一项都可修正。</p></div>
+          <div class="inference-summary" id="inference-summary">
+            <span>AI 暂定</span><strong id="inference-tone">等待分析</strong><small id="inference-confidence">置信度 — · 可修正</small>
+          </div>
+          <div class="understanding-list" id="understanding-list"></div>
+          <div class="primary-prompt"><label for="clarifying-answer" id="clarifying-question">你说的“增长慢”，最直接表现在哪个数字或现象上？</label><textarea id="clarifying-answer" rows="2" placeholder="例如：销售机会到签约的转化率连续两个季度下降"></textarea></div>
+        </section>
+
+        <section class="task-panel" id="method-panel" hidden aria-labelledby="method-title">
+          <div class="task-intro"><span>选择练习 · 30 秒</span><h3 id="method-title">现在怎样想，最划算？</h3><p>只推荐一项主方法；你可以查看备选或切换时间。</p></div>
+          <div class="time-choice" role="group" aria-label="可用时间"><button type="button" data-time="8" aria-pressed="true">我有 8 分钟</button><button type="button" data-time="12" aria-pressed="false">标准 12 分钟</button></div>
+          <article class="method-card" id="primary-method"></article>
+          <details class="alternative-methods"><summary>查看备选方法</summary><div id="alternative-method-list"></div></details>
+        </section>
+
+        <section class="task-panel" id="exercise-panel" hidden aria-labelledby="exercise-title">
+          <div class="task-intro"><span id="exercise-progress">展开问题 · 第 1/4 问</span><h3 id="exercise-title">苏格拉底式澄清</h3><p id="exercise-feedback">每次只回答一问；系统把事实、猜测和证据缺口分开记录。</p></div>
+          <article class="exercise-question"><span class="object-label ai">AI 暂定</span><h3 id="exercise-question-text"></h3></article>
+          <label class="answer-box" for="exercise-answer">我的回答<textarea id="exercise-answer" rows="4" placeholder="写下你现在真实知道的内容，不必组织得很完整。"></textarea></label>
+          <div class="exercise-tools"><button type="button" id="rephrase-question">换个问法</button><button type="button" id="skip-question">这一步先跳过</button><button type="button" id="pause-exercise">暂停并保存</button></div>
+          <div class="exercise-summary" id="exercise-summary" hidden></div>
+        </section>
+
+        <section class="task-panel forge-panel" id="future-stage" hidden aria-labelledby="forge-title">
+          <div class="task-intro"><span>锻造问题 · 约 4 分钟</span><h3 id="forge-title">哪一个问题值得真正研究？</h3><p>先选择主线，再比较经营语言与研究语言；其他分支会保留。</p></div>
+          <div id="cluster-view" class="cluster-view"></div>
+          <div id="construct-view" class="construct-view" hidden></div>
+          <div id="rq-candidates" class="rq-candidates" hidden></div>
+        </section>
+
+        <section class="task-panel evidence-panel" id="evidence-panel" hidden aria-labelledby="evidence-title">
+          <div class="task-intro"><span>核验证据 · 预置演示</span><h3 id="evidence-title">这个问题在现有研究中站得住吗？</h3><p>本页使用可核验的预置来源演示证据工作流，不是实时联网检索。</p></div>
+          <div id="search-plan" class="search-plan"></div><div id="evidence-results" class="evidence-results"></div>
+        </section>
+
+        <section class="task-panel artifact-stage" id="artifact-stage" hidden aria-labelledby="artifact-stage-title">
+          <div class="task-intro"><span>阶段成果</span><h3 id="artifact-stage-title">把本轮真正形成的东西带走</h3><p>即使仍有未核验项，也可以带着明确标记导出。</p></div>
+          <div id="artifact-purpose" class="time-choice"><button type="button" data-purpose="continue" aria-pressed="true">下周继续研究</button><button type="button" data-purpose="team" aria-pressed="false">管理团队讨论</button><button type="button" data-purpose="advisor" aria-pressed="false">导师评审</button></div>
+          <article id="brief-preview" class="brief-preview"></article>
+          <div class="export-row"><button class="secondary-button" type="button" id="export-markdown">导出 Markdown</button><button class="secondary-button" type="button" id="export-json">备份 JSON</button></div>
+        </section>
+
+        <div class="task-footer" id="task-footer" hidden>
+          <button class="secondary-button" id="back-action" type="button">返回上一步</button>
+          <button class="primary-action" id="primary-action" type="button">形成问题底稿</button>
+        </div>
+
+        <!-- compatibility regions retained until artifact milestone -->
+        <div id="guide-result" hidden><p id="reflection-text"></p><div id="reframe-grid"></div><div id="next-question"><span id="next-question-text"></span></div></div>
+      </section>
+
+      <aside class="outcomes panel session-yield" id="session-yield" aria-labelledby="yield-title">
+        <div class="panel-heading"><div><span class="section-index">03</span><h2 id="yield-title">本轮收获</h2></div><span class="readiness" id="readiness-label">尚未启动</span></div>
+        <div class="yield-groups" id="yield-groups">
+          <section><h3><span class="object-label verified">已观察</span>事实</h3><ul id="observations-list"><li class="muted-item">等待用户确认</li></ul></section>
+          <section><h3><span class="object-label user">我的判断</span>当前解释</h3><ul id="assumptions-list"><li class="muted-item">尚未记录</li></ul></section>
+          <section><h3><span class="object-label gap">去验证</span>证据缺口</h3><ul id="evidence-needs-list"><li class="muted-item">练习后生成</li></ul></section>
+        </div>
+        <div class="save-strip"><span id="save-status" role="status" aria-live="polite">尚无本地记录</span><button type="button" id="reset-session">清除本机记录</button></div>
+        <article class="artifact-panel" id="artifact-panel" hidden><h3 id="artifact-name"></h3><div id="artifact-preview"></div></article>
+      </aside>
+    </section>
+
+    <section class="poc-note"><span>演示边界</span><p>当前先用本地规则验证交互闭环，并通过预置演示引擎呈现关键 Use Case；接入 DeepSeek 后用于问题理解与引导。文献证据室尚未实时联网，不把演示内容包装成研究事实。</p></section>
+  </main>
+
+  <aside class="help-panel" id="help-panel" hidden>
+    <button type="button" id="close-help" aria-label="关闭说明">×</button><span class="section-index">使用说明</span>
+    <h2>这是一张思考工作桌面，<br>不是答案机器。</h2>
+    <ol><li><strong>放下</strong><span>保留未经修饰的原始问题。</span></li><li><strong>校正</strong><span>确认 AI 有没有听懂。</span></li><li><strong>练习</strong><span>用合适的方法展开而非直接站队。</span></li><li><strong>锻造</strong><span>把问题变成可研究、可验证的主线。</span></li></ol>
+    <p class="help-foot">系统只推断本轮工作状态，不诊断人格、疾病或永久心理特征。</p>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+  <noscript><div class="noscript">此工作台需要启用 JavaScript。你的问题不会因此被上传。</div></noscript>
+  <script>const CLOSED_CUES = ['是否', '会不会', '能不能', '要不要', '是不是', '可不可以'];
+const OPEN_CUES = ['什么', '为什么', '如何', '怎么', '谁', '何时', '哪里', '哪些'];
+
+function cleanText(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function stripTerminalPunctuation(value) {
+  return cleanText(value).replace(/[？?。！!]+$/u, '');
+}
+
+function yamlString(value) {
+  return `"${String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, ' ')}"`;
+}
+
+function activeQuestion(session) {
+  return session.questions?.find((item) => item.id === session.activeQuestionId)
+    ?? session.questions?.at(-1)
+    ?? null;
+}
+
+function rootQuestion(session) {
+  return session.questions?.find((item) => item.parentId == null)
+    ?? session.questions?.[0]
+    ?? null;
+}
+
+function normalizeQuestion(text) {
+  const value = cleanText(text);
+  if (!value) {
+    return { ok: false, error: '先写下一个你真正想探索的问题。' };
+  }
+  if ([...value].length > 500) {
+    return {
+      ok: false,
+      error: '问题暂时超过 500 字，请先聚焦一个核心困惑。',
+      value,
+    };
+  }
+  const normalized = /[？?]$/u.test(value) ? value : `${value}？`;
+  return { ok: true, value: normalized };
+}
+
+function classifyQuestion(text) {
+  const value = cleanText(text);
+  const closedCue = CLOSED_CUES.find((cue) => value.includes(cue));
+  const openCue = OPEN_CUES.find((cue) => value.includes(cue));
+  return {
+    form: closedCue ? 'closed' : 'open',
+    cue: closedCue ?? openCue ?? '未识别',
+    needsScope: [...stripTerminalPunctuation(value)].length <= 6,
+  };
+}
+
+function buildReframes(text) {
+  const original = stripTerminalPunctuation(text);
+  const classification = classifyQuestion(original);
+  const subject = original
+    .replace(new RegExp(CLOSED_CUES.join('|'), 'gu'), '')
+    .replace(/^(我|我们)该/u, '')
+    .trim();
+  const scopeHint = classification.needsScope ? '在你最关心的一个具体场景里，' : '';
+
+  return [
+    {
+      lens: 'WHAT',
+      label: '先定义',
+      text: original.includes('赚钱')
+        ? `${scopeHint}“赚钱”具体指什么：收入增长、成本下降，还是风险降低？`
+        : `${scopeHint}这里最需要先界定的核心概念和成功标准是什么？`,
+      note: '把抽象词变成可以观察的标准。',
+    },
+    {
+      lens: 'WHY',
+      label: '找机制',
+      text: `${scopeHint}为什么${subject || '这件事'}可能发生，又为什么可能不发生？`,
+      note: '同时寻找推动因素与阻碍条件。',
+    },
+    {
+      lens: 'HOW',
+      label: '变路径',
+      text: `${scopeHint}如何用一个低成本、可逆的小实验验证${subject || '这个想法'}？`,
+      note: '把判断题转成可以开始的行动。',
+    },
+    {
+      lens: 'EVIDENCE',
+      label: '看证据',
+      text: `${scopeHint}什么证据会支持或推翻“${original}”这一判断？`,
+      note: '提前定义证据，减少只找支持材料。',
+    },
+  ];
+}
+
+function artifactBody(session, type) {
+  const root = rootQuestion(session)?.text ?? '尚未记录';
+  const current = activeQuestion(session)?.text ?? root;
+  const state = session.selfReport?.state ?? 'none';
+  const stateLabel = {
+    calm: '平静', uncertain: '不确定', energized: '有动力', stuck: '卡住', none: '未选择',
+  }[state] ?? '未选择';
+
+  if (type === 'research') {
+    return `## 研究目标\n\n围绕“${current}”形成一个可证伪的阶段性判断。\n\n## 待验证假设\n\n- 支持路径：哪些条件会让判断成立？\n- 反方路径：哪些条件会让判断不成立？\n- 边界条件：对谁、在什么时间与场景下成立？\n\n## 证据清单\n\n- [ ] 一手资料或原始数据\n- [ ] 一个支持案例\n- [ ] 一个反例或替代解释\n\n## 下一步最小行动\n\n在 25 分钟内找到一项可追溯来源，并记录它改变了什么判断。`;
+  }
+
+  if (type === 'outline') {
+    return `## 文章承诺\n\n帮助读者看清“${current}”背后的定义、机制与可行动路径。\n\n## 建议结构\n\n1. 用一个真实困境引出原始问题\n2. 澄清最容易混淆的核心概念\n3. 展开支持与反对的关键机制\n4. 给出证据、反例与适用边界\n5. 提供一个今天即可开始的小实验\n\n## 仍需补齐\n\n- 目标读者最具体的情境\n- 至少两项可核查来源\n- 作者自己的差异化判断`;
+  }
+
+  return `## 本轮意图\n\n你正在把一个判断转成可以研究和行动的问题；当前自报状态：${stateLabel}。\n\n## 问题谱系\n\n- 原始问题：${root}\n- 当前主问题：${current}\n\n## 暂定边界\n\n- 对象：需要进一步明确\n- 时间范围：建议先限定在未来 30–90 天\n- 成功标准：需要用一个可观察指标表达\n\n## 下一步最小行动\n\n用一句话补全：“如果只能验证一件事，我最想先知道 ______。”`;
+}
+
+function buildArtifact(session, type = 'brief') {
+  const safeType = ['brief', 'research', 'outline'].includes(type) ? type : 'brief';
+  const names = { brief: '问题简报', research: '研究计划', outline: '文章提纲' };
+  const projectTitle = cleanText(session.project?.title) || stripTerminalPunctuation(rootQuestion(session)?.text) || '未命名问题';
+  return {
+    type: safeType,
+    title: `${names[safeType]}｜${projectTitle}`,
+    markdown: artifactBody(session, safeType),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function serializeMarkdown(session) {
+  const project = session.project ?? {};
+  const artifact = session.artifact;
+  const questions = session.questions ?? [];
+  const questionLines = questions.map((item, index) => `${'  '.repeat(index)}- ${item.text} _(${item.lens})_`).join('\n');
+  const artifactLink = artifact ? `\n\n## 成果物\n\n[[${artifact.title}]]\n\n${artifact.markdown}` : '';
+  return `---\nschema_version: 1\nproject_id: ${yamlString(project.id ?? '')}\ntitle: ${yamlString(project.title ?? '')}\ncreated: ${yamlString(project.createdAt ?? '')}\nupdated: ${yamlString(project.updatedAt ?? '')}\ntags:\n  - 提问驱动\n  - 问启星河\n---\n\n# ${project.title || '未命名问题'}\n\n## 问题谱系\n\n${questionLines || '- 尚未记录'}${artifactLink}\n`;
+}
+
+function serializeJson(session) {
+  return JSON.stringify({ schemaVersion: 1, ...session }, null, 2);
+}
+
+function idFor(prefix, iso, ordinal = 0) {
+  const stamp = Number.isNaN(Date.parse(iso)) ? Date.now() : Date.parse(iso);
+  return `${prefix}_${stamp.toString(36)}_${ordinal}`;
+}
+
+function createSession(question, selfReport = 'none', now = new Date().toISOString()) {
+  const normalized = normalizeQuestion(question);
+  if (!normalized.ok) throw new Error(normalized.error);
+  const questionId = idFor('q', now);
+  const projectId = idFor('p', now);
+  const title = stripTerminalPunctuation(normalized.value).slice(0, 32);
+  return {
+    schemaVersion: 1,
+    project: { id: projectId, title, createdAt: now, updatedAt: now },
+    selfReport: { state: selfReport },
+    questions: [{
+      id: questionId,
+      parentId: null,
+      text: normalized.value,
+      lens: 'ORIGIN',
+      createdAt: now,
+    }],
+    activeQuestionId: questionId,
+    artifact: null,
+    events: [{ type: 'question_submitted', at: now, meta: { questionId } }],
+    settings: { reducedMotion: false, sound: false },
+  };
+}
+
+function selectBranch(session, reframe, now = new Date().toISOString()) {
+  const questionId = idFor('q', now, session.questions.length);
+  const question = {
+    id: questionId,
+    parentId: session.activeQuestionId,
+    text: normalizeQuestion(reframe.text).value,
+    lens: reframe.lens,
+    createdAt: now,
+  };
+  return {
+    ...session,
+    project: { ...session.project, updatedAt: now },
+    questions: [...session.questions, question],
+    activeQuestionId: questionId,
+    events: [...session.events, {
+      type: 'branch_selected',
+      at: now,
+      meta: { questionId, lens: reframe.lens },
+    }],
+  };
+}
+
+function recordArtifact(session, artifact, now = new Date().toISOString()) {
+  return {
+    ...session,
+    project: { ...session.project, updatedAt: now },
+    artifact: { ...artifact },
+    events: [...session.events, {
+      type: 'artifact_generated',
+      at: now,
+      meta: { artifactType: artifact.type },
+    }],
+  };
+}
+
+function saveSession(storage, key, session) {
+  try {
+    storage.setItem(key, serializeJson(session));
+    return { ok: true };
+  } catch {
+    return {
+      ok: false,
+      error: '\u6d4f\u89c8\u5668\u672a\u80fd\u4fdd\u5b58\uff1b\u5f53\u524d\u4f1a\u8bdd\u4ecd\u53ef\u7ee7\u7eed\u5e76\u5bfc\u51fa\u3002',
+    };
+  }
+}
+
+function loadSession(storage, key) {
+  try {
+    const raw = storage.getItem(key);
+    if (raw == null) return { ok: true, value: null };
+    const value = JSON.parse(raw);
+    if (!value || value.schemaVersion !== 1 || !Array.isArray(value.questions)) throw new Error('invalid');
+    return { ok: true, value };
+  } catch {
+    return {
+      ok: false,
+      error: '\u672c\u5730\u8bb0\u5f55\u5df2\u635f\u574f\uff0c\u5df2\u5207\u6362\u4e3a\u65b0\u7684\u4e34\u65f6\u4f1a\u8bdd\u3002',
+    };
+  }
+}
+
+
+const WORKFLOW_STAGES = Object.freeze([
+  'capture',
+  'understand',
+  'method',
+  'explore',
+  'forge',
+  'evidence',
+  'artifact',
+]);
+
+const EVENT_RULES = Object.freeze({
+  ANALYSIS_RECEIVED: { from: ['capture', 'understand'], to: 'understand', key: 'understanding' },
+  UNDERSTANDING_CONFIRMED: { from: ['understand'], to: 'method', key: 'understanding' },
+  METHOD_SELECTED: { from: ['method'], to: 'explore', key: 'method' },
+  METHOD_COMPLETED: { from: ['explore'], to: 'forge', key: 'method' },
+  MAINLINE_SELECTED: { from: ['forge'], to: 'forge', key: 'cluster' },
+  RESEARCH_QUESTION_CONFIRMED: { from: ['forge'], to: 'evidence', key: 'research' },
+  EVIDENCE_REVIEWED: { from: ['evidence'], to: 'evidence', key: 'evidence' },
+  ARTIFACT_GENERATED: { from: ['evidence', 'artifact'], to: 'artifact', key: 'artifact' },
+});
+
+function cleanQuestion(question) {
+  return String(question ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function workflowId(now) {
+  const stamp = Number.isNaN(Date.parse(now)) ? Date.now() : Date.parse(now);
+  return `workflow_${stamp.toString(36)}`;
+}
+
+function createWorkflow(question, now = new Date().toISOString()) {
+  const originalQuestion = cleanQuestion(question);
+  if (!originalQuestion) throw new Error('A workflow requires an original question.');
+  return {
+    schemaVersion: 1,
+    id: workflowId(now),
+    stage: 'capture',
+    originalQuestion,
+    data: {},
+    history: [{ event: 'INQUIRY_CAPTURED', at: now, stage: 'capture' }],
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function canEnterStage(workflow, stage) {
+  if (!WORKFLOW_STAGES.includes(stage)) return false;
+  const data = workflow?.data ?? {};
+  const requirements = {
+    capture: true,
+    understand: Boolean(data.understanding),
+    method: Boolean(data.understanding?.confirmed),
+    explore: Boolean(data.method?.methodId),
+    forge: Boolean(data.method?.completed),
+    evidence: Boolean(data.research?.acceptedQuestionId),
+    artifact: Boolean(data.evidence?.reviewed || data.artifact?.artifactId),
+  };
+  return requirements[stage];
+}
+
+function invalid(workflow, message) {
+  return { ok: false, value: workflow, error: message };
+}
+
+function transitionWorkflow(workflow, event) {
+  if (!workflow || !WORKFLOW_STAGES.includes(workflow.stage)) {
+    return invalid(workflow, 'The workflow state is invalid.');
+  }
+  if (!event?.type) return invalid(workflow, 'A workflow event is required.');
+
+  if (event.type === 'GO_BACK') {
+    const target = event.payload?.stage;
+    const currentIndex = WORKFLOW_STAGES.indexOf(workflow.stage);
+    const targetIndex = WORKFLOW_STAGES.indexOf(target);
+    if (targetIndex < 0 || targetIndex >= currentIndex) {
+      return invalid(workflow, 'The requested earlier stage is unavailable.');
+    }
+    return {
+      ok: true,
+      value: {
+        ...workflow,
+        stage: target,
+        updatedAt: event.at ?? new Date().toISOString(),
+        history: [...workflow.history, {
+          event: event.type,
+          at: event.at ?? new Date().toISOString(),
+          stage: target,
+          payload: event.payload ?? {},
+        }],
+      },
+    };
+  }
+
+  const rule = EVENT_RULES[event.type];
+  if (!rule) return invalid(workflow, `Unsupported workflow event: ${event.type}`);
+  if (!rule.from.includes(workflow.stage)) {
+    const message = event.type === 'METHOD_SELECTED'
+      ? 'Confirm the understanding before selecting a method.'
+      : `${event.type} cannot run from the ${workflow.stage} stage.`;
+    return invalid(workflow, message);
+  }
+
+  const at = event.at ?? new Date().toISOString();
+  let nextValue = { ...(workflow.data?.[rule.key] ?? {}), ...(event.payload ?? {}) };
+  if (event.type === 'UNDERSTANDING_CONFIRMED') nextValue.confirmed = true;
+  if (event.type === 'METHOD_COMPLETED') nextValue.completed = true;
+  if (event.type === 'EVIDENCE_REVIEWED') nextValue.reviewed = true;
+
+  const value = {
+    ...workflow,
+    stage: rule.to,
+    data: { ...workflow.data, [rule.key]: nextValue },
+    history: [...workflow.history, {
+      event: event.type,
+      at,
+      stage: rule.to,
+      payload: event.payload ?? {},
+    }],
+    updatedAt: at,
+  };
+  return { ok: true, value };
+}
+
+
+const GOLDEN_PATTERN = /公司.*增长.*(执行力|团队)|增长慢.*执行力/u;
+
+function clean(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function analyzeDemoQuestion(question) {
+  const text = clean(question);
+  if (!text) throw new Error('演示分析需要一个原始问题。');
+  const golden = GOLDEN_PATTERN.test(text);
+
+  if (golden) {
+    return {
+      source: 'demo',
+      disclosure: '由预置演示引擎生成，非本轮实时联网研究。',
+      originalQuestion: text,
+      observation: '公司增长正在放缓，但具体指标与起始时间尚未明确',
+      currentExplanation: '团队执行力可能不足',
+      unknowns: [
+        '“增长慢”具体对应哪个指标、从何时开始',
+        '执行力具体指目标、能力、协作、资源还是激励',
+        '外部需求、线索质量或产品竞争力是否同时变化',
+      ],
+      toneHypothesis: '这件事可能较紧迫，而且你对团队已有一些失望',
+      confidence: 0.78,
+      claimStatus: 'hypothesis',
+      alternativeExplanations: ['线索质量下降', '客户预算收缩', '战略重点变化', '销售与产品交接变慢'],
+      corrections: [],
+    };
+  }
+
+  return {
+    source: 'demo',
+    disclosure: '由非联网演示引擎生成，仅用于展示梳理流程，不代表事实判断。',
+    originalQuestion: text,
+    observation: text.replace(/[？?]+$/u, ''),
+    currentExplanation: '尚未确认',
+    unknowns: ['需要明确可观察现象', '需要定义关注的结果', '需要区分事实与当前解释'],
+    toneHypothesis: '暂不推断',
+    confidence: 0.35,
+    claimStatus: 'hypothesis',
+    alternativeExplanations: ['尚待用户补充情境后生成'],
+    corrections: [],
+  };
+}
+
+function correctUnderstanding(analysis, field, value, at = new Date().toISOString()) {
+  const allowed = ['observation', 'currentExplanation', 'toneHypothesis'];
+  if (!allowed.includes(field)) throw new Error(`不可校正的理解字段：${field}`);
+  const nextValue = clean(value);
+  if (!nextValue) throw new Error('校正内容不能为空。');
+  return {
+    ...analysis,
+    [field]: nextValue,
+    corrections: [...(analysis.corrections ?? []), {
+      field,
+      previousValue: analysis[field],
+      value: nextValue,
+      at,
+    }],
+  };
+}
+
+
+function method(id, name, reason, minutes, expectedOutputs, questionsCount) {
+  return { id, name, reason, minutes, expectedOutputs, questionsCount };
+}
+
+function recommendMethods(analysis, timeBudget = 12) {
+  const hasAttribution = analysis.currentExplanation && analysis.currentExplanation !== '尚未确认';
+  const primary = method(
+    'socratic',
+    '苏格拉底式澄清',
+    hasAttribution
+      ? '当前表达已经包含较强归因或假设，先澄清定义、证据和替代解释，可以避免过早追错原因。'
+      : '当前现象和解释还没有分开，先用短问题澄清关注结果和判断依据。',
+    timeBudget <= 8 ? 8 : 12,
+    ['更准确的问题', '待验证假设', '证据缺口'],
+    timeBudget <= 8 ? 4 : 5,
+  );
+  return {
+    primary,
+    alternatives: [
+      method('five-whys', '多因版 5-Why', '如果你更想追查原因，可从多个候选原因分别向下验证。', 10, ['原因树', '验证点'], 5),
+      method('nine-grid', '九宫扩展', '如果问题视角过窄，可先补足相邻维度。', 12, ['维度地图', '遗漏视角'], 8),
+    ],
+    disclosure: analysis.disclosure,
+  };
+}
+
+function questionsFor(analysis) {
+  const explanation = analysis.currentExplanation === '尚未确认'
+    ? '当前解释'
+    : analysis.currentExplanation;
+  return [
+    { id: 'evidence', kind: 'evidence', text: `什么证据会让你相信这是“${explanation}”，而不是其他解释造成的？` },
+    { id: 'definition', kind: 'definition', text: `这里的“${explanation}”具体指哪些可以观察的行为或结果？` },
+    { id: 'counterexample', kind: 'counterexample', text: '有没有哪个团队表现符合你的期待，但结果依然没有改善？' },
+    { id: 'boundary', kind: 'boundary', text: '这个判断在哪些部门、时间或客户情境中可能不成立？' },
+    { id: 'action', kind: 'action', text: '如果只能先验证一件事，你最想拿到哪项数据？' },
+  ];
+}
+
+function createSocraticRun(analysis, options = {}) {
+  const timeBudget = Number(options.timeBudget ?? 12);
+  const mode = timeBudget <= 8 ? 'short' : 'standard';
+  const questions = questionsFor(analysis).slice(0, mode === 'short' ? 4 : 5);
+  return {
+    id: `socratic_${Date.now().toString(36)}`,
+    methodId: 'socratic',
+    mode,
+    questions,
+    currentTurn: 0,
+    answers: [],
+    outputs: { observations: [], assumptions: [], evidenceNeeds: [], newQuestions: [] },
+    status: 'in_progress',
+  };
+}
+
+function extractEvidenceNeed(answer) {
+  if (/漏斗/u.test(answer)) return '拆分销售漏斗各阶段数据，定位转化下降发生的位置';
+  if (/数据|没有|尚未|只是.*感觉/u.test(answer)) return '补充能支持或推翻当前解释的一手数据';
+  return '为这项判断补充可核验的事实或反例';
+}
+
+function answerSocraticTurn(run, rawAnswer) {
+  const answer = String(rawAnswer ?? '').replace(/\s+/g, ' ').trim();
+  if (!answer) throw new Error('请先写下这一问的回答。');
+  if (run.status !== 'in_progress') throw new Error('这轮练习已经结束。');
+  const question = run.questions[run.currentTurn];
+  if (!question) throw new Error('当前没有待回答问题。');
+  const nextTurn = run.currentTurn + 1;
+  const completed = nextTurn >= run.questions.length;
+  const evidenceNeed = extractEvidenceNeed(answer);
+  return {
+    ...run,
+    currentTurn: nextTurn,
+    answers: [...run.answers, { questionId: question.id, answer }],
+    outputs: {
+      ...run.outputs,
+      evidenceNeeds: [...run.outputs.evidenceNeeds, evidenceNeed],
+    },
+    feedback: '我先把这段内容记为当前观察，并把尚未获得的证据单独列出。',
+    status: completed ? 'completed' : 'in_progress',
+  };
+}
+
+
+function node(id, kind, text, source = 'demo') {
+  return { id, kind, text, source, status: 'active', confidence: source === 'user' ? 1 : 0.68 };
+}
+
+function edge(from, to, relation, confidence = 0.65) {
+  return { from, to, relation, confidence };
+}
+
+function buildProblemCluster(analysis, methodRun) {
+  const nodes = [
+    node('phenomenon_1', 'phenomenon', analysis.observation, 'user'),
+    node('cause_1', 'cause', analysis.currentExplanation),
+    ...analysis.alternativeExplanations.map((text, index) => node(`cause_${index + 2}`, 'cause', text)),
+    node('mechanism_1', 'mechanism', '跨部门目标一致性可能影响销售机会推进'),
+    node('boundary_1', 'boundary', '不同市场环境与业务阶段下关系可能不同'),
+    ...methodRun.outputs.evidenceNeeds.map((text, index) => node(`gap_${index + 1}`, 'evidence-gap', text, 'user')),
+  ];
+  const edges = [
+    edge('cause_1', 'phenomenon_1', '可能导致'),
+    ...analysis.alternativeExplanations.map((_text, index) => edge(`cause_${index + 2}`, 'phenomenon_1', '替代解释')),
+    edge('mechanism_1', 'phenomenon_1', '可能影响'),
+    edge('boundary_1', 'mechanism_1', '限制条件'),
+    ...methodRun.outputs.evidenceNeeds.map((_text, index) => edge(`gap_${index + 1}`, 'phenomenon_1', '需要证据')),
+  ];
+  return { id: `cluster_${Date.now().toString(36)}`, nodes, edges, mainlineId: null, selectionReason: '', history: [] };
+}
+
+function mergeQuestionNodes(cluster, ids, text) {
+  if (!Array.isArray(ids) || ids.length < 2) throw new Error('至少选择两个节点合并。');
+  const selected = cluster.nodes.filter((item) => ids.includes(item.id));
+  if (selected.length !== ids.length) throw new Error('合并节点不存在。');
+  const mergedId = `merged_${cluster.history.length + 1}`;
+  return {
+    ...cluster,
+    nodes: [
+      ...cluster.nodes.map((item) => ids.includes(item.id) ? { ...item, status: 'merged', mergedInto: mergedId } : item),
+      node(mergedId, selected[0].kind, text, 'user'),
+    ],
+    history: [...cluster.history, {
+      type: 'nodes_merged', ids, mergedId,
+      inverse: { type: 'restore_nodes', ids, removeId: mergedId },
+    }],
+  };
+}
+
+function selectMainline(cluster, nodeId, reason) {
+  const selected = cluster.nodes.find((item) => item.id === nodeId && item.status === 'active');
+  if (!selected) throw new Error('请选择仍然有效的问题节点。');
+  return {
+    ...cluster,
+    mainlineId: nodeId,
+    selectionReason: String(reason ?? '').trim(),
+    history: [...cluster.history, { type: 'mainline_selected', nodeId, reason }],
+  };
+}
+
+function proposeConstructs(cluster) {
+  if (!cluster.mainlineId) throw new Error('请先选择研究主线。');
+  return {
+    phenomenon: '成长型企业的销售机会转化率持续下降',
+    unitOfAnalysis: '业务单元',
+    context: '中国 B2B SaaS 成长型企业',
+    constructs: [
+      { id: 'strategic_clarity', role: 'antecedent', name: '管理层战略清晰度', businessWording: '战略有没有讲清楚', evidenceStatus: 'unverified' },
+      { id: 'goal_alignment', role: 'mechanism', name: '跨部门目标一致性', businessWording: '销售和产品是不是各做各的', evidenceStatus: 'unverified' },
+      { id: 'opportunity_conversion', role: 'outcome', name: '销售机会转化率', businessWording: '机会最终有没有签约', evidenceStatus: 'unverified' },
+      { id: 'environmental_uncertainty', role: 'boundary', name: '环境不确定性', businessWording: '客户预算和市场变化有多大', evidenceStatus: 'unverified' },
+    ],
+    sourceClusterId: cluster.id,
+  };
+}
+
+function buildResearchQuestionCandidates(model) {
+  return [
+    {
+      id: 'rq_relationship', tradition: 'relationship', label: '关系 / 机制型',
+      text: `在${model.context}中，管理层战略清晰度如何通过跨部门目标一致性影响销售机会转化率？环境不确定性发挥什么边界作用？`,
+      evidenceStatus: 'unverified',
+    },
+    {
+      id: 'rq_process', tradition: 'process', label: '过程型',
+      text: `在${model.context}中，战略意图如何在跨部门协作过程中被转译、偏移或重新对齐，并最终影响销售机会推进？`,
+      evidenceStatus: 'unverified',
+    },
+  ];
+}
+
+
+const DEMO_SOURCES = Object.freeze([
+  {
+    id: 'aom_canvas_2024', title: 'The Management Research Canvas', authors: ['Academy of Management Journal'], year: 2024,
+    doiOrUrl: 'https://journals.aom.org/doi/10.5465/amj.2024.4005', sourceType: 'peer-reviewed journal', accessDepth: 'fulltext',
+    relation: '研究问题需要明确理论构念、关系与解释机制，并可采用方差、过程或类型等形式。', verificationStatus: 'curated', demoDisclosure: true,
+  },
+  {
+    id: 'aom_theory_cases_2015', title: 'Theory Building from Cases', authors: ['Academy of Management Review'], year: 2015,
+    doiOrUrl: 'https://journals.aom.org/doi/10.5465/amr.2015.0094', sourceType: 'peer-reviewed journal', accessDepth: 'abstract',
+    relation: '理论问题需要说明 What、How、Why 以及适用的 Who、Where、When。', verificationStatus: 'needs-fulltext-review', demoDisclosure: true,
+  },
+  {
+    id: 'openalex_api', title: 'OpenAlex API Introduction', authors: ['OpenAlex'], year: 2026,
+    doiOrUrl: 'https://developers.openalex.org/api-reference/introduction', sourceType: 'official documentation', accessDepth: 'fulltext',
+    relation: '可用于后续连接作品、作者、来源、机构和主题等学术图谱实体。', verificationStatus: 'curated', demoDisclosure: true,
+  },
+  {
+    id: 'crossref_rest', title: 'Crossref REST API', authors: ['Crossref'], year: 2026,
+    doiOrUrl: 'https://support.crossref.org/hc/en-us/articles/214320426-REST-API', sourceType: 'official documentation', accessDepth: 'metadata',
+    relation: '可用于 DOI 与出版元数据核验，不代表已读取论文正文。', verificationStatus: 'metadata-only', demoDisclosure: true,
+  },
+]);
+
+function buildDemoSearchPlan(model) {
+  const names = model.constructs.map((item) => item.name);
+  return {
+    mode: 'curated-demo',
+    disclosure: '当前展示预置可核验来源，非实时全网检索结果。',
+    queries: {
+      zh: [`${names.join(' 与 ')} 管理研究`, '战略清晰度 跨部门目标一致性 销售绩效'],
+      en: ['strategic clarity goal alignment sales performance', 'management research constructs mechanisms boundary conditions'],
+    },
+    sources: ['AOM', 'OpenAlex', 'Crossref'],
+  };
+}
+
+function searchDemoEvidence(plan) {
+  return { plan, sources: DEMO_SOURCES.map((item) => ({ ...item })), searchedAt: new Date().toISOString(), mode: 'curated-demo' };
+}
+
+function attachEvidence(state, claim, source) {
+  if (!source) throw new Error('证据来源不存在。');
+  if (claim.kind === 'quotation' && source.accessDepth === 'metadata') {
+    throw new Error('仅有元数据，未读取摘要或全文，不能核验原文引用。');
+  }
+  return {
+    ...state,
+    claims: [...(state.claims ?? []), {
+      ...claim,
+      sourceId: source.id,
+      sourceUrl: source.doiOrUrl,
+      accessDepth: source.accessDepth,
+      verificationStatus: source.accessDepth === 'metadata' ? 'needs-review' : 'verified',
+    }],
+  };
+}
+
+function noResultsMessage(query) {
+  return `当前检索词“${query}”未检索到足够结果。可以放宽年份、拆分构念或补充同义词；这不代表相关研究不存在。`;
+}
+
+
+function lines(items, fallback = '尚未形成') {
+  return items?.length ? items.map((item) => `- ${item}`).join('\n') : `- ${fallback}`;
+}
+
+function buildResearchBrief(context) {
+  const { workflow, analysis, run, cluster, model, candidate, evidence } = context;
+  const sourceIds = evidence.sources.map((item) => item.id);
+  const markdown = `# 问启星河｜阶段研究简报
+
+> 当前状态：阶段性成果；构念、关系与研究空白仍待真实文献核验。
+
+## 我的原话
+
+${workflow.originalQuestion}
+
+## 问题怎样发生了变化
+
+- 最初解释：${analysis.currentExplanation}
+- 已确认现象：${analysis.observation}
+- 当前主线：${cluster.nodes.find((item) => item.id === cluster.mainlineId)?.text ?? '尚未选择'}
+
+## 研究问题候选
+
+${candidate.text}
+
+研究传统：${candidate.label}
+
+证据状态：待核验
+
+## 概念候选
+
+${model.constructs.map((item) => `- ${item.name}（${item.role}）：来自“${item.businessWording}”；待核验`).join('\n')}
+
+## 本轮证据缺口
+
+${lines(run.outputs.evidenceNeeds)}
+
+## 预置演示证据
+
+${evidence.sources.map((source) => `- [${source.title}](${source.doiOrUrl})｜${source.accessDepth}｜${source.relation}`).join('\n')}
+
+> 上述为预置演示来源，不是本轮实时全网检索；仅元数据来源不支持原文或因果结论。
+
+## 下一步最小行动
+
+- 拆分销售漏斗各阶段数据并确认下降位置。
+- 核对战略变化、跨部门目标和交接时长。
+- 使用实时学术检索核验构念定义、量表与既有关系。
+`;
+  return {
+    schemaVersion: 2,
+    id: `brief_${Date.now().toString(36)}`,
+    title: `阶段研究简报｜${workflow.originalQuestion.replace(/[？?]+$/u, '').slice(0, 28)}`,
+    markdown,
+    unresolvedItems: ['核心构念定义待核验', '关系方向与因果性待核验', '数据层级与可得性待确认'],
+    provenance: { workflowId: workflow.id, sourceIds, engineMode: evidence.mode },
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function buildDecisionHypothesisCard(context) {
+  return {
+    title: '经营决策假设卡',
+    hypothesis: context.analysis.currentExplanation,
+    observation: context.analysis.observation,
+    disconfirmingEvidence: context.run.outputs.evidenceNeeds,
+    nextAction: '先用漏斗与跨部门协作数据验证，而不是直接把结果归因于团队。',
+  };
+}
+
+function serializeObsidianBundle(brief) {
+  return `---\nschema_version: 2\nartifact_id: "${brief.id}"\ngenerated: "${brief.generatedAt}"\nengine_mode: "${brief.provenance.engineMode}"\ntags:\n  - 问启星河\n  - 经营研究\n  - 待核验\n---\n\n${brief.markdown}`;
+}
+
+function buildResumeSummary(context) {
+  return `你最初认为：${context.originalBelief}。\n上次发现：${context.latestInsight}。\n当前主问题：${context.mainQuestion}\n尚未完成：${context.unfinishedTask}。`;
+}
+
+
+const TWO_PI = Math.PI * 2;
+
+const GALAXY_STATE_PROFILES = Object.freeze({
+  idle: Object.freeze({
+    tilt: 0.34, depth: 0.42, turbulence: 0.08, speed: 0.42, bloom: 0.82, pull: 1, streak: 0.04,
+  }),
+  reflecting: Object.freeze({
+    tilt: 1.08, depth: 0.92, turbulence: 0.28, speed: 1.35, bloom: 1.24, pull: 0.78, streak: 0.24,
+  }),
+  branching: Object.freeze({
+    tilt: 1.34, depth: 1.42, turbulence: 0.96, speed: 3.25, bloom: 1.58, pull: 1.08, streak: 0.9,
+  }),
+  ready: Object.freeze({
+    tilt: 1.16, depth: 0.72, turbulence: 0.12, speed: 0.22, bloom: 1.18, pull: 0.94, streak: 0.08,
+  }),
+});
+
+const PROFILE_KEYS = ['tilt', 'depth', 'turbulence', 'speed', 'bloom', 'pull', 'streak'];
+
+function getGalaxyStateProfile(state) {
+  return { ...(GALAXY_STATE_PROFILES[state] ?? GALAXY_STATE_PROFILES.idle) };
+}
+
+function createParticleField(count = 900, random = Math.random) {
+  const safeCount = Math.max(1, Math.floor(Number(count) || 1));
+  const field = {
+    count: safeCount,
+    radius: new Float32Array(safeCount),
+    angle: new Float32Array(safeCount),
+    height: new Float32Array(safeCount),
+    depth: new Float32Array(safeCount),
+    size: new Float32Array(safeCount),
+    speed: new Float32Array(safeCount),
+    hue: new Float32Array(safeCount),
+    phase: new Float32Array(safeCount),
+    previousX: new Float32Array(safeCount),
+    previousY: new Float32Array(safeCount),
+  };
+  field.previousX.fill(Number.NaN);
+  field.previousY.fill(Number.NaN);
+
+  for (let index = 0; index < safeCount; index += 1) {
+    const arm = index % 4;
+    const radius = Math.pow(random(), 0.58);
+    field.radius[index] = radius;
+    field.angle[index] = random() * TWO_PI + arm * (TWO_PI / 4) + radius * 5.8;
+    field.height[index] = (random() - 0.5) * (0.14 + (1 - radius) * 0.18);
+    field.depth[index] = random() - 0.5;
+    field.size[index] = 0.44 + random() * (index % 29 === 0 ? 2.45 : 1.15);
+    field.speed[index] = 0.58 + random() * 0.86;
+    field.hue[index] = index % 19 === 0 ? 42 : (index % 5 === 0 ? 268 : 210 + random() * 22);
+    field.phase[index] = random() * TWO_PI;
+  }
+  return field;
+}
+
+function sampleWithProfile(field, index, profile, time, viewport, pointer = { x: 0, y: 0 }, impact = 0) {
+  const width = Math.max(1, viewport?.width ?? 1);
+  const height = Math.max(1, viewport?.height ?? 1);
+  const baseRadius = Math.min(width * 0.43, height * 0.74);
+  const radiusSeed = field.radius[index];
+  const phase = field.phase[index];
+  const theta = field.angle[index]
+    + time * 0.11 * profile.speed * field.speed[index]
+    + Math.sin(time * 0.36 + phase) * profile.turbulence * 0.08;
+  const stormWave = Math.sin(theta * 3.2 - radiusSeed * 12 + time * 2.1 + phase);
+  const impactFront = Math.max(0, 1 - Math.abs(radiusSeed - (1 - impact) * 0.82) * 6) * impact;
+  const radius = radiusSeed
+    * profile.pull
+    * (1 + stormWave * profile.turbulence * 0.16 + impactFront * 0.22);
+
+  const localX = Math.cos(theta) * radius * baseRadius;
+  const localY = Math.sin(theta) * radius * baseRadius
+    + field.height[index] * baseRadius * (0.75 + profile.depth)
+    + Math.sin(time * 2.7 + phase) * profile.turbulence * baseRadius * 0.035;
+  const localZ = field.depth[index] * baseRadius * 0.23 * profile.depth
+    + Math.cos(theta * 2 - time + phase) * profile.turbulence * baseRadius * 0.055;
+
+  const cosTilt = Math.cos(profile.tilt);
+  const sinTilt = Math.sin(profile.tilt);
+  const tiltedY = localY * cosTilt - localZ * sinTilt;
+  const tiltedZ = localY * sinTilt + localZ * cosTilt;
+  const perspective = Math.max(0.58, Math.min(1.62, 3.2 / (3.2 + tiltedZ / Math.max(1, baseRadius))));
+  const centerX = width * (width < 700 ? 0.64 : 0.68) + pointer.x * width * 0.018;
+  const centerY = height * (width < 700 ? 0.34 : 0.39) + pointer.y * height * 0.018;
+  const scale = perspective * field.size[index] * (0.72 + profile.bloom * 0.22);
+  const alpha = Math.max(0.08, Math.min(0.98,
+    (0.24 + (1 - radiusSeed) * 0.56 + perspective * 0.12)
+    * (0.72 + profile.bloom * 0.2),
+  ));
+
+  return {
+    x: centerX + localX * perspective,
+    y: centerY + tiltedY * perspective,
+    z: tiltedZ,
+    scale,
+    alpha,
+    hue: field.hue[index],
+  };
+}
+
+function sampleParticle(field, index, state, time, viewport) {
+  const safeIndex = Math.max(0, Math.min(field.count - 1, Math.floor(index)));
+  return sampleWithProfile(
+    field,
+    safeIndex,
+    getGalaxyStateProfile(state),
+    Number(time) || 0,
+    viewport,
+  );
+}
+
+function blendProfile(current, target, amount) {
+  for (const key of PROFILE_KEYS) current[key] += (target[key] - current[key]) * amount;
+}
+
+function createGalaxy(canvas, shell, statusText) {
+  const context = canvas?.getContext?.('2d', { alpha: true });
+  if (!context) {
+    canvas?.setAttribute('hidden', '');
+    return {
+      setState() {},
+      setReducedMotion() {},
+      launchImpact() {},
+      destroy() {},
+    };
+  }
+
+  let width = 1;
+  let height = 1;
+  let ratio = 1;
+  let frame = 0;
+  let lastTime = 0;
+  let state = 'idle';
+  let reducedMotion = false;
+  let visible = true;
+  let impact = 0;
+  let field = createParticleField(720);
+  let currentProfile = getGalaxyStateProfile('idle');
+  let targetProfile = getGalaxyStateProfile('idle');
+  const pointer = { x: 0, y: 0 };
+  const labels = {
+    idle: '星河待命 · 数据只保存在这台设备',
+    reflecting: '问题已进入星河 · 正在翻转与收束',
+    branching: '量子风暴展开 · 四条问题路径正在形成',
+    ready: '星带已经稳定 · 可以形成阶段性成果',
+  };
+
+  canvas.dataset.engine = 'projected-particle-field';
+
+  function seedParticles() {
+    const compact = width < 700;
+    const count = reducedMotion ? (compact ? 320 : 620) : (compact ? 620 : Math.min(1400, Math.round(width * 0.96)));
+    field = createParticleField(count);
+    shell.dataset.particles = String(count);
+  }
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    ratio = Math.min(window.devicePixelRatio || 1, 1.75);
+    width = Math.max(1, rect.width);
+    height = Math.max(1, rect.height);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    seedParticles();
+    if (reducedMotion) draw(performance.now());
+  }
+
+  function drawNebula(time) {
+    context.clearRect(0, 0, width, height);
+    const centerX = width * (width < 700 ? 0.64 : 0.68);
+    const centerY = height * (width < 700 ? 0.34 : 0.39);
+    const glow = context.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.48);
+    glow.addColorStop(0, `rgba(214,224,255,${0.12 + currentProfile.bloom * 0.035})`);
+    glow.addColorStop(0.15, `rgba(111,91,220,${0.08 + currentProfile.turbulence * 0.055})`);
+    glow.addColorStop(0.42, 'rgba(34,91,153,.075)');
+    glow.addColorStop(1, 'rgba(2,7,14,0)');
+    context.fillStyle = glow;
+    context.fillRect(0, 0, width, height);
+
+    context.save();
+    context.translate(centerX, centerY);
+    context.rotate(-0.12 + Math.sin(time * 0.08) * 0.025);
+    context.globalCompositeOperation = 'lighter';
+    const ribbonAlpha = 0.03 + currentProfile.bloom * 0.018;
+    for (let arm = 0; arm < 4; arm += 1) {
+      context.beginPath();
+      for (let step = 0; step <= 80; step += 1) {
+        const progress = step / 80;
+        const angle = arm * TWO_PI / 4 + progress * 5.7 + time * currentProfile.speed * 0.025;
+        const radius = progress * Math.min(width * 0.39, height * 0.68) * currentProfile.pull;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius * Math.cos(currentProfile.tilt);
+        if (step === 0) context.moveTo(x, y); else context.lineTo(x, y);
+      }
+      context.strokeStyle = `rgba(100,144,255,${ribbonAlpha})`;
+      context.lineWidth = 10 + currentProfile.turbulence * 8;
+      context.stroke();
+    }
+    context.restore();
+  }
+
+  function drawImpactRing() {
+    if (impact <= 0.01 || reducedMotion) return;
+    const centerX = width * (width < 700 ? 0.64 : 0.68);
+    const centerY = height * (width < 700 ? 0.34 : 0.39);
+    const progress = 1 - impact;
+    const radius = (18 + progress * Math.min(width, height) * 0.36);
+    context.save();
+    context.globalCompositeOperation = 'lighter';
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, TWO_PI);
+    context.strokeStyle = `rgba(169,203,255,${impact * 0.5})`;
+    context.lineWidth = 1 + impact * 4;
+    context.stroke();
+    context.beginPath();
+    context.arc(centerX, centerY, radius * 0.72, 0, TWO_PI);
+    context.strokeStyle = `rgba(247,202,107,${impact * 0.26})`;
+    context.lineWidth = 1;
+    context.stroke();
+    context.restore();
+  }
+
+  function drawConstellation(time) {
+    if (state !== 'ready') return;
+    context.save();
+    context.globalCompositeOperation = 'lighter';
+    context.beginPath();
+    const step = Math.max(1, Math.floor(field.count / 8));
+    for (let index = 0, pointIndex = 0; index < field.count && pointIndex < 8; index += step, pointIndex += 1) {
+      const point = sampleWithProfile(field, index, currentProfile, time, { width, height }, pointer, 0);
+      if (pointIndex === 0) context.moveTo(point.x, point.y); else context.lineTo(point.x, point.y);
+    }
+    context.strokeStyle = 'rgba(244,205,119,.28)';
+    context.lineWidth = 1;
+    context.stroke();
+    context.restore();
+  }
+
+  function drawParticles(time) {
+    context.save();
+    context.globalCompositeOperation = 'lighter';
+    const storming = state === 'branching' || currentProfile.streak > 0.35;
+
+    for (let index = 0; index < field.count; index += 1) {
+      const point = sampleWithProfile(field, index, currentProfile, time, { width, height }, pointer, impact);
+      const previousX = field.previousX[index];
+      const previousY = field.previousY[index];
+
+      if (storming && index % 3 === 0 && Number.isFinite(previousX)) {
+        context.beginPath();
+        context.moveTo(previousX, previousY);
+        context.lineTo(point.x, point.y);
+        context.strokeStyle = `hsla(${point.hue},90%,72%,${point.alpha * currentProfile.streak * 0.22})`;
+        context.lineWidth = Math.max(0.35, point.scale * 0.42);
+        context.stroke();
+      }
+
+      field.previousX[index] = point.x;
+      field.previousY[index] = point.y;
+      const twinkle = reducedMotion ? 1 : 0.76 + Math.sin(time * 3.2 + field.phase[index]) * 0.24;
+      const lightness = point.hue === 42 ? 78 : 76 + Math.min(10, currentProfile.bloom * 4);
+      context.beginPath();
+      context.fillStyle = `hsla(${point.hue},92%,${lightness}%,${point.alpha * twinkle})`;
+      context.arc(point.x, point.y, Math.max(0.32, point.scale), 0, TWO_PI);
+      context.fill();
+    }
+    context.restore();
+  }
+
+  function drawCore(time) {
+    const centerX = width * (width < 700 ? 0.64 : 0.68);
+    const centerY = height * (width < 700 ? 0.34 : 0.39);
+    const radius = Math.min(width, height) * (0.11 + currentProfile.bloom * 0.018);
+    const core = context.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    core.addColorStop(0, `rgba(255,244,207,${0.62 + currentProfile.bloom * 0.12})`);
+    core.addColorStop(0.08, 'rgba(183,203,255,.33)');
+    core.addColorStop(0.36, 'rgba(105,92,226,.12)');
+    core.addColorStop(1, 'rgba(66,91,180,0)');
+    context.fillStyle = core;
+    context.beginPath();
+    const pulse = reducedMotion ? 1 : 1 + Math.sin(time * 2.1) * 0.06;
+    context.ellipse(
+      centerX,
+      centerY,
+      radius * pulse,
+      Math.max(5, radius * Math.cos(currentProfile.tilt) * 0.64),
+      -0.08,
+      0,
+      TWO_PI,
+    );
+    context.fill();
+  }
+
+  function draw(now = performance.now()) {
+    cancelAnimationFrame(frame);
+    const seconds = now / 1000;
+    const delta = lastTime ? Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000)) : 1 / 60;
+    lastTime = now;
+    const blend = reducedMotion ? 1 : 1 - Math.exp(-delta * 3.8);
+    blendProfile(currentProfile, targetProfile, blend);
+    if (!reducedMotion) impact = Math.max(0, impact - delta * 0.78);
+
+    drawNebula(seconds);
+    drawParticles(seconds);
+    drawCore(seconds);
+    drawImpactRing();
+    drawConstellation(seconds);
+
+    if (!reducedMotion && visible) frame = requestAnimationFrame(draw);
+  }
+
+  function restart() {
+    cancelAnimationFrame(frame);
+    lastTime = 0;
+    draw(performance.now());
+  }
+
+  function setState(next) {
+    state = GALAXY_STATE_PROFILES[next] ? next : 'idle';
+    targetProfile = getGalaxyStateProfile(state);
+    if (reducedMotion) currentProfile = { ...targetProfile };
+    shell.dataset.state = state;
+    if (statusText) statusText.textContent = labels[state];
+    restart();
+  }
+
+  function setReducedMotion(value) {
+    reducedMotion = Boolean(value);
+    targetProfile = getGalaxyStateProfile(state);
+    if (reducedMotion) {
+      currentProfile = { ...targetProfile };
+      impact = 0;
+    }
+    seedParticles();
+    restart();
+  }
+
+  function launchImpact(strength = 1) {
+    if (!reducedMotion) impact = Math.max(impact, Math.max(0, Math.min(1, Number(strength) || 0)));
+    shell.classList.remove('is-impacting');
+    void shell.offsetWidth;
+    shell.classList.add('is-impacting');
+    window.setTimeout(() => shell.classList.remove('is-impacting'), reducedMotion ? 0 : 900);
+    restart();
+  }
+
+  function onPointerMove(event) {
+    if (reducedMotion) return;
+    const rect = shell.getBoundingClientRect();
+    pointer.x = ((event.clientX - rect.left) / Math.max(1, rect.width) - 0.5) * 2;
+    pointer.y = ((event.clientY - rect.top) / Math.max(1, rect.height) - 0.5) * 2;
+  }
+
+  function onPointerLeave() {
+    pointer.x = 0;
+    pointer.y = 0;
+  }
+
+  function onVisibilityChange() {
+    visible = !document.hidden;
+    if (visible) restart(); else cancelAnimationFrame(frame);
+  }
+
+  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null;
+  observer?.observe(canvas);
+  window.addEventListener('resize', resize, { passive: true });
+  shell.addEventListener('pointermove', onPointerMove, { passive: true });
+  shell.addEventListener('pointerleave', onPointerLeave, { passive: true });
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  resize();
+  restart();
+
+  return {
+    setState,
+    setReducedMotion,
+    launchImpact,
+    destroy() {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener('resize', resize);
+      shell.removeEventListener('pointermove', onPointerMove);
+      shell.removeEventListener('pointerleave', onPointerLeave);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    },
+  };
+}
+
+
+function canUseInquiryApi(protocol = globalThis.location?.protocol) {
+  return protocol === 'http:' || protocol === 'https:';
+}
+
+function parseEvent(block) {
+  let event = 'message';
+  const data = [];
+  for (const line of block.split('\n')) {
+    if (line.startsWith('event:')) event = line.slice(6).trim();
+    if (line.startsWith('data:')) data.push(line.slice(5).trimStart());
+  }
+  if (!data.length) return null;
+  return { event, data: JSON.parse(data.join('\n')) };
+}
+
+async function requestInquiry(input, handlers = {}, fetchImpl = fetch) {
+  const response = await fetchImpl('/api/v1/inquiry', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) throw new Error(`Inquiry API returned HTTP ${response.status}`);
+  if (!response.body) throw new Error('Inquiry API returned no response stream');
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let result = null;
+
+  async function consume(block) {
+    const parsed = parseEvent(block);
+    if (!parsed) return;
+    if (parsed.event === 'result') result = parsed.data;
+    if (parsed.event === 'error') throw new Error(parsed.data?.message || 'Inquiry failed');
+    if (typeof handlers[parsed.event] === 'function') await handlers[parsed.event](parsed.data);
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done }).replace(/\r\n/g, '\n');
+    let boundary = buffer.indexOf('\n\n');
+    while (boundary >= 0) {
+      await consume(buffer.slice(0, boundary));
+      buffer = buffer.slice(boundary + 2);
+      boundary = buffer.indexOf('\n\n');
+    }
+    if (done) break;
+  }
+  if (buffer.trim()) await consume(buffer.trim());
+  if (!result) throw new Error('Inquiry API completed without a result');
+  return result;
+}
+
+
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'socratic-galaxy-workbench-v2';
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const dom = {
+    shell: $('.galaxy-shell'), canvas: $('#galaxy-canvas'), statusText: $('#stage-status-text'),
+    form: $('#question-form'), input: $('#question-input'), inputError: $('#input-error'), charCount: $('#char-count'),
+    stageTrack: $('#stage-track'), original: $('#original-question'), originalText: $('#original-question-text'),
+    trail: $('#question-trail'), questionCount: $('#question-count'), guideEmpty: $('#guide-empty'),
+    understanding: $('#understanding-panel'), understandingList: $('#understanding-list'),
+    inferenceTone: $('#inference-tone'), inferenceConfidence: $('#inference-confidence'), clarify: $('#clarifying-answer'),
+    method: $('#method-panel'), primaryMethod: $('#primary-method'), alternatives: $('#alternative-method-list'),
+    exercise: $('#exercise-panel'), exerciseProgress: $('#exercise-progress'), exerciseQuestion: $('#exercise-question-text'),
+    exerciseAnswer: $('#exercise-answer'), exerciseFeedback: $('#exercise-feedback'), exerciseSummary: $('#exercise-summary'),
+    future: $('#future-stage'), footer: $('#task-footer'), primary: $('#primary-action'), back: $('#back-action'),
+    cluster: $('#cluster-view'), constructs: $('#construct-view'), rqCandidates: $('#rq-candidates'),
+    evidencePanel: $('#evidence-panel'), searchPlan: $('#search-plan'), evidenceResults: $('#evidence-results'), artifactStage: $('#artifact-stage'),
+    briefPreview: $('#brief-preview'),
+    mode: $('#inquiry-mode'), engineBadge: $('#engine-badge'), readiness: $('#readiness-label'),
+    observations: $('#observations-list'), assumptions: $('#assumptions-list'), evidenceNeeds: $('#evidence-needs-list'),
+    saveStatus: $('#save-status'), reducedMotion: $('#reduced-motion'), help: $('#help-panel'),
+    helpButton: $('#help-button'), scrim: $('#scrim'), reset: $('#reset-session'),
+  };
+
+  const galaxy = createGalaxy(dom.canvas, dom.shell, dom.statusText);
+  const systemPrefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  let session = null;
+  let workflow = null;
+  let analysis = null;
+  let recommendations = null;
+  let methodRun = null;
+  let problemCluster = null;
+  let researchModel = null;
+  let researchCandidates = null;
+  let evidenceState = null;
+  let finalArtifact = null;
+  let timeBudget = 8;
+  let resetArmed = false;
+
+  function modeLabel(source = 'demo') {
+    if (source === 'llm') return 'DeepSeek · 结构化分析';
+    if (source === 'fallback') return '模型不可用 · 降级引导';
+    return '演示引擎 · 非实时研究';
+  }
+
+  function persist() {
+    if (!session) return;
+    session = { ...session, workflow, workbench: { analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, finalArtifact, timeBudget } };
+    const result = saveSession(localStorage, STORAGE_KEY, session);
+    dom.saveStatus.textContent = result.ok ? '已自动保存在本机' : result.error;
+  }
+
+  function setGalaxyState(state, message) {
+    const supported = { analyzing: 'reflecting', practicing: 'branching', forging: 'branching', error: 'idle' };
+    galaxy.setState(supported[state] ?? state);
+    if (message) dom.statusText.textContent = message;
+  }
+
+  function setList(element, items, emptyText) {
+    element.replaceChildren();
+    if (!items?.length) {
+      const li = document.createElement('li'); li.className = 'muted-item'; li.textContent = emptyText; element.append(li); return;
+    }
+    items.forEach((text) => { const li = document.createElement('li'); li.textContent = text; element.append(li); });
+  }
+
+  function renderStageTrack() {
+    const activeIndex = WORKFLOW_STAGES.indexOf(workflow?.stage ?? 'capture');
+    $$('#stage-track li').forEach((item, index) => {
+      const current = index === Math.min(activeIndex, 5);
+      item.toggleAttribute('aria-current', current);
+      if (current) item.setAttribute('aria-current', 'step');
+      item.classList.toggle('done', index < activeIndex);
+      item.classList.toggle('locked', index > activeIndex);
+    });
+  }
+
+  function renderMap() {
+    dom.trail.replaceChildren();
+    if (!workflow) {
+      dom.original.hidden = true; dom.questionCount.textContent = '0 节点';
+      dom.trail.innerHTML = '<li class="empty-state"><span>✦</span><p>问题提交后，这里会保留原话、<br>分支和证据缺口。</p></li>';
+      return;
+    }
+    dom.original.hidden = false;
+    dom.originalText.textContent = workflow.originalQuestion;
+    const nodes = [
+      ...(analysis?.alternativeExplanations ?? []).map((text) => ({ kind: '替代解释', text })),
+      ...(methodRun?.outputs?.evidenceNeeds ?? []).map((text) => ({ kind: '证据缺口', text })),
+    ];
+    nodes.forEach((node) => {
+      const li = document.createElement('li'); li.className = 'trail-node';
+      li.innerHTML = '<span class="node-dot" aria-hidden="true"></span>';
+      const small = document.createElement('small'); small.textContent = node.kind;
+      const p = document.createElement('p'); p.textContent = node.text;
+      li.append(small, p); dom.trail.append(li);
+    });
+    if (!nodes.length) dom.trail.innerHTML = '<li class="empty-state compact"><span>·</span><p>校正理解和完成练习后，分支会在这里出现。</p></li>';
+    dom.questionCount.textContent = `${nodes.length + 1} 节点`;
+  }
+
+  function renderYield() {
+    setList(dom.observations, analysis ? [analysis.observation] : [], '等待用户确认');
+    setList(dom.assumptions, analysis ? [analysis.currentExplanation] : [], '尚未记录');
+    setList(dom.evidenceNeeds, methodRun?.outputs?.evidenceNeeds ?? [], '练习后生成');
+    const stage = workflow?.stage ?? 'capture';
+    dom.readiness.textContent = {
+      capture: '尚未启动', understand: '正在校正', method: '可选练习', explore: '正在展开', forge: '练习完成',
+    }[stage] ?? '继续研究';
+    dom.readiness.classList.toggle('ready', ['method', 'explore', 'forge'].includes(stage));
+  }
+
+  function fieldRow(label, field, value, tag = 'AI 暂定') {
+    const row = document.createElement('article'); row.className = 'understanding-row'; row.dataset.field = field;
+    const header = document.createElement('div');
+    const labelEl = document.createElement('span'); labelEl.className = 'row-label'; labelEl.textContent = label;
+    const tagEl = document.createElement('span'); tagEl.className = 'object-label ai'; tagEl.textContent = tag;
+    header.append(labelEl, tagEl);
+    const p = document.createElement('p'); p.textContent = value;
+    const actions = document.createElement('div'); actions.className = 'row-actions';
+    const accept = document.createElement('button'); accept.type = 'button'; accept.textContent = '对'; accept.dataset.accept = field;
+    const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = '不准确，修改'; edit.dataset.edit = field;
+    actions.append(accept, edit); row.append(header, p, actions); return row;
+  }
+
+  function renderUnderstanding() {
+    dom.understandingList.replaceChildren(
+      fieldRow('你看到的现象', 'observation', analysis.observation),
+      fieldRow('你目前的解释', 'currentExplanation', analysis.currentExplanation),
+      fieldRow('还不清楚', 'unknowns', analysis.unknowns.join('；')),
+      fieldRow('表达中的暂定状态', 'toneHypothesis', analysis.toneHypothesis),
+    );
+    dom.inferenceTone.textContent = analysis.toneHypothesis;
+    dom.inferenceConfidence.textContent = `置信度 ${Math.round(analysis.confidence * 100)}% · 可修正`;
+  }
+
+  function renderMethods() {
+    recommendations = recommendMethods(analysis, timeBudget);
+    const item = recommendations.primary;
+    dom.primaryMethod.innerHTML = `<div class="method-meta"><span class="object-label ai">主推荐</span><b>预计 ${item.minutes} 分钟 · ${item.questionsCount} 个短问题</b></div><h3>${item.name}</h3><p>${item.reason}</p><div class="method-output"><span>你将得到</span>${item.expectedOutputs.map((value) => `<b>${value}</b>`).join('')}</div>`;
+    dom.alternatives.replaceChildren();
+    recommendations.alternatives.forEach((alternative) => {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'alternative-card';
+      button.innerHTML = `<strong>${alternative.name}</strong><span>${alternative.reason}</span><small>约 ${alternative.minutes} 分钟</small>`;
+      dom.alternatives.append(button);
+    });
+  }
+
+  function renderExercise() {
+    const total = methodRun.questions.length;
+    const completed = methodRun.status === 'completed';
+    dom.exerciseProgress.textContent = completed ? '展开问题 · 本轮小结' : `展开问题 · 第 ${methodRun.currentTurn + 1}/${total} 问`;
+    dom.exerciseQuestion.parentElement.hidden = completed;
+    $('.answer-box').hidden = completed;
+    $('.exercise-tools').hidden = completed;
+    dom.exerciseSummary.hidden = !completed;
+    if (completed) {
+      dom.exerciseSummary.innerHTML = `<h3>这轮你改变了什么</h3><dl><div><dt>原判断</dt><dd>${analysis.currentExplanation}</dd></div><div><dt>现在看到</dt><dd>现有依据仍包含主观感觉，需要把替代解释分开验证。</dd></div><div><dt>仍不知道</dt><dd>${methodRun.outputs.evidenceNeeds.at(-1) ?? '尚需补充数据'}</dd></div><div><dt>下一问</dt><dd>哪些组织机制真正影响销售机会推进？</dd></div></dl>`;
+      dom.primary.textContent = '加入问题地图';
+    } else {
+      dom.exerciseQuestion.textContent = methodRun.questions[methodRun.currentTurn].text;
+      dom.exerciseAnswer.value = '';
+      dom.primary.textContent = '记录回答，继续';
+    }
+  }
+
+  function showOnly(panel) {
+    dom.guideEmpty.hidden = panel !== 'empty';
+    dom.understanding.hidden = panel !== 'understand';
+    dom.method.hidden = panel !== 'method';
+    dom.exercise.hidden = panel !== 'explore';
+    dom.future.hidden = panel !== 'forge';
+    dom.evidencePanel.hidden = panel !== 'evidence';
+    dom.artifactStage.hidden = panel !== 'artifact';
+    dom.footer.hidden = panel === 'empty';
+  }
+
+  function renderForge() {
+    if (!problemCluster) problemCluster = buildProblemCluster(analysis, methodRun);
+    dom.cluster.replaceChildren();
+    problemCluster.nodes.filter((item) => ['phenomenon', 'cause', 'mechanism', 'boundary'].includes(item.kind) && item.status === 'active').forEach((item) => {
+      const card = document.createElement('article'); card.className = `cluster-card${problemCluster.mainlineId === item.id ? ' selected' : ''}`;
+      const tag = document.createElement('span'); tag.className = 'object-label ai'; tag.textContent = ({ phenomenon: '现象', cause: '原因候选', mechanism: '机制候选', boundary: '边界' })[item.kind];
+      const p = document.createElement('p'); p.textContent = item.text;
+      const button = document.createElement('button'); button.type = 'button'; button.dataset.mainline = item.id; button.textContent = problemCluster.mainlineId === item.id ? '已选主线' : '设为主线';
+      card.append(tag, p, button); dom.cluster.append(card);
+    });
+    if (!problemCluster.mainlineId) { dom.constructs.hidden = true; dom.rqCandidates.hidden = true; dom.primary.textContent = '请先选择一条主线'; dom.primary.disabled = true; return; }
+    researchModel = proposeConstructs(problemCluster);
+    researchCandidates = buildResearchQuestionCandidates(researchModel);
+    dom.constructs.hidden = false; dom.rqCandidates.hidden = false;
+    dom.constructs.innerHTML = `<div class="task-intro"><span>经营语言 → 研究语言</span><h3>概念候选</h3><p>所有概念目前均待文献核验。</p></div>${researchModel.constructs.map((item) => `<article class="construct-card"><header><span class="object-label user">${item.businessWording}</span><small>待核验</small></header><p>${item.name}</p><small>${item.role}</small></article>`).join('')}`;
+    dom.rqCandidates.innerHTML = `<div class="task-intro"><span>候选表述</span><h3>请选择一种研究传统</h3></div>${researchCandidates.map((item) => `<article class="rq-card${workflow.data.research?.acceptedQuestionId === item.id ? ' selected' : ''}"><span class="object-label ai">${item.label}</span><p>${item.text}</p><small>概念与关系尚未核验</small><button type="button" data-rq="${item.id}">${workflow.data.research?.acceptedQuestionId === item.id ? '已选择' : '选择此版本'}</button></article>`).join('')}`;
+    dom.primary.disabled = !workflow.data.research?.acceptedQuestionId;
+    dom.primary.textContent = workflow.data.research?.acceptedQuestionId ? '去核验证据' : '选择一个研究问题';
+  }
+
+  function renderEvidence() {
+    if (!evidenceState) {
+      const plan = buildDemoSearchPlan(researchModel);
+      evidenceState = { ...searchDemoEvidence(plan), claims: [] };
+    }
+    dom.searchPlan.innerHTML = `<strong>检索预览</strong><p>${evidenceState.plan.queries.zh.join('；')}</p><p>${evidenceState.plan.queries.en.join('；')}</p><small>${evidenceState.plan.disclosure}</small>`;
+    dom.evidenceResults.innerHTML = evidenceState.sources.map((source) => `<article class="source-card"><header><span class="object-label ${source.accessDepth === 'fulltext' ? 'verified' : 'gap'}">${source.accessDepth === 'fulltext' ? '已读页面' : source.accessDepth === 'abstract' ? '摘要层' : '仅元数据'}</span><small>${source.year} · ${source.sourceType}</small></header><p><strong>${source.title}</strong></p><p>${source.relation}</p><a href="${source.doiOrUrl}" target="_blank" rel="noreferrer">打开可核验来源</a></article>`).join('');
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[character]);
+  }
+
+  function renderArtifactStage() {
+    if (!finalArtifact) return;
+    dom.briefPreview.innerHTML = escapeHtml(finalArtifact.markdown)
+      .replace(/^###? (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^- (.+)$/gm, '<p>• $1</p>')
+      .replace(/\n{2,}/g, '<br>');
+  }
+
+  function download(content, filename, type) {
+    const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; document.body.append(anchor); anchor.click(); anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 500);
+  }
+
+  function render() {
+    renderStageTrack(); renderMap(); renderYield();
+    const stage = workflow?.stage ?? 'capture';
+    if (stage === 'capture') showOnly('empty');
+    if (stage === 'understand') { showOnly('understand'); renderUnderstanding(); dom.primary.textContent = '形成问题底稿'; }
+    if (stage === 'method') { showOnly('method'); renderMethods(); dom.primary.textContent = '开始这项练习'; }
+    if (stage === 'explore') { showOnly('explore'); renderExercise(); }
+    if (stage === 'forge') { showOnly('forge'); renderForge(); }
+    if (stage === 'evidence') { showOnly('evidence'); renderEvidence(); dom.primary.textContent = workflow.data.evidence?.reviewed ? '生成阶段成果' : '我已查看证据状态'; dom.primary.disabled = false; }
+    if (stage === 'artifact') { showOnly('artifact'); renderArtifactStage(); dom.footer.hidden = true; }
+    dom.back.hidden = ['capture', 'understand'].includes(stage);
+  }
+
+  async function startQuestion(raw) {
+    const normalized = normalizeQuestion(raw);
+    if (!normalized.ok) { dom.inputError.textContent = normalized.error; dom.input.focus(); return; }
+    dom.inputError.textContent = '';
+    galaxy.launchImpact(1);
+    galaxy.setState('reflecting');
+    setGalaxyState('analyzing', '正在区分现象、判断与隐含假设…');
+    dom.form.setAttribute('aria-busy', 'true');
+    session = createSession(normalized.value, 'none');
+    workflow = createWorkflow(normalized.value);
+    analysis = analyzeDemoQuestion(normalized.value);
+    let source = 'demo';
+    if (canUseInquiryApi()) {
+      try {
+        await requestInquiry({ question: normalized.value, sessionId: session.project.id, history: [] }, {
+          status(data) { if (data.state === 'analyzing') setGalaxyState('analyzing'); },
+          result(data) {
+            source = data.source;
+            if (data.interaction) analysis = { ...analysis, ...data.interaction, source: data.source };
+            analysis.toneHypothesis = data.turnState.emotionalTone;
+            analysis.confidence = data.turnState.confidence;
+          },
+        });
+      } catch { source = 'fallback'; }
+    }
+    const transitioned = transitionWorkflow(workflow, { type: 'ANALYSIS_RECEIVED', payload: analysis });
+    workflow = transitioned.value;
+    dom.mode.textContent = modeLabel(source); dom.engineBadge.lastChild.textContent = ` ${modeLabel(source).split(' · ')[0]}`;
+    dom.form.removeAttribute('aria-busy');
+    setGalaxyState('ready', '理解草稿已生成 · 请先校正 AI 是否听懂');
+    persist(); render();
+    $('#understanding-title').focus?.();
+  }
+
+  function confirmUnderstanding() {
+    const clarification = dom.clarify.value.trim();
+    if (clarification) analysis = correctUnderstanding(analysis, 'observation', clarification);
+    workflow = transitionWorkflow(workflow, { type: 'UNDERSTANDING_CONFIRMED', payload: { confirmed: true, analysis } }).value;
+    persist(); render(); setGalaxyState('ready', '问题底稿已确认 · 请选择一项思考练习');
+  }
+
+  function startMethod() {
+    recommendations = recommendMethods(analysis, timeBudget);
+    methodRun = createSocraticRun(analysis, { timeBudget });
+    workflow = transitionWorkflow(workflow, { type: 'METHOD_SELECTED', payload: { methodId: recommendations.primary.id, recommendation: recommendations.primary } }).value;
+    persist(); render(); setGalaxyState('practicing', '苏格拉底式澄清进行中 · 每次只回答一问');
+  }
+
+  function continueExercise() {
+    if (methodRun.status === 'completed') {
+      workflow = transitionWorkflow(workflow, { type: 'METHOD_COMPLETED', payload: { completed: true, run: methodRun } }).value;
+      persist(); render(); setGalaxyState('branching', '练习结果已进入问题地图 · 下一步选择研究主线'); return;
+    }
+    const answer = dom.exerciseAnswer.value.trim();
+    if (!answer) { dom.exerciseFeedback.textContent = '先写下你此刻知道的内容；不确定也可以直接写“不确定”。'; dom.exerciseAnswer.focus(); return; }
+    methodRun = answerSocraticTurn(methodRun, answer);
+    dom.exerciseFeedback.textContent = methodRun.feedback;
+    persist(); render();
+  }
+
+  function chooseForgeItem(event) {
+    const mainline = event.target.closest('[data-mainline]');
+    if (mainline) {
+      problemCluster = selectMainline(problemCluster, mainline.dataset.mainline, '用户从问题簇中选择的研究主线');
+      persist(); render(); return;
+    }
+    const rq = event.target.closest('[data-rq]');
+    if (rq) {
+      const chosen = researchCandidates.find((item) => item.id === rq.dataset.rq);
+      workflow = { ...workflow, data: { ...workflow.data, research: { acceptedQuestionId: chosen.id, candidate: chosen, model: researchModel } } };
+      persist(); render();
+    }
+  }
+
+  function goBack() {
+    const target = { method: 'understand', explore: 'method', forge: 'explore' }[workflow.stage];
+    if (!target) return;
+    const result = transitionWorkflow(workflow, { type: 'GO_BACK', payload: { stage: target } });
+    if (result.ok) { workflow = result.value; persist(); render(); }
+  }
+
+  function editUnderstanding(event) {
+    const button = event.target.closest('[data-edit]');
+    if (!button) return;
+    const field = button.dataset.edit;
+    if (field === 'unknowns') return;
+    const current = analysis[field];
+    const value = window.prompt('请按你的真实意思修改：', current);
+    if (value?.trim()) { analysis = correctUnderstanding(analysis, field, value); persist(); render(); }
+  }
+
+  function setReducedMotion(value) {
+    const reduced = Boolean(value); dom.reducedMotion.checked = reduced;
+    document.body.classList.toggle('reduce-motion', reduced); galaxy.setReducedMotion(reduced);
+  }
+
+  function resetSession() {
+    if (!resetArmed) {
+      resetArmed = true; dom.reset.textContent = '再次点击确认清除';
+      window.setTimeout(() => { resetArmed = false; dom.reset.textContent = '清除本机记录'; }, 3500); return;
+    }
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* temporary mode */ }
+    session = workflow = analysis = recommendations = methodRun = null;
+    dom.input.value = ''; dom.charCount.textContent = '0 / 800'; dom.saveStatus.textContent = '本机记录已清除';
+    resetArmed = false; dom.reset.textContent = '清除本机记录'; render(); setGalaxyState('idle', '星河待命 · 数据只保存在这台设备');
+  }
+
+  function restore() {
+    const loaded = loadSession(localStorage, STORAGE_KEY);
+    if (!loaded.ok) { dom.saveStatus.textContent = loaded.error; return; }
+    if (!loaded.value?.workflow) return;
+    session = loaded.value; workflow = session.workflow;
+    ({ analysis, recommendations, methodRun, problemCluster, researchModel, researchCandidates, evidenceState, finalArtifact, timeBudget = 8 } = session.workbench ?? {});
+    dom.input.value = workflow.originalQuestion; dom.charCount.textContent = `${[...dom.input.value].length} / 800`;
+    dom.saveStatus.textContent = '已恢复上次进度'; render(); setGalaxyState('ready', `已恢复 · 上次停在“${workflow.stage}”阶段`);
+  }
+
+  function openHelp(open) {
+    dom.help.hidden = !open; dom.scrim.hidden = !open; dom.helpButton.setAttribute('aria-expanded', String(open));
+    if (open) $('#close-help').focus(); else dom.helpButton.focus();
+  }
+
+  dom.form.addEventListener('submit', (event) => { event.preventDefault(); startQuestion(dom.input.value); });
+  dom.input.addEventListener('input', () => { dom.charCount.textContent = `${[...dom.input.value].length} / 800`; dom.inputError.textContent = ''; });
+  dom.input.addEventListener('keydown', (event) => { if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) { event.preventDefault(); dom.form.requestSubmit(); } });
+  dom.primary.addEventListener('click', () => {
+    if (workflow.stage === 'understand') confirmUnderstanding();
+    else if (workflow.stage === 'method') startMethod();
+    else if (workflow.stage === 'explore') continueExercise();
+    else if (workflow.stage === 'forge' && workflow.data.research?.acceptedQuestionId) {
+      workflow = transitionWorkflow(workflow, { type: 'RESEARCH_QUESTION_CONFIRMED', payload: workflow.data.research }).value;
+      persist(); render(); setGalaxyState('ready', '研究问题 v1 已形成 · 开始核验概念与关系');
+    }
+    else if (workflow.stage === 'evidence') {
+      if (!workflow.data.evidence?.reviewed) {
+        workflow = transitionWorkflow(workflow, { type: 'EVIDENCE_REVIEWED', payload: { reviewed: true, mode: 'curated-demo', sourceIds: evidenceState.sources.map((item) => item.id) } }).value;
+        persist(); render(); setGalaxyState('ready', '证据状态已记录 · 当前仍有构念待真实文献核验');
+      } else {
+        const candidate = researchCandidates.find((item) => item.id === workflow.data.research.acceptedQuestionId);
+        finalArtifact = buildResearchBrief({ workflow, analysis, run: methodRun, cluster: problemCluster, model: researchModel, candidate, evidence: evidenceState });
+        workflow = transitionWorkflow(workflow, { type: 'ARTIFACT_GENERATED', payload: { artifactId: finalArtifact.id } }).value;
+        persist(); render(); setGalaxyState('ready', '阶段研究简报已生成 · 未完成项已明确标记');
+      }
+    }
+  });
+  dom.back.addEventListener('click', goBack);
+  dom.understandingList.addEventListener('click', editUnderstanding);
+  dom.future.addEventListener('click', chooseForgeItem);
+  $$('.time-choice button').forEach((button) => button.addEventListener('click', () => {
+    timeBudget = Number(button.dataset.time); $$('.time-choice button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); renderMethods();
+  }));
+  $('#rephrase-question').addEventListener('click', () => { dom.exerciseFeedback.textContent = `换一种说法：如果“${analysis.currentExplanation}”不是主要原因，你会先检查什么？`; });
+  $('#skip-question').addEventListener('click', () => { dom.exerciseAnswer.value = '这一项暂时不确定，需要后续验证。'; continueExercise(); });
+  $('#pause-exercise').addEventListener('click', () => { persist(); dom.exerciseFeedback.textContent = '已保存。你可以放心离开，下次从这里继续。'; });
+  $('#export-markdown').addEventListener('click', () => { if (finalArtifact) download(serializeObsidianBundle(finalArtifact), '问启星河-阶段研究简报.md', 'text/markdown;charset=utf-8'); });
+  $('#export-json').addEventListener('click', () => { if (session) download(JSON.stringify(session, null, 2), '问启星河-会话备份.json', 'application/json;charset=utf-8'); });
+  $$('#artifact-purpose button').forEach((button) => button.addEventListener('click', () => { $$('#artifact-purpose button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); }));
+  dom.reducedMotion.addEventListener('change', () => setReducedMotion(dom.reducedMotion.checked));
+  dom.reset.addEventListener('click', resetSession);
+  dom.helpButton.addEventListener('click', () => openHelp(dom.help.hidden));
+  $('#close-help').addEventListener('click', () => openHelp(false)); dom.scrim.addEventListener('click', () => openHelp(false));
+
+  setReducedMotion(systemPrefersReduced); render(); restore();
+  window.__QUESTION_TERMINAL_READY__ = true;
+})();
+</script>
+</body>
+</html>
